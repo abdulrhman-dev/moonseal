@@ -1,6 +1,7 @@
 import type { CardState } from "@/types/cards";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { Phases } from "@/types/phases";
+import { PhasesArray, type Phases } from "@/types/phases";
+
 import type { Triggers } from "@/types/triggers";
 
 type ArgumentNames = Triggers extends [infer TriggerName, unknown]
@@ -16,21 +17,22 @@ type Player = {
   library: CardState[];
   graveyard: CardState[];
   exile: CardState[];
+  hand: CardState[];
   battlefield: {
     creatures: CardState[];
     lands: CardState[];
   };
   life: number;
+  turn: number;
 };
 
-type PlayersState = {
-  current_player: Player;
-  opposing_player: Player;
-  playing_player: 0 | 1 | 2;
+export type PlayersState = {
+  player: [Player, Player];
+  current_player: 0 | 1 | 2;
   priority: 0 | 1 | 2;
-  idCounter: number;
-  currentPhase: Phases;
-  spellStack: StackAbility[];
+  id_counter: number;
+  current_phase: Phases;
+  spell_stack: StackAbility[];
   attackers: number[];
   blockers: {
     id: number;
@@ -39,31 +41,37 @@ type PlayersState = {
 };
 
 const initialState: PlayersState = {
-  current_player: {
-    library: [],
-    graveyard: [],
-    exile: [],
-    battlefield: {
-      creatures: [],
-      lands: [],
+  player: [
+    {
+      hand: [],
+      library: [],
+      graveyard: [],
+      exile: [],
+      battlefield: {
+        creatures: [],
+        lands: [],
+      },
+      life: 20,
+      turn: 0,
     },
-    life: 20,
-  },
-  opposing_player: {
-    library: [],
-    graveyard: [],
-    exile: [],
-    battlefield: {
-      creatures: [],
-      lands: [],
+    {
+      hand: [],
+      library: [],
+      graveyard: [],
+      exile: [],
+      battlefield: {
+        creatures: [],
+        lands: [],
+      },
+      life: 20,
+      turn: 0,
     },
-    life: 20,
-  },
-  playing_player: 1,
+  ],
+  current_player: 0,
   priority: 0,
-  idCounter: 0,
-  currentPhase: "BEGINNING_UNTAP",
-  spellStack: [],
+  id_counter: 0,
+  current_phase: "NONE",
+  spell_stack: [],
   attackers: [],
   blockers: [],
 };
@@ -91,41 +99,65 @@ const playersSlice = createSlice({
       action: PayloadAction<{ card: CardState; player: 1 | 2 }>
     ) {
       if (!action.payload.card.id) {
-        state.idCounter++;
+        state.id_counter++;
       }
 
-      if (action.payload.player === 1) {
-        state.current_player.library.push({
-          ...action.payload.card,
-          id: !action.payload.card.id
-            ? state.idCounter
-            : action.payload.card.id,
-        });
-      } else {
-        state.opposing_player.library.push({
-          ...action.payload.card,
-          id: !action.payload.card.id
-            ? state.idCounter
-            : action.payload.card.id,
-        });
-      }
-    },
-    popLibary(state, action: PayloadAction<{ player: 1 | 2 }>) {
-      if (action.payload.player === 1) {
-        state.current_player.library.pop();
-      } else {
-        state.opposing_player.library.pop();
-      }
+      state.player[action.payload.player - 1].library.push({
+        ...action.payload.card,
+        id: !action.payload.card.id ? state.id_counter : action.payload.card.id,
+      });
     },
     shuffleLibary(state, action: PayloadAction<{ player: 1 | 2 }>) {
-      if (action.payload.player === 1) {
-        shuffle(state.current_player.library);
-      } else {
-        shuffle(state.opposing_player.library);
+      shuffle(state.player[action.payload.player - 1].library);
+    },
+    unTapCards(state) {
+      for (const player of [1, 2] as const) {
+        state.player[player - 1].battlefield.creatures.forEach((card) => {
+          card.tapped = false;
+        });
       }
+    },
+    drawCard(state) {
+      const topCard = state.player[state.current_player - 1].library.pop();
+
+      if (!topCard) return;
+
+      state.player[state.current_player - 1].hand.push(topCard);
+    },
+    startGame(state) {
+      state.current_phase = "BEGINNING_UNTAP";
+      state.current_player = 1;
+      state.player[state.current_player - 1].turn++;
+
+      for (let i = 0; i < 7; ++i) {
+        for (const player of [1, 2] as const) {
+          const topCard = state.player[player - 1].library.pop();
+          if (topCard) state.player[player - 1].hand.push(topCard);
+        }
+      }
+    },
+    nextPhase(state) {
+      const nextIndex =
+        (PhasesArray.findIndex((phase) => phase === state.current_phase) + 1) %
+        (PhasesArray.length - 1);
+
+      // toggle between the two players
+      if (nextIndex === 0) {
+        state.current_player ^= 3;
+        state.player[state.current_player - 1].turn++;
+      }
+
+      state.current_phase = PhasesArray[nextIndex];
     },
   },
 });
 
 export default playersSlice.reducer;
-export const { pushLibrary, popLibary, shuffleLibary } = playersSlice.actions;
+export const {
+  pushLibrary,
+  shuffleLibary,
+  drawCard,
+  unTapCards,
+  startGame,
+  nextPhase,
+} = playersSlice.actions;

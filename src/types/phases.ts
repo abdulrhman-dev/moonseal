@@ -11,6 +11,7 @@ export const PhasesArray = [
   "MAIN_PHASE_2",
   "END_STEP",
   "CLEANUP",
+  "NONE",
 ] as const;
 
 export type Phases = (typeof PhasesArray)[number];
