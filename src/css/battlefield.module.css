@@ -1,0 +1,34 @@
+.battlefield{
+        height: 30vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    outline: 0.5px black solid;
+}
+
+
+.lands{
+    width: 25%;
+    height: 100%;
+    background-color: rgb(208, 249, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.creatures{
+    width: 75%;
+    height: 100%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    padding-right: 5%;
+}
+
+.cardStack{
+    width: var(--card-width);
+    height: var(--card-height);
+    position: relative;
+
+}

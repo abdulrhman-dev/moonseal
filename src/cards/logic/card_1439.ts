@@ -11,6 +11,8 @@ const card: Card = {
     green: 1,
     colorless: 1,
   },
+  default_power: 2,
+  default_toughness: 2,
   type_line: "Creature — Bear",
   text: "",
   keywords: [],
