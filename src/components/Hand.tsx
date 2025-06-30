@@ -8,11 +8,11 @@ type HandProps = {
   player: 1 | 2;
 };
 
-export const Hand = ({ cards }: HandProps) => {
+export const Hand = ({ cards, player }: HandProps) => {
   return (
     <div className={Style.hand}>
       {cards.map((card) => (
-        <Card key={card.id} card={card} location="hand" />
+        <Card key={card.id} cardPlayer={player} card={card} location="hand" />
       ))}
     </div>
   );

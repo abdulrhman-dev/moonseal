@@ -23,5 +23,17 @@ export default function (
         dispatch(drawCard());
       dispatch(nextPhase());
       break;
+    case "COMBAT_BEGIN":
+      dispatch(nextPhase());
+      break;
+    case "COMBAT_END":
+      dispatch(nextPhase());
+      break;
+    case "CLEANUP":
+      dispatch(nextPhase());
+      break;
+    case "END_STEP":
+      dispatch(nextPhase());
+      break;
   }
 }

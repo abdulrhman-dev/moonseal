@@ -6,7 +6,7 @@ const card: Card = {
   game_id: 1439,
   name: "Grizzly Bears",
   type: "creature",
-  canTap: false,
+  can_tap: false,
   mana_cost: {
     green: 1,
     colorless: 1,

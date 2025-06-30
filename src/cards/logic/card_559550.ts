@@ -11,13 +11,13 @@ const card: Card = {
   game_id: 559550,
   type: "instant",
   name: "Giant Growth",
-  canTap: false,
+  can_tap: false,
   mana_cost: {
     green: 1,
   },
   type_line: "Instant",
   text: "Target creature gets +3/+3 until end of turn.",
-  targetSelects: [
+  target_selects: [
     {
       amount: 1,
       type: "creature",

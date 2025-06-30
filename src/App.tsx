@@ -5,9 +5,10 @@ import { useEffect, useRef } from "react";
 import Style from "./css/app.module.css";
 import { Hand } from "./components/Hand";
 
-import { getCardData } from "./game/logic/library";
+import { getCardData } from "./game/logic/libraryLogic";
 import { Battlefield } from "./components/Battlefield";
 import handlePhaseChange from "./game/handlers/handlePhaseChange";
+import { nextPhase } from "./store/PlayersSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -19,7 +20,6 @@ function App() {
   useEffect(() => {
     if (!intilizeDeck.current) {
       getCardData(dispatch);
-
       intilizeDeck.current = true;
     }
   }, []);
@@ -35,8 +35,13 @@ function App() {
       <Battlefield data={players.player[1].battlefield} player={2} />
       <Battlefield data={players.player[0].battlefield} player={1} />
       <Hand cards={players.player[0].hand} player={1} />
-      <p className={Style.phaseText}>Current Phase: XYZ</p>
-      <button className={Style.phaseButton}>Next Phase</button>
+      <p className={Style.phaseText}>{players.current_phase}</p>
+      <button
+        onClick={() => dispatch(nextPhase())}
+        className={Style.phaseButton}
+      >
+        Next Phase
+      </button>
     </div>
   );
 }

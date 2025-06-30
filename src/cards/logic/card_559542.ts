@@ -8,8 +8,8 @@ const card: Card = {
   name: "Forest",
   type_line: "Basic Land — Forest",
   text: "({T}: Add {G}.)",
-  canTap: true,
-  manaGiven: {
+  can_tap: true,
+  mana_given: {
     green: 1,
   },
   valid() {

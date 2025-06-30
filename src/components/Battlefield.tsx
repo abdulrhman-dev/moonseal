@@ -10,12 +10,17 @@ type BattlefieldProps = {
 
 const STEP_SIZE = 20;
 
-export const Battlefield = ({ data }: BattlefieldProps) => {
+export const Battlefield = ({ data, player }: BattlefieldProps) => {
   return (
     <div className={Style.battlefield}>
       <div className={Style.creatures}>
         {data.creatures.map((card) => (
-          <Card key={card.id} card={card} location="battlefield" />
+          <Card
+            key={card.id}
+            cardPlayer={player}
+            card={card}
+            location="battlefield"
+          />
         ))}
       </div>
       <div className={Style.lands}>
@@ -23,6 +28,7 @@ export const Battlefield = ({ data }: BattlefieldProps) => {
           {data.lands.map((card, index) => (
             <Card
               key={card.id}
+              cardPlayer={player}
               style={{
                 position: "absolute",
                 top: 0,

@@ -14,13 +14,22 @@ type CardTrigger = {
 
 type Keyword = "enchant";
 
-type Mana = {
+export type Mana = {
   white?: number;
   blue?: number;
   black?: number;
   red?: number;
   green?: number;
   colorless?: number;
+};
+
+export const ManaDefault = {
+  white: 0,
+  blue: 0,
+  black: 0,
+  red: 0,
+  green: 0,
+  colorless: 0,
 };
 
 export const CardDefault = {
@@ -31,11 +40,11 @@ export const CardDefault = {
   keywords: [],
   enchanters: [],
   targets: [],
-  targetSelects: [],
+  target_selects: [],
   default_power: 0,
   default_toughness: 0,
   triggers: {},
-  manaGiven: {},
+  mana_given: {},
   cast() {},
   valid() {},
 };
@@ -55,15 +64,15 @@ export interface Card {
   name: string;
   type_line: string;
   text: string;
-  canTap: boolean;
+  can_tap: boolean;
 
   keywords: Keyword[];
 
-  targetSelects: TargetSelect[];
+  target_selects: TargetSelect[];
   enchanters: Card[];
 
   mana_cost: Mana;
-  manaGiven: Mana;
+  mana_given: Mana;
 
   readonly default_power: number;
   readonly default_toughness: number;
@@ -80,16 +89,16 @@ export interface CardState {
   name: string;
   type_line: string;
   text: string;
-  canTap: boolean;
+  can_tap: boolean;
 
   keywords: Keyword[];
 
-  targetSelects: TargetSelect[];
+  target_selects: TargetSelect[];
   targets: number[];
   enchanters: Card[];
 
   mana_cost: Mana;
-  manaGiven: Mana;
+  mana_given: Mana;
 
   readonly default_power: number;
   readonly default_toughness: number;

@@ -1,4 +1,4 @@
-import type { CardState } from "@/types/cards";
+import type { CardState, Mana } from "@/types/cards";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { PhasesArray, type Phases } from "@/types/phases";
 
@@ -13,7 +13,9 @@ type StackAbility = {
   type: ["TRIGGER", ArgumentNames] | ["ACTIVATED", number] | ["CAST"];
 };
 
-type Player = {
+export type PlayerMana = Required<Mana>;
+
+export type Player = {
   library: CardState[];
   graveyard: CardState[];
   exile: CardState[];
@@ -22,8 +24,10 @@ type Player = {
     creatures: CardState[];
     lands: CardState[];
   };
+  mana: PlayerMana;
   life: number;
   turn: number;
+  landsCasted: number;
 };
 
 export type PlayersState = {
@@ -40,33 +44,30 @@ export type PlayersState = {
   }[];
 };
 
+const PlayerDefault: Player = {
+  hand: [],
+  library: [],
+  graveyard: [],
+  exile: [],
+  battlefield: {
+    creatures: [],
+    lands: [],
+  },
+  life: 20,
+  turn: 0,
+  mana: {
+    red: 0,
+    green: 0,
+    white: 0,
+    blue: 0,
+    black: 0,
+    colorless: 0,
+  },
+  landsCasted: 0,
+};
+
 const initialState: PlayersState = {
-  player: [
-    {
-      hand: [],
-      library: [],
-      graveyard: [],
-      exile: [],
-      battlefield: {
-        creatures: [],
-        lands: [],
-      },
-      life: 20,
-      turn: 0,
-    },
-    {
-      hand: [],
-      library: [],
-      graveyard: [],
-      exile: [],
-      battlefield: {
-        creatures: [],
-        lands: [],
-      },
-      life: 20,
-      turn: 0,
-    },
-  ],
+  player: [{ ...PlayerDefault }, { ...PlayerDefault }],
   current_player: 0,
   priority: 0,
   id_counter: 0,
@@ -111,10 +112,16 @@ const playersSlice = createSlice({
       shuffle(state.player[action.payload.player - 1].library);
     },
     unTapCards(state) {
-      for (const player of [1, 2] as const) {
-        state.player[player - 1].battlefield.creatures.forEach((card) => {
-          card.tapped = false;
-        });
+      for (const i in state.player[state.current_player - 1].battlefield
+        .creatures) {
+        state.player[state.current_player - 1].battlefield.creatures[i].tapped =
+          false;
+      }
+
+      for (const i in state.player[state.current_player - 1].battlefield
+        .lands) {
+        state.player[state.current_player - 1].battlefield.lands[i].tapped =
+          false;
       }
     },
     drawCard(state) {
@@ -143,11 +150,53 @@ const playersSlice = createSlice({
 
       // toggle between the two players
       if (nextIndex === 0) {
-        state.current_player ^= 3;
+        state.player[state.current_player - 1].landsCasted = 0;
+        // state.current_player ^= 3;
         state.player[state.current_player - 1].turn++;
       }
 
       state.current_phase = PhasesArray[nextIndex];
+    },
+    modifyManaPool(state, action: PayloadAction<PlayerMana>) {
+      state.player[state.current_player - 1].mana = {
+        ...state.player[state.current_player - 1].mana,
+        ...action.payload,
+      };
+    },
+    incrementLandUsage(state) {
+      state.player[state.current_player - 1].landsCasted++;
+    },
+    tapCard(state, action: PayloadAction<number>) {
+      // TODO: CHANGE THIS TO BE MORE Effecient
+      state.player[state.current_player - 1].battlefield.lands.forEach(
+        (land) => {
+          if (land.id == action.payload && !land.tapped) land.tapped = true;
+        }
+      );
+
+      state.player[state.current_player - 1].battlefield.creatures.forEach(
+        (creature) => {
+          if (creature.id == action.payload && !creature.tapped)
+            creature.tapped = true;
+        }
+      );
+    },
+    addToBattleField(state, action: PayloadAction<CardState>) {
+      state.player[state.current_player - 1].hand = state.player[
+        state.current_player - 1
+      ].hand.filter((handCard) => {
+        return handCard.id !== action.payload.id;
+      });
+
+      if (action.payload.type === "creature") {
+        state.player[state.current_player - 1].battlefield.creatures.push(
+          action.payload
+        );
+      } else if (action.payload.type === "land") {
+        state.player[state.current_player - 1].battlefield.lands.push(
+          action.payload
+        );
+      }
     },
   },
 });
@@ -160,4 +209,8 @@ export const {
   unTapCards,
   startGame,
   nextPhase,
+  modifyManaPool,
+  tapCard,
+  addToBattleField,
+  incrementLandUsage,
 } = playersSlice.actions;
