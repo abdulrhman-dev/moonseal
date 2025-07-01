@@ -23,12 +23,13 @@
 }
 
 
-.card:hover{
-  transform: scale(2) translate(0, -10%);
+
+.card.inhand:hover{
+    transform: scale(2) translate(0, -10%);
   transform-origin: bottom;
   z-index: 200;
-}
 
+}
 .inhand{
 
     --card-width: 120px;
@@ -46,11 +47,15 @@
 }
 
 .canCast{
-  outline: red solid 3px;
+  outline: blue solid 3px;
 }
 
 .tapped{
   transform-origin: 50% 50%;
   transform: rotate(-90deg);
   filter: brightness(50%);
+}
+
+.attacking{
+ outline: red solid 3px;
 }

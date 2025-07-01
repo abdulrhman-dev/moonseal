@@ -66,18 +66,34 @@ const useCanCast = (card: CardState, cardPlayer: 1 | 2) => {
     (state: RootState) => state.players.current_player
   );
 
+  const currPhase = useSelector(
+    (state: RootState) => state.players.current_phase
+  );
+
   useEffect(() => {
     (async () => {
       if (currPlayer !== cardPlayer) {
         setCastStyle(false);
         return;
       }
+
+      // TODO: Handle stack case
+      /*
+        117.1a 
+        A player may cast an instant spell any time they have priority. 
+        A player may cast a noninstant spell during their main phase any time they have priority and the stack is empty.
+      */
+      if (currPhase !== "MAIN_PHASE_1" && currPhase !== "MAIN_PHASE_2") {
+        setCastStyle(false);
+        return;
+      }
+
       const shouldCast = await canCast(card, player);
 
       if (shouldCast) setCastStyle(true);
       else setCastStyle(false);
     })();
-  }, [player]);
+  }, [player, currPhase]);
 
   return castStyle;
 };

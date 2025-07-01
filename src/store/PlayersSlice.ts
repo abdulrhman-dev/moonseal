@@ -198,6 +198,17 @@ const playersSlice = createSlice({
         );
       }
     },
+    toggleAttacker(state, action: PayloadAction<number>) {
+      if (state.attackers.includes(action.payload)) {
+        // remove attacker
+        state.attackers = state.attackers.filter(
+          (attacker) => attacker !== action.payload
+        );
+        return;
+      }
+      // add attacker
+      state.attackers.push(action.payload);
+    },
   },
 });
 
@@ -213,4 +224,5 @@ export const {
   tapCard,
   addToBattleField,
   incrementLandUsage,
+  toggleAttacker,
 } = playersSlice.actions;

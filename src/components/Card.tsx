@@ -10,6 +10,7 @@ import {
   incrementLandUsage,
   type Player,
   addToBattleField,
+  toggleAttacker,
 } from "@/store/PlayersSlice";
 import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/store/store";
@@ -96,22 +97,29 @@ const spendMana = (
 };
 
 function Card({ card, location, style, cardPlayer }: CardProps) {
-  const current_phase = useSelector(
-    (state: RootState) => state.players.current_phase
-  );
+  // redux state
   const player = useSelector(
     (state: RootState) => state.players.player[cardPlayer - 1]
   );
+  const currPhase = useSelector(
+    (state: RootState) => state.players.current_phase
+  );
+  const activePLayer = useSelector(
+    (state: RootState) => state.players.current_player
+  );
+  const attackers = useSelector((state: RootState) => state.players.attackers);
+
   const { image } = useImage(card.game_id.toString());
   const canCast = useCanCast(card, cardPlayer);
   const dispatch = useDispatch();
 
   const handleCardClick = () => {
     if (location === "battlefield") {
-      return;
+      if (currPhase === "COMBAT_ATTACK" && cardPlayer === activePLayer) {
+        dispatch(toggleAttacker(card.id));
+      }
     } else if (location === "hand") {
-      if (current_phase !== "MAIN_PHASE_1" && current_phase !== "MAIN_PHASE_2")
-        return;
+      if (currPhase !== "MAIN_PHASE_1" && currPhase !== "MAIN_PHASE_2") return;
 
       if (!canCast) return;
 
@@ -129,7 +137,7 @@ function Card({ card, location, style, cardPlayer }: CardProps) {
         canCast && location === "hand" ? Style.canCast : ""
       }
         ${card.tapped ? Style.tapped : ""}
-      
+        ${attackers.includes(card.id) ? Style.attacking : ""}
       `}
       style={{ ...style, backgroundImage: `url(${image})` }}
       onClick={handleCardClick}
