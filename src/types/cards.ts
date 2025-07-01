@@ -1,11 +1,16 @@
 import type { Triggers } from "./triggers";
 
-type CardType = "land" | "creature" | "enchantment" | "instant" | "sorcery";
+export type CardTypes =
+  | "land"
+  | "creature"
+  | "enchantment"
+  | "instant"
+  | "sorcery";
 
 export type TargetSelect = {
   amount: number;
-  type: CardType;
-  playerType: 0 | 1 | 2;
+  type: CardTypes;
+  player: 0 | 1 | 2;
 };
 
 type CardTrigger = {
@@ -60,7 +65,7 @@ type CardCastData = { targets: number[] };
 export interface Card {
   readonly game_id: number;
   id: number;
-  type: CardType;
+  type: CardTypes;
   name: string;
   type_line: string;
   text: string;
@@ -85,7 +90,7 @@ export interface Card {
 export interface CardState {
   readonly game_id: number;
   id: number;
-  type: CardType;
+  type: CardTypes;
   name: string;
   type_line: string;
   text: string;

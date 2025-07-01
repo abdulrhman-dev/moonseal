@@ -2,15 +2,17 @@ import Style from "@/css/battlefield.module.css";
 import Card from "./Card";
 
 import type { CardState } from "@/types/cards";
+import type { AddRefFunction } from "@/App";
 
 type BattlefieldProps = {
   data: { creatures: CardState[]; lands: CardState[] };
   player: 1 | 2;
+  addRef: AddRefFunction;
 };
 
 const STEP_SIZE = 20;
 
-export const Battlefield = ({ data, player }: BattlefieldProps) => {
+export const Battlefield = ({ data, player, addRef }: BattlefieldProps) => {
   return (
     <div className={Style.battlefield}>
       <div className={Style.creatures}>
@@ -20,6 +22,7 @@ export const Battlefield = ({ data, player }: BattlefieldProps) => {
             cardPlayer={player}
             card={card}
             location="battlefield"
+            addRef={addRef}
           />
         ))}
       </div>
@@ -36,6 +39,7 @@ export const Battlefield = ({ data, player }: BattlefieldProps) => {
               }}
               card={card}
               location="battlefield"
+              addRef={addRef}
             />
           ))}
         </div>

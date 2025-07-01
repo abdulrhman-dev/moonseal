@@ -11,20 +11,26 @@ import {
   type Player,
   addToBattleField,
   toggleAttacker,
+  toggleBlocker,
 } from "@/store/PlayersSlice";
 import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/store/store";
 
 // types
-import { type CardState } from "@/types/cards";
+import { type CardState, type TargetSelect } from "@/types/cards";
 
 import Style from "@/css/card.module.css";
+import useGetTargets from "@/game/hooks/useGetTargets";
+import { addTarget, removeTarget } from "@/store/TargetingSlice";
+import useCanTarget from "@/game/hooks/useCanTarget";
+import type { AddRefFunction } from "@/App";
 
 interface CardProps {
   card: CardState;
   location: "hand" | "battlefield";
   style?: React.CSSProperties | undefined;
   cardPlayer: 1 | 2;
+  addRef: AddRefFunction;
 }
 
 const spendMana = (
@@ -96,7 +102,7 @@ const spendMana = (
   dispatch(modifyManaPool(manaPool));
 };
 
-function Card({ card, location, style, cardPlayer }: CardProps) {
+function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   // redux state
   const player = useSelector(
     (state: RootState) => state.players.player[cardPlayer - 1]
@@ -107,16 +113,52 @@ function Card({ card, location, style, cardPlayer }: CardProps) {
   const activePLayer = useSelector(
     (state: RootState) => state.players.current_player
   );
+  const targeting = useSelector((state: RootState) => state.targeting);
   const attackers = useSelector((state: RootState) => state.players.attackers);
+  const dispatch = useDispatch();
 
   const { image } = useImage(card.game_id.toString());
+  const { getTargets } = useGetTargets();
   const canCast = useCanCast(card, cardPlayer);
-  const dispatch = useDispatch();
+  const canTarget = useCanTarget(card, cardPlayer);
 
   const handleCardClick = () => {
     if (location === "battlefield") {
+      if (canTarget) {
+        if (targeting.targets.find((target) => target.id === card.id)) {
+          dispatch(removeTarget(card.id));
+        } else {
+          dispatch(
+            addTarget({ id: card.id, type: card.type, player: cardPlayer })
+          );
+        }
+      }
+
       if (currPhase === "COMBAT_ATTACK" && cardPlayer === activePLayer) {
         dispatch(toggleAttacker(card.id));
+      }
+
+      if (currPhase === "COMBAT_BLOCK" && cardPlayer !== activePLayer) {
+        const targetRule: TargetSelect[] = [
+          {
+            type: "creature",
+            amount: 1,
+            player: activePLayer,
+          },
+        ];
+
+        const callback = (targets: number[]) => {
+          if (targets.length !== 1) return;
+
+          if (!attackers.includes(targets[0])) {
+            getTargets(targetRule, callback);
+            return;
+          }
+
+          dispatch(toggleBlocker({ id: card.id, target: targets[0] }));
+        };
+
+        getTargets(targetRule, callback);
       }
     } else if (location === "hand") {
       if (currPhase !== "MAIN_PHASE_1" && currPhase !== "MAIN_PHASE_2") return;
@@ -131,16 +173,22 @@ function Card({ card, location, style, cardPlayer }: CardProps) {
 
   return (
     <div
-      className={`
-        ${Style.card} 
-        ${location === "hand" ? Style.inhand : Style.inbattlefield} ${
-        canCast && location === "hand" ? Style.canCast : ""
-      }
-        ${card.tapped ? Style.tapped : ""}
-        ${attackers.includes(card.id) ? Style.attacking : ""}
-      `}
-      style={{ ...style, backgroundImage: `url(${image})` }}
+      className={`${Style.card} ${
+        location === "hand" ? Style.inhand : Style.inbattlefield
+      } ${canCast && location === "hand" ? Style.canCast : ""} ${
+        card.tapped ? Style.tapped : ""
+      } ${attackers.includes(card.id) ? Style.attacking : ""} ${
+        location === "battlefield" && canTarget ? Style.targetable : ""
+      }`}
+      style={{
+        ...style,
+        backgroundImage: `url(${image})`,
+        transformOrigin: cardPlayer === 1 ? "bottom" : "top",
+      }}
       onClick={handleCardClick}
+      ref={(node) => {
+        if (node) addRef(node, card.id);
+      }}
     >
       {card.type === "creature" && (
         <div className={Style.cardPlate}>

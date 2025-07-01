@@ -29,6 +29,10 @@ export type Player = {
   turn: number;
   landsCasted: number;
 };
+export type Blocker = {
+  id: number;
+  target: number;
+};
 
 export type PlayersState = {
   player: [Player, Player];
@@ -38,10 +42,7 @@ export type PlayersState = {
   current_phase: Phases;
   spell_stack: StackAbility[];
   attackers: number[];
-  blockers: {
-    id: number;
-    target: number;
-  }[];
+  blockers: Blocker[];
 };
 
 const PlayerDefault: Player = {
@@ -151,7 +152,7 @@ const playersSlice = createSlice({
       // toggle between the two players
       if (nextIndex === 0) {
         state.player[state.current_player - 1].landsCasted = 0;
-        // state.current_player ^= 3;
+        state.current_player ^= 3;
         state.player[state.current_player - 1].turn++;
       }
 
@@ -199,15 +200,27 @@ const playersSlice = createSlice({
       }
     },
     toggleAttacker(state, action: PayloadAction<number>) {
+      // remove attacker if it already exits
       if (state.attackers.includes(action.payload)) {
-        // remove attacker
         state.attackers = state.attackers.filter(
           (attacker) => attacker !== action.payload
         );
         return;
       }
+
       // add attacker
       state.attackers.push(action.payload);
+    },
+    toggleBlocker(state, action: PayloadAction<Blocker>) {
+      // remove blocker if it already exits
+      if (state.blockers.find((blocker) => blocker.id === action.payload.id)) {
+        state.blockers = state.blockers.filter(
+          (blocker) => blocker.id !== action.payload.id
+        );
+      }
+
+      // add blocker
+      state.blockers.push(action.payload);
     },
   },
 });
@@ -225,4 +238,5 @@ export const {
   addToBattleField,
   incrementLandUsage,
   toggleAttacker,
+  toggleBlocker,
 } = playersSlice.actions;

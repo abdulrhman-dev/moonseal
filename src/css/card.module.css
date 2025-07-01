@@ -51,11 +51,15 @@
 }
 
 .tapped{
-  transform-origin: 50% 50%;
+  transform-origin: 50% 50% !important;
   transform: rotate(-90deg);
   filter: brightness(50%);
 }
 
 .attacking{
  outline: red solid 3px;
+}
+
+.targetable{
+  outline: greenyellow solid 3px;
 }

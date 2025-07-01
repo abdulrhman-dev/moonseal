@@ -21,7 +21,6 @@ export const canCast = async (card: CardState, player: Player) => {
   type ManaKeyValue = [keyof Mana, number];
 
   player.battlefield.lands.forEach((land) => {
-    console.log("TAPPED", land.tapped === true);
     if (land.tapped === true) return;
 
     for (const [key, value] of Object.entries(
@@ -44,7 +43,6 @@ export const canCast = async (card: CardState, player: Player) => {
     (prev, curr) => prev + curr,
     0
   );
-  console.log(remaningMana);
   // Checking the outcome
   const cardImport = await import(`../../cards/logic/card_${card.game_id}`);
   const cardData = cardImport.default as CardType;
