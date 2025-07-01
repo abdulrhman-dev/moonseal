@@ -29,9 +29,9 @@ export type Player = {
   turn: number;
   landsCasted: number;
 };
-export type Blocker = {
-  id: number;
-  target: number;
+export type Fight = {
+  attacker: number;
+  blockers: number[];
 };
 
 export type PlayersState = {
@@ -41,8 +41,7 @@ export type PlayersState = {
   id_counter: number;
   current_phase: Phases;
   spell_stack: StackAbility[];
-  attackers: number[];
-  blockers: Blocker[];
+  fights: Fight[];
 };
 
 const PlayerDefault: Player = {
@@ -74,8 +73,7 @@ const initialState: PlayersState = {
   id_counter: 0,
   current_phase: "NONE",
   spell_stack: [],
-  attackers: [],
-  blockers: [],
+  fights: [],
 };
 
 function shuffle(cards: unknown[]) {
@@ -158,6 +156,13 @@ const playersSlice = createSlice({
 
       state.current_phase = PhasesArray[nextIndex];
     },
+    removeSummoningSickness(state) {
+      state.player[state.current_player - 1].battlefield.creatures.forEach(
+        (creature) => {
+          creature.summoningSickness = false;
+        }
+      );
+    },
     modifyManaPool(state, action: PayloadAction<PlayerMana>) {
       state.player[state.current_player - 1].mana = {
         ...state.player[state.current_player - 1].mana,
@@ -201,26 +206,109 @@ const playersSlice = createSlice({
     },
     toggleAttacker(state, action: PayloadAction<number>) {
       // remove attacker if it already exits
-      if (state.attackers.includes(action.payload)) {
-        state.attackers = state.attackers.filter(
-          (attacker) => attacker !== action.payload
+      if (state.fights.find((fight) => fight.attacker === action.payload)) {
+        state.fights = state.fights.filter(
+          (fight) => fight.attacker !== action.payload
         );
         return;
       }
 
       // add attacker
-      state.attackers.push(action.payload);
+      state.fights.push({
+        attacker: action.payload,
+        blockers: [],
+      });
     },
-    toggleBlocker(state, action: PayloadAction<Blocker>) {
-      // remove blocker if it already exits
-      if (state.blockers.find((blocker) => blocker.id === action.payload.id)) {
-        state.blockers = state.blockers.filter(
-          (blocker) => blocker.id !== action.payload.id
+    toggleBlocker(
+      state,
+      action: PayloadAction<{ id: number; target: number }>
+    ) {
+      const fight = state.fights.find((blocker) =>
+        blocker.blockers.includes(action.payload.id)
+      );
+
+      if (fight) {
+        fight.blockers = fight.blockers.filter(
+          (blocker) => blocker !== action.payload.id
         );
       }
 
-      // add blocker
-      state.blockers.push(action.payload);
+      const newFight = state.fights.find(
+        (fight) => fight.attacker === action.payload.target
+      );
+
+      if (!newFight) return;
+
+      newFight.blockers.push(action.payload.id);
+    },
+    calculateDamage(state) {
+      const defendingPlayer = state.current_player ^ 3;
+
+      for (const fight of state.fights) {
+        const attacker = state.player[
+          state.current_player - 1
+        ].battlefield.creatures.find(
+          (attacker) => attacker.id === fight.attacker
+        );
+
+        if (!attacker) return;
+
+        if (!fight.blockers.length) {
+          state.player[defendingPlayer - 1].life -= attacker.power;
+          continue;
+        }
+
+        for (const blockerId of fight.blockers) {
+          const blocker = state.player[
+            defendingPlayer - 1
+          ].battlefield.creatures.find((blocker) => blocker.id === blockerId);
+
+          if (!blocker) continue;
+
+          blocker.toughness -= attacker.power;
+          attacker.toughness -= blocker.power;
+        }
+      }
+    },
+    cleanUpCombat(state) {
+      for (const fight of state.fights) {
+        const attacker = state.player[
+          state.current_player - 1
+        ].battlefield.creatures.find(
+          (attacker) => attacker.id === fight.attacker
+        );
+
+        if (!attacker) continue;
+
+        attacker.tapped = true;
+      }
+
+      // move to graveyard dead creatures
+      for (const player of [1, 2]) {
+        state.player[player - 1].battlefield.creatures = state.player[
+          player - 1
+        ].battlefield.creatures.filter((creature) => {
+          if (creature.toughness <= 0)
+            state.player[player - 1].graveyard.push(creature);
+
+          return creature.toughness > 0;
+        });
+      }
+
+      state.fights = [];
+    },
+    healCreatures(state) {
+      for (const player of [1, 2]) {
+        state.player[player - 1].battlefield.creatures = state.player[
+          player - 1
+        ].battlefield.creatures.map((creature) => {
+          return {
+            ...creature,
+            power: creature.defaultPower,
+            toughness: creature.defaultToughness,
+          };
+        });
+      }
     },
   },
 });
@@ -231,6 +319,7 @@ export const {
   shuffleLibary,
   drawCard,
   unTapCards,
+  removeSummoningSickness,
   startGame,
   nextPhase,
   modifyManaPool,
@@ -239,4 +328,7 @@ export const {
   incrementLandUsage,
   toggleAttacker,
   toggleBlocker,
+  calculateDamage,
+  cleanUpCombat,
+  healCreatures,
 } = playersSlice.actions;

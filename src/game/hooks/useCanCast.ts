@@ -24,14 +24,14 @@ export const canCast = async (card: CardState, player: Player) => {
     if (land.tapped === true) return;
 
     for (const [key, value] of Object.entries(
-      land.mana_given
+      land.manaGiven
     ) as ManaKeyValue[]) {
       mana[key] += value;
     }
   });
 
   // Removing appropriate mana
-  for (const [key, value] of Object.entries(card.mana_cost) as ManaKeyValue[]) {
+  for (const [key, value] of Object.entries(card.manaCost) as ManaKeyValue[]) {
     if (key === "colorless") continue;
 
     mana[key] -= value;
@@ -44,13 +44,13 @@ export const canCast = async (card: CardState, player: Player) => {
     0
   );
   // Checking the outcome
-  const cardImport = await import(`../../cards/logic/card_${card.game_id}`);
+  const cardImport = await import(`../../cards/logic/card_${card.gameId}`);
   const cardData = cardImport.default as CardType;
 
-  if (card.mana_cost.colorless && card.mana_cost.colorless <= remaningMana)
+  if (card.manaCost.colorless && card.manaCost.colorless <= remaningMana)
     return cardData.valid();
 
-  return !card.mana_cost.colorless || false;
+  return !card.manaCost.colorless || false;
 };
 
 const useCanCast = (card: CardState, cardPlayer: 1 | 2) => {

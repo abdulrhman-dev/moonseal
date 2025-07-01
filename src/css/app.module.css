@@ -20,3 +20,9 @@
     right: 20px;
 
 }
+
+.playerLife {
+    position: absolute;
+    color: rgb(219, 26, 26);
+    font-size: 2rem;
+}

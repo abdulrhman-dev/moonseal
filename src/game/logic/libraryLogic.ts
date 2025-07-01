@@ -23,7 +23,7 @@ export const getCardData = async (dispatch: Dispatch<UnknownAction>) => {
       const cardInput: CardState = {
         ...card,
         ...CardStateDefault,
-        power: card.default_power,
+        power: card.defaultPower,
         toughness: card.default_toughness,
       };
 

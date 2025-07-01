@@ -2,7 +2,15 @@ import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 
 import type { PlayersState } from "@/store/PlayersSlice";
 
-import { drawCard, nextPhase, unTapCards } from "@/store/PlayersSlice";
+import {
+  calculateDamage,
+  cleanUpCombat,
+  drawCard,
+  healCreatures,
+  nextPhase,
+  removeSummoningSickness,
+  unTapCards,
+} from "@/store/PlayersSlice";
 
 export default function (
   players: PlayersState,
@@ -12,6 +20,7 @@ export default function (
 
   switch (players.current_phase) {
     case "BEGINNING_UNTAP":
+      dispatch(removeSummoningSickness());
       dispatch(unTapCards());
       dispatch(nextPhase());
       break;
@@ -26,10 +35,15 @@ export default function (
     case "COMBAT_BEGIN":
       dispatch(nextPhase());
       break;
+    case "COMBAT_DAMAGE":
+      dispatch(calculateDamage());
+      dispatch(cleanUpCombat());
+      break;
     case "COMBAT_END":
       dispatch(nextPhase());
       break;
     case "CLEANUP":
+      dispatch(healCreatures());
       dispatch(nextPhase());
       break;
     case "END_STEP":

@@ -25,6 +25,10 @@ import { addTarget, removeTarget } from "@/store/TargetingSlice";
 import useCanTarget from "@/game/hooks/useCanTarget";
 import type { AddRefFunction } from "@/App";
 
+// icons
+import { IoIosUndo } from "react-icons/io";
+import { WiStars } from "react-icons/wi";
+
 interface CardProps {
   card: CardState;
   location: "hand" | "battlefield";
@@ -46,11 +50,11 @@ const spendMana = (
   const manaPool = { ...player.mana };
   const lands = [...player.battlefield.lands];
 
-  type keyType = keyof typeof card.mana_cost;
+  type keyType = keyof typeof card.manaCost;
   const landIds: number[] = [];
 
   // colored mana handling
-  for (const [key, value] of Object.entries(card.mana_cost) as [
+  for (const [key, value] of Object.entries(card.manaCost) as [
     keyType,
     number
   ][]) {
@@ -62,23 +66,23 @@ const spendMana = (
     while (remaining) {
       const land = lands.find(
         (land) =>
-          land.mana_given[key] &&
-          land.mana_given[key] > 0 &&
+          land.manaGiven[key] &&
+          land.manaGiven[key] > 0 &&
           !landIds.includes(land.id) &&
           !land.tapped
       );
 
-      if (!land || !land.mana_given[key]) throw Error("spendMana failed");
+      if (!land || !land.manaGiven[key]) throw Error("spendMana failed");
 
       landIds.push(land.id);
       dispatch(tapCard(land.id));
 
-      remaining -= land.mana_given[key];
+      remaining -= land.manaGiven[key];
     }
   }
 
-  let colorless: number = card.mana_cost["colorless"]
-    ? card.mana_cost["colorless"]
+  let colorless: number = card.manaCost["colorless"]
+    ? card.manaCost["colorless"]
     : 0;
 
   for (const [key, value] of Object.entries(manaPool) as [keyType, number][]) {
@@ -114,10 +118,12 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
     (state: RootState) => state.players.current_player
   );
   const targeting = useSelector((state: RootState) => state.targeting);
-  const attackers = useSelector((state: RootState) => state.players.attackers);
+  const attackers = useSelector((state: RootState) => state.players.fights).map(
+    (fight) => fight.attacker
+  );
   const dispatch = useDispatch();
 
-  const { image } = useImage(card.game_id.toString());
+  const { image } = useImage(card.gameId.toString());
   const { getTargets } = useGetTargets();
   const canCast = useCanCast(card, cardPlayer);
   const canTarget = useCanTarget(card, cardPlayer);
@@ -135,10 +141,14 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       }
 
       if (currPhase === "COMBAT_ATTACK" && cardPlayer === activePLayer) {
+        if (card.summoningSickness || card.tapped) return;
+
         dispatch(toggleAttacker(card.id));
       }
 
       if (currPhase === "COMBAT_BLOCK" && cardPlayer !== activePLayer) {
+        if (card.summoningSickness || card.tapped) return;
+
         const targetRule: TargetSelect[] = [
           {
             type: "creature",
@@ -179,6 +189,10 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         card.tapped ? Style.tapped : ""
       } ${attackers.includes(card.id) ? Style.attacking : ""} ${
         location === "battlefield" && canTarget ? Style.targetable : ""
+      } ${
+        (card.tapped || card.summoningSickness) && location === "battlefield"
+          ? Style.effect
+          : ""
       }`}
       style={{
         ...style,
@@ -190,6 +204,11 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         if (node) addRef(node, card.id);
       }}
     >
+      {card.tapped && <IoIosUndo className={Style.icon} />}
+      {card.summoningSickness && location === "battlefield" && (
+        <WiStars className={Style.icon} />
+      )}
+
       {card.type === "creature" && (
         <div className={Style.cardPlate}>
           <p>

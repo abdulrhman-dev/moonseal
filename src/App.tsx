@@ -29,7 +29,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log(players.current_phase);
     handlePhaseChange(players, dispatch);
   }, [players.current_phase]);
 
@@ -39,13 +38,15 @@ function App() {
 
   return (
     <div className={Style.container}>
-      {players.blockers.map((blocker) => (
-        <TargetLine
-          sourceId={blocker.id}
-          destId={blocker.target}
-          cardsElements={cardsElements}
-        />
-      ))}
+      {players.fights.map((fight) =>
+        fight.blockers.map((blocker) => (
+          <TargetLine
+            sourceId={blocker}
+            destId={fight.attacker}
+            cardsElements={cardsElements}
+          />
+        ))
+      )}
       <Hand cards={players.player[1].hand} player={2} addRef={addRef} />
       <Battlefield
         data={players.player[1].battlefield}
@@ -58,6 +59,13 @@ function App() {
         addRef={addRef}
       />
       <Hand cards={players.player[0].hand} player={1} addRef={addRef} />
+      <p className={Style.playerLife} style={{ bottom: 0, left: 0 }}>
+        Player 1: {players.player[0].life}
+      </p>
+      <p className={Style.playerLife} style={{ top: 0, left: 0 }}>
+        Player 2: {players.player[1].life}
+      </p>
+
       <p className={Style.phaseText}>{players.current_phase}</p>
       <button
         onClick={() => dispatch(nextPhase())}

@@ -18,11 +18,22 @@
   justify-content: center;
   align-items: center;
   letter-spacing: 1px;
-  font-family: "Zain", sans-serif;
+
   font-size: 12px;
 }
 
+.card .icon{
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: calc(var(--card-height) / 2);
+  left: calc(var(--card-width) / 2);
+ font-size:70px ;
+ color: white;
+}
 
+.effect{
+  filter: brightness(50%);
+}
 
 .card.inhand:hover{
     transform: scale(2) translate(0, -10%);
@@ -43,7 +54,7 @@
 
 .inbattlefield{
   --card-width: 150px;
-  margin: 0px 10px;
+  margin: 0px 20px;
 }
 
 .canCast{
@@ -52,8 +63,7 @@
 
 .tapped{
   transform-origin: 50% 50% !important;
-  transform: rotate(-90deg);
-  filter: brightness(50%);
+  transform: rotate(-20deg);
 }
 
 .attacking{

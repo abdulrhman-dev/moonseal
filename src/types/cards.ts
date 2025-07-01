@@ -41,15 +41,16 @@ export const CardDefault = {
   id: 0,
   type: "",
   name: "",
-  mana_cost: {},
+  manaCost: {},
   keywords: [],
   enchanters: [],
   targets: [],
-  target_selects: [],
-  default_power: 0,
-  default_toughness: 0,
+  targetSelects: [],
+  defaultPower: 0,
+  defaultToughness: 0,
   triggers: {},
-  mana_given: {},
+  manaGiven: {},
+  summoningSickness: false,
   cast() {},
   valid() {},
 };
@@ -63,24 +64,25 @@ export const CardStateDefault = {
 type CardCastData = { targets: number[] };
 
 export interface Card {
-  readonly game_id: number;
+  readonly gameId: number;
   id: number;
   type: CardTypes;
   name: string;
-  type_line: string;
+  typeLine: string;
   text: string;
-  can_tap: boolean;
+  canTap: boolean;
+  summoningSickness: boolean;
 
   keywords: Keyword[];
 
-  target_selects: TargetSelect[];
+  targetSelects: TargetSelect[];
   enchanters: Card[];
 
-  mana_cost: Mana;
-  mana_given: Mana;
+  manaCost: Mana;
+  manaGiven: Mana;
 
-  readonly default_power: number;
-  readonly default_toughness: number;
+  readonly defaultPower: number;
+  readonly defaultToughness: number;
 
   triggers: CardTrigger;
   cast: (data: CardCastData) => void;
@@ -88,28 +90,29 @@ export interface Card {
 }
 
 export interface CardState {
-  readonly game_id: number;
+  readonly gameId: number;
   id: number;
   type: CardTypes;
   name: string;
-  type_line: string;
+  typeLine: string;
   text: string;
-  can_tap: boolean;
+  canTap: boolean;
 
   keywords: Keyword[];
 
-  target_selects: TargetSelect[];
+  targetSelects: TargetSelect[];
   targets: number[];
   enchanters: Card[];
 
-  mana_cost: Mana;
-  mana_given: Mana;
+  manaCost: Mana;
+  manaGiven: Mana;
 
-  readonly default_power: number;
-  readonly default_toughness: number;
+  readonly defaultPower: number;
+  readonly defaultToughness: number;
 
   power: number;
   toughness: number;
 
   tapped: boolean;
+  summoningSickness: boolean;
 }
