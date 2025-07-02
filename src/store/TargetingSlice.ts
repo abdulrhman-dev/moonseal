@@ -1,11 +1,11 @@
-import type { TargetSelect } from "@/types/cards";
+import type { CardState, TargetSelect } from "@/types/cards";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { CardTypes } from "@/types/cards";
 
 type Target = {
   type: CardTypes;
   player: 1 | 2;
-  id: number;
+  data: CardState;
 };
 
 export type TargetingState = {
@@ -49,7 +49,7 @@ const targetingSlice = createSlice({
     },
     removeTarget(state, action: PayloadAction<number>) {
       state.targets = state.targets.filter(
-        (target) => target.id !== action.payload
+        (target) => target.data.id !== action.payload
       );
     },
     clearTargets(state) {

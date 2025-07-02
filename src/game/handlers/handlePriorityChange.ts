@@ -17,13 +17,12 @@ export default function (
       players,
       (players.priority ^ 3) as 1 | 2
     );
-
     if (
       (players.priorityPassNum >= 2 || !nextNeedPriority) &&
       players.spell_stack.length
     ) {
       const stackTop = players.spell_stack[players.spell_stack.length - 1];
-
+      if (stackTop.type === "SHOWCASE") return;
       if (stackTop.type === "CAST") {
         const cardImport = await import(
           `../../cards/logic/card_${stackTop.card.gameId}_${stackTop.card.name}`
@@ -31,7 +30,7 @@ export default function (
 
         const card = cardImport.default as Card;
 
-        card.resolve({});
+        card.resolve({ ...stackTop.args });
 
         if (card.type === "creature") dispatch(addToBattleField(stackTop.card));
 

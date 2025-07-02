@@ -1,10 +1,10 @@
 import type { RootState } from "@/store/store";
 import { clearTargets, initilizeTargets } from "@/store/TargetingSlice";
-import type { TargetSelect } from "@/types/cards";
+import type { CardState, TargetSelect } from "@/types/cards";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-type GetTargetCallback = (targets: number[]) => void;
+type GetTargetCallback = (targets: CardState[]) => void;
 
 const targetsFulfilled = (targetsRules: TargetSelect[]): boolean => {
   return targetsRules.reduce(
@@ -29,7 +29,7 @@ function useGetTargets() {
       targetsFulfilled(targeting.targetsRules)
     ) {
       if (callback) {
-        callback(targeting.targets.map((target) => target.id));
+        callback(targeting.targets.map((target) => target.data));
         setCallback(null);
       }
       dispatch(clearTargets());

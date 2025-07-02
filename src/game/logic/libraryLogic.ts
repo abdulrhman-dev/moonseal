@@ -27,6 +27,7 @@ export const getCardData = async (dispatch: Dispatch<UnknownAction>) => {
         ...CardStateDefault,
         power: card.defaultPower,
         toughness: card.defaultToughness,
+        cardPlayer: player,
       };
 
       let count = deck_card.amount;

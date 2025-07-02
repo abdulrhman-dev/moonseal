@@ -1,21 +1,24 @@
-import type { RootState } from "@/store/store";
 import { store } from "@/store/store";
 import type { CardState } from "@/types/cards";
 
-export function getCards(
-  filterFunction: (card: CardState) => boolean = () => true
-): CardState[] {
-  const state: RootState = store.getState();
+export function validTargets(targets: CardState[]) {
+  const players = store.getState().players;
+  for (const target of targets) {
+    for (const player of [1, 2] as const) {
+      if (
+        players.player[player - 1].graveyard.find(
+          (card) => target.id === card.id
+        )
+      )
+        return false;
+      if (
+        players.player[player - 1].graveyard.find(
+          (card) => target.id === card.id
+        )
+      )
+        return false;
+    }
+  }
 
-  const currentPlayerBattlefield = state.players.current_player.battlefield;
-  const opposingPlayerBattlefield = state.players.opposing_player.battlefield;
-
-  const cards = [
-    ...currentPlayerBattlefield.creatures,
-    ...currentPlayerBattlefield.lands,
-    ...opposingPlayerBattlefield.creatures,
-    ...opposingPlayerBattlefield.lands,
-  ];
-
-  return cards.filter((card) => filterFunction(card));
+  return true;
 }

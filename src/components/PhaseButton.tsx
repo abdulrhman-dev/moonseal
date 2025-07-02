@@ -41,6 +41,11 @@ export const PhaseButton = () => {
         (players.priority ^ 3) as 1 | 2
       );
 
+      if (players.priorityPassNum >= 1) {
+        dispatch(nextPhase());
+        return;
+      }
+
       dispatch(passPriority());
 
       if (!nextNeedPriority) {
@@ -91,6 +96,14 @@ export const PhaseButton = () => {
     <button
       onClick={handleButtonClick}
       className={Style.phaseButton + " " + buttonData.style}
+      style={
+        {
+          // [players.priority ===
+          // (1 ^ (players.current_phase === "COMBAT_BLOCK" ? 3 : 0))
+          //   ? "bottom"
+          //   : "top"]: 20,
+        }
+      }
     >
       {buttonData.buttonText}
     </button>

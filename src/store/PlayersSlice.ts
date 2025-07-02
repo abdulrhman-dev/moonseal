@@ -10,9 +10,13 @@ type ArgumentNames = Triggers extends [infer TriggerName, unknown]
 
 type StackAbility = {
   card: CardState;
-  args: CardResolveData | { cardId: number };
+  args: CardResolveData;
   castedPlayer: 1 | 2;
-  type: ["TRIGGER", ArgumentNames] | ["ACTIVATED", number] | "CAST";
+  type:
+    | ["TRIGGER", ArgumentNames]
+    | ["ACTIVATED", number]
+    | "CAST"
+    | "SHOWCASE";
 };
 
 export type PlayerMana = Required<Mana>;
@@ -152,6 +156,47 @@ const playersSlice = createSlice({
         }
       }
     },
+    updateCard(state, action: PayloadAction<CardState>) {
+      for (const player of [1, 2]) {
+        for (const location of [
+          "graveyard",
+          "library",
+          "hand",
+          "exile",
+        ] as const) {
+          const oldCardIndex = state.player[player - 1][location].findIndex(
+            (card) => card.id === action.payload.id
+          );
+
+          if (oldCardIndex !== -1) {
+            const oldCard = state.player[player - 1][location][oldCardIndex];
+
+            state.player[player - 1][location][oldCardIndex] = {
+              ...oldCard,
+              ...action.payload,
+            };
+            return;
+          }
+        }
+
+        for (const location of ["creatures", "lands"] as const) {
+          const oldCardIndex = state.player[player - 1].battlefield[
+            location
+          ].findIndex((card) => card.id === action.payload.id);
+
+          if (oldCardIndex !== -1) {
+            const oldCard =
+              state.player[player - 1].battlefield[location][oldCardIndex];
+
+            state.player[player - 1].battlefield[location][oldCardIndex] = {
+              ...oldCard,
+              ...action.payload,
+            };
+            return;
+          }
+        }
+      }
+    },
     nextPhase(state) {
       const nextIndex =
         (PhasesArray.findIndex((phase) => phase === state.current_phase) + 1) %
@@ -169,6 +214,7 @@ const playersSlice = createSlice({
         state.declaredBlockers = false;
       }
 
+      state.priority = state.current_player;
       state.current_phase = PhasesArray[nextIndex];
     },
     removeSummoningSickness(state) {
@@ -312,6 +358,19 @@ const playersSlice = createSlice({
 
       state.fights = [];
     },
+
+    moveToGraveyard(state) {
+      for (const player of [1, 2]) {
+        state.player[player - 1].battlefield.creatures = state.player[
+          player - 1
+        ].battlefield.creatures.filter((creature) => {
+          if (creature.toughness <= 0)
+            state.player[player - 1].graveyard.push(creature);
+
+          return creature.toughness > 0;
+        });
+      }
+    },
     healCreatures(state) {
       for (const player of [1, 2]) {
         state.player[player - 1].battlefield.creatures = state.player[
@@ -325,12 +384,18 @@ const playersSlice = createSlice({
         });
       }
     },
+    showcaseOnStack(state, action: PayloadAction<StackAbility>) {
+      state.spell_stack.push(action.payload);
+    },
+    removeShowcase(state) {
+      state.spell_stack.pop();
+    },
     castSpell(state, action: PayloadAction<StackAbility>) {
       state.priorityPassNum = 0;
       state.spell_stack.push(action.payload);
 
-      state.player[state.current_player - 1].hand = state.player[
-        state.current_player - 1
+      state.player[state.priority - 1].hand = state.player[
+        state.priority - 1
       ].hand.filter((card) => card.id !== action.payload.card.id);
     },
     resolveSpell(state) {
@@ -349,6 +414,13 @@ const playersSlice = createSlice({
     },
     setDeclaredBlockers(state) {
       state.declaredBlockers = true;
+    },
+    setLandsUsed(
+      state,
+      action: PayloadAction<{ cardPlayer: 1 | 2; amount: number }>
+    ) {
+      state.player[action.payload.cardPlayer - 1].landsCasted =
+        action.payload.amount;
     },
   },
 });
@@ -376,4 +448,9 @@ export const {
   passPriority,
   setDeclaredAttackers,
   setDeclaredBlockers,
+  updateCard,
+  showcaseOnStack,
+  removeShowcase,
+  setLandsUsed,
+  moveToGraveyard,
 } = playersSlice.actions;

@@ -3,13 +3,14 @@ import type { RootState } from "@/store/store";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 
-function useCanTarget(card: CardState, cardPlayer: 1 | 2): boolean {
+function useCanTarget(card: CardState, cardPlayer: 0 | 1 | 2): boolean {
   const [canTarget, setCanTarget] = useState(false);
   const targetsRules = useSelector(
     (state: RootState) => state.targeting.targetsRules
   );
 
   useEffect(() => {
+    if (!cardPlayer) return;
     if (targetsRules.length === 0) return;
 
     const searchIndexStrict = targetsRules.findIndex(
@@ -22,7 +23,7 @@ function useCanTarget(card: CardState, cardPlayer: 1 | 2): boolean {
     const searchIndexLoose = targetsRules.findIndex(
       (targetRule) =>
         targetRule.type === card.type &&
-        targetRule.player === cardPlayer &&
+        targetRule.player === 0 &&
         targetRule.amount > 0
     );
 

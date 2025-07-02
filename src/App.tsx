@@ -12,6 +12,7 @@ import handlePhaseChange from "./game/handlers/handlePhaseChange";
 import { TargetLine } from "./components/TargetLine";
 import handlePriorityChange from "./game/handlers/handlePriorityChange";
 import { PhaseButton } from "./components/PhaseButton";
+import { SpellStack } from "./components/SpellStack";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
@@ -31,6 +32,7 @@ function App() {
   }, []);
 
   useEffect(() => {
+    let mount = true;
     handlePhaseChange(players, dispatch);
   }, [players.current_phase]);
 
@@ -72,6 +74,7 @@ function App() {
         Player 2: {players.player[1].life}
       </p>
       <PhaseButton />
+      <SpellStack cards={players.spell_stack.map((ability) => ability.card)} />
       <p className={Style.phaseText}>{players.current_phase}</p>
     </div>
   );

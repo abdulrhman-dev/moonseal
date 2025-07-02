@@ -17,7 +17,7 @@ type CardTrigger = {
   [Trigger in Triggers as `${Trigger[0]}`]?: (args: Trigger[1]) => void;
 };
 
-type Keyword = "enchant";
+type Keyword = "Enchant" | "Fight";
 
 export type Mana = {
   white?: number;
@@ -59,9 +59,10 @@ export const CardStateDefault = {
   tapped: false,
   power: 0,
   toughness: 0,
+  cardPlayer: 0,
 };
 
-export type CardResolveData = { targets?: number[] };
+export type CardResolveData = { targets?: CardState[]; cardPlayer?: 1 | 2 };
 
 export interface Card {
   readonly gameId: number;
@@ -86,7 +87,7 @@ export interface Card {
 
   triggers: CardTrigger;
   resolve: (data: CardResolveData) => void;
-  valid: () => boolean;
+  valid: (args: { card: CardState }) => boolean;
 }
 
 export interface CardState {
@@ -115,4 +116,6 @@ export interface CardState {
 
   tapped: boolean;
   summoningSickness: boolean;
+
+  cardPlayer: 0 | 1 | 2;
 }

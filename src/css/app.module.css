@@ -9,13 +9,13 @@
 .phaseButton{
     position: absolute;
     right: 20px;
-    bottom: 30px;
     width: 150px;
     height: 50px;
     font-size: 1.3rem;
     border-radius: 25px;
         border:2px solid rgb(0, 0, 0);
         cursor: pointer;
+        bottom: 30px;
 }
 
 .redButton{

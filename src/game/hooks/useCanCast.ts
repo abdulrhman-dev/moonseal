@@ -28,9 +28,8 @@ export const canCast = async (
       player.landsCasted <= 0 &&
       isActive
     );
-
   if (spellStackLength === 0) {
-    if (!isActive) return false;
+    if (!isActive && !fastSpells.includes(card.type)) return false;
 
     if (
       currPhase !== "MAIN_PHASE_1" &&
@@ -73,6 +72,7 @@ export const canCast = async (
     (prev, curr) => prev + curr,
     0
   );
+
   // Checking the outcome
   const cardImport = await import(
     `../../cards/logic/card_${card.gameId}_${card.name}`
@@ -80,12 +80,12 @@ export const canCast = async (
   const cardData = cardImport.default as CardType;
 
   if (card.manaCost.colorless && card.manaCost.colorless <= remaningMana)
-    return cardData.valid();
+    return cardData.valid({ card });
 
-  return !card.manaCost.colorless || false;
+  return (!card.manaCost.colorless && cardData.valid({ card })) || false;
 };
 
-const useCanCast = (card: CardState, cardPlayer: 1 | 2) => {
+const useCanCast = (card: CardState, cardPlayer: 0 | 1 | 2) => {
   const [castStyle, setCastStyle] = useState(Boolean);
 
   const player = useSelector(
@@ -115,7 +115,10 @@ const useCanCast = (card: CardState, cardPlayer: 1 | 2) => {
   );
 
   useEffect(() => {
+    let mounted = true;
     (async () => {
+      if (!cardPlayer) return;
+
       if (
         (currPhase === "COMBAT_ATTACK" && !declaredAttackers) ||
         (currPhase === "COMBAT_BLOCK" && !declaredBlockers) ||
@@ -133,14 +136,22 @@ const useCanCast = (card: CardState, cardPlayer: 1 | 2) => {
         cardPlayer === currPlayer
       );
 
+      if (!mounted) return;
+
+      console.log(currPhase, cardPlayer, priority);
       if (shouldCast) setCastStyle(true);
       else setCastStyle(false);
     })();
+
+    return () => {
+      mounted = false;
+    };
   }, [
     player,
     currPhase,
     priority,
     currPlayer,
+    spellStackLength,
     declaredAttackers,
     declaredBlockers,
   ]);

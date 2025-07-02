@@ -7,6 +7,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   addToBattleField,
   castSpell,
+  removeShowcase,
+  showcaseOnStack,
   toggleAttacker,
   toggleBlocker,
 } from "@/store/PlayersSlice";
@@ -27,13 +29,14 @@ import { WiStars } from "react-icons/wi";
 
 // logic
 import { spendMana } from "@/game/logic/manaLogic";
+import { useEffect } from "react";
 
 interface CardProps {
   card: CardState;
-  location: "hand" | "battlefield";
+  location: "hand" | "battlefield" | "stack";
   style?: React.CSSProperties | undefined;
-  cardPlayer: 1 | 2;
-  addRef: AddRefFunction;
+  cardPlayer: 0 | 1 | 2;
+  addRef?: AddRefFunction;
 }
 
 function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
@@ -67,15 +70,18 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   const canTarget = useCanTarget(card, cardPlayer);
 
   const handleCardClick = () => {
+    if (!cardPlayer) return;
+
     if (location === "battlefield") {
       if (canTarget) {
-        if (targeting.targets.find((target) => target.id === card.id)) {
+        if (targeting.targets.find((target) => target.data.id === card.id)) {
           dispatch(removeTarget(card.id));
         } else {
           dispatch(
-            addTarget({ id: card.id, type: card.type, player: cardPlayer })
+            addTarget({ data: card, type: card.type, player: cardPlayer })
           );
         }
+        return;
       }
 
       if (
@@ -103,22 +109,20 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
           },
         ];
 
-        const callback = (targets: number[]) => {
+        const callback = (targets: CardState[]) => {
           if (targets.length !== 1) return;
 
-          if (!attackers.includes(targets[0])) {
+          if (!attackers.includes(targets[0].id)) {
             getTargets(targetRule, callback);
             return;
           }
 
-          dispatch(toggleBlocker({ id: card.id, target: targets[0] }));
+          dispatch(toggleBlocker({ id: card.id, target: targets[0].id }));
         };
 
         getTargets(targetRule, callback);
       }
     } else if (location === "hand") {
-      if (currPhase !== "MAIN_PHASE_1" && currPhase !== "MAIN_PHASE_2") return;
-
       if (!canCast) return;
 
       spendMana(card, player, dispatch);
@@ -127,10 +131,42 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         dispatch(addToBattleField(card));
         return;
       }
-      // TODO: HANDLE GETTING TARGETS
-      dispatch(
-        castSpell({ card, castedPlayer: cardPlayer, args: {}, type: "CAST" })
-      );
+
+      if (card.targetSelects.length > 0) {
+        dispatch(
+          showcaseOnStack({
+            card,
+            castedPlayer: cardPlayer,
+            args: {},
+            type: "SHOWCASE",
+          })
+        );
+
+        const callback = (targets: CardState[]) => {
+          if (targets.length !== card.targetSelects.length) return;
+          dispatch(removeShowcase());
+          dispatch(
+            castSpell({
+              card,
+              castedPlayer: cardPlayer,
+              args: { targets, cardPlayer },
+              type: "CAST",
+            })
+          );
+        };
+
+        getTargets(card.targetSelects, callback);
+      } else {
+        dispatch(removeShowcase());
+        dispatch(
+          castSpell({
+            card,
+            castedPlayer: cardPlayer,
+            args: { cardPlayer },
+            type: "CAST",
+          })
+        );
+      }
     }
   };
 
@@ -146,7 +182,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         (card.tapped || card.summoningSickness) && location === "battlefield"
           ? Style.effect
           : ""
-      }`}
+      } ${location === "stack" ? Style.instack : ""} `}
       style={{
         ...style,
         backgroundImage: `url(${image})`,
@@ -154,7 +190,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       }}
       onClick={handleCardClick}
       ref={(node) => {
-        if (node) addRef(node, card.id);
+        if (addRef && node) addRef(node, card.id);
       }}
     >
       {card.tapped && <IoIosUndo className={Style.icon} />}

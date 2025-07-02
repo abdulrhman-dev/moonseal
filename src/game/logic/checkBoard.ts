@@ -7,17 +7,17 @@ export const checkNeedPriority = async (
 ) => {
   const player = players.player[playerNum - 1];
   if (!player) return;
+
   for (const card of player.hand) {
     const shouldCast = await canCast(
       card,
       players.spell_stack.length,
       players.current_phase,
       player,
-      players.current_player === playerNum
+      playerNum === players.current_player
     );
 
     if (shouldCast) {
-      console.log(card);
       return true;
     }
   }
