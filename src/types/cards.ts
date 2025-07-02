@@ -51,7 +51,7 @@ export const CardDefault = {
   triggers: {},
   manaGiven: {},
   summoningSickness: false,
-  cast() {},
+  resolve() {},
   valid() {},
 };
 
@@ -61,7 +61,7 @@ export const CardStateDefault = {
   toughness: 0,
 };
 
-type CardCastData = { targets: number[] };
+export type CardResolveData = { targets?: number[] };
 
 export interface Card {
   readonly gameId: number;
@@ -85,7 +85,7 @@ export interface Card {
   readonly defaultToughness: number;
 
   triggers: CardTrigger;
-  cast: (data: CardCastData) => void;
+  resolve: (data: CardResolveData) => void;
   valid: () => boolean;
 }
 

@@ -3,18 +3,18 @@ import { CardDefault } from "@/types/cards";
 
 const card: Card = {
   ...CardDefault,
-  gameId: 1439,
-  name: "Grizzly Bears",
+  gameId: 168484,
+  name: "Gigantosaurus",
   type: "creature",
   canTap: false,
   manaCost: {
-    green: 0,
+    green: 5,
     colorless: 0,
   },
   summoningSickness: true,
-  defaultPower: 2,
-  defaultToughness: 2,
-  typeLine: "Creature — Bear",
+  defaultPower: 10,
+  defaultToughness: 10,
+  typeLine: "Creature — Dinosaur",
   text: "",
   keywords: [],
   valid() {

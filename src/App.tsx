@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "./store/store";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 import Style from "./css/app.module.css";
 import { Hand } from "./components/Hand";
@@ -8,8 +8,10 @@ import { Hand } from "./components/Hand";
 import { getCardData } from "./game/logic/libraryLogic";
 import { Battlefield } from "./components/Battlefield";
 import handlePhaseChange from "./game/handlers/handlePhaseChange";
-import { nextPhase } from "./store/PlayersSlice";
+
 import { TargetLine } from "./components/TargetLine";
+import handlePriorityChange from "./game/handlers/handlePriorityChange";
+import { PhaseButton } from "./components/PhaseButton";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
@@ -31,6 +33,10 @@ function App() {
   useEffect(() => {
     handlePhaseChange(players, dispatch);
   }, [players.current_phase]);
+
+  useEffect(() => {
+    handlePriorityChange(players, dispatch);
+  }, [players.priority, players.spell_stack, players.current_phase, dispatch]);
 
   function addRef(node: HTMLElement, cardId: number) {
     cardsElements.current.set(cardId, node);
@@ -65,14 +71,8 @@ function App() {
       <p className={Style.playerLife} style={{ top: 0, left: 0 }}>
         Player 2: {players.player[1].life}
       </p>
-
+      <PhaseButton />
       <p className={Style.phaseText}>{players.current_phase}</p>
-      <button
-        onClick={() => dispatch(nextPhase())}
-        className={Style.phaseButton}
-      >
-        Next Phase
-      </button>
     </div>
   );
 }

@@ -1,19 +1,15 @@
 // custom hooks
-import useImage from "@/cards/util/image";
+import useImage from "@/game/hooks/image";
 import useCanCast from "@/game/hooks/useCanCast";
 
 // redux
 import { useDispatch, useSelector } from "react-redux";
 import {
-  modifyManaPool,
-  tapCard,
-  incrementLandUsage,
-  type Player,
   addToBattleField,
+  castSpell,
   toggleAttacker,
   toggleBlocker,
 } from "@/store/PlayersSlice";
-import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/store/store";
 
 // types
@@ -29,6 +25,9 @@ import type { AddRefFunction } from "@/App";
 import { IoIosUndo } from "react-icons/io";
 import { WiStars } from "react-icons/wi";
 
+// logic
+import { spendMana } from "@/game/logic/manaLogic";
+
 interface CardProps {
   card: CardState;
   location: "hand" | "battlefield";
@@ -36,75 +35,6 @@ interface CardProps {
   cardPlayer: 1 | 2;
   addRef: AddRefFunction;
 }
-
-const spendMana = (
-  card: CardState,
-  player: Player,
-  dispatch: Dispatch<UnknownAction>
-) => {
-  if (card.type === "land") {
-    dispatch(incrementLandUsage());
-    return;
-  }
-
-  const manaPool = { ...player.mana };
-  const lands = [...player.battlefield.lands];
-
-  type keyType = keyof typeof card.manaCost;
-  const landIds: number[] = [];
-
-  // colored mana handling
-  for (const [key, value] of Object.entries(card.manaCost) as [
-    keyType,
-    number
-  ][]) {
-    if (key === "colorless" || value === 0) continue;
-
-    let remaining = Math.max(value - manaPool[key], 0);
-    manaPool[key] = Math.max(manaPool[key] - value, 0);
-
-    while (remaining) {
-      const land = lands.find(
-        (land) =>
-          land.manaGiven[key] &&
-          land.manaGiven[key] > 0 &&
-          !landIds.includes(land.id) &&
-          !land.tapped
-      );
-
-      if (!land || !land.manaGiven[key]) throw Error("spendMana failed");
-
-      landIds.push(land.id);
-      dispatch(tapCard(land.id));
-
-      remaining -= land.manaGiven[key];
-    }
-  }
-
-  let colorless: number = card.manaCost["colorless"]
-    ? card.manaCost["colorless"]
-    : 0;
-
-  for (const [key, value] of Object.entries(manaPool) as [keyType, number][]) {
-    if (value === 0) continue;
-    if (colorless === 0) break;
-
-    colorless -= Math.max(colorless - manaPool[key], 0);
-    manaPool[key] = Math.max(manaPool[key] - colorless, 0);
-  }
-  if (colorless > 0) {
-    for (const land of lands) {
-      if (landIds.includes(land.id) || land.tapped) continue;
-      if (colorless === 0) break;
-
-      dispatch(tapCard(land.id));
-
-      colorless--;
-    }
-  }
-
-  dispatch(modifyManaPool(manaPool));
-};
 
 function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   // redux state
@@ -120,6 +50,14 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   const targeting = useSelector((state: RootState) => state.targeting);
   const attackers = useSelector((state: RootState) => state.players.fights).map(
     (fight) => fight.attacker
+  );
+
+  const declaredAttackers = useSelector(
+    (state: RootState) => state.players.declaredAttackers
+  );
+
+  const declaredBlockers = useSelector(
+    (state: RootState) => state.players.declaredBlockers
   );
   const dispatch = useDispatch();
 
@@ -140,13 +78,21 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         }
       }
 
-      if (currPhase === "COMBAT_ATTACK" && cardPlayer === activePLayer) {
+      if (
+        currPhase === "COMBAT_ATTACK" &&
+        cardPlayer === activePLayer &&
+        !declaredAttackers
+      ) {
         if (card.summoningSickness || card.tapped) return;
 
         dispatch(toggleAttacker(card.id));
       }
 
-      if (currPhase === "COMBAT_BLOCK" && cardPlayer !== activePLayer) {
+      if (
+        currPhase === "COMBAT_BLOCK" &&
+        cardPlayer !== activePLayer &&
+        !declaredBlockers
+      ) {
         if (card.summoningSickness || card.tapped) return;
 
         const targetRule: TargetSelect[] = [
@@ -177,7 +123,14 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
 
       spendMana(card, player, dispatch);
 
-      dispatch(addToBattleField(card));
+      if (card.type === "land") {
+        dispatch(addToBattleField(card));
+        return;
+      }
+      // TODO: HANDLE GETTING TARGETS
+      dispatch(
+        castSpell({ card, castedPlayer: cardPlayer, args: {}, type: "CAST" })
+      );
     }
   };
 

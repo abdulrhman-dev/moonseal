@@ -3,18 +3,18 @@ import { CardDefault } from "@/types/cards";
 
 const card: Card = {
   ...CardDefault,
-  gameId: 1439,
-  name: "Grizzly Bears",
+  gameId: 215615,
+  name: "Garruk's Gorehorn",
   type: "creature",
   canTap: false,
   manaCost: {
-    green: 0,
-    colorless: 0,
+    green: 1,
+    colorless: 4,
   },
   summoningSickness: true,
-  defaultPower: 2,
-  defaultToughness: 2,
-  typeLine: "Creature — Bear",
+  defaultPower: 7,
+  defaultToughness: 3,
+  typeLine: "Creature — Beast",
   text: "",
   keywords: [],
   valid() {

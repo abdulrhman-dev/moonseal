@@ -4,14 +4,44 @@ import { useSelector } from "react-redux";
 import type { RootState } from "@/store/store";
 import {
   type Card as CardType,
+  type CardTypes,
   type CardState,
   type Mana,
   ManaDefault,
 } from "@/types/cards";
 import type { Player } from "@/store/PlayersSlice";
+import type { Phases } from "@/types/phases";
 
-export const canCast = async (card: CardState, player: Player) => {
-  if (card.type === "land") return player.landsCasted <= 0;
+const fastSpells: CardTypes[] = ["instant"] as const;
+
+export const canCast = async (
+  card: CardState,
+  spellStackLength: number,
+  currPhase: Phases,
+  player: Player,
+  isActive: boolean
+): Promise<boolean> => {
+  if (card.type === "land")
+    return (
+      (currPhase === "MAIN_PHASE_1" || currPhase === "MAIN_PHASE_2") &&
+      spellStackLength === 0 &&
+      player.landsCasted <= 0 &&
+      isActive
+    );
+
+  if (spellStackLength === 0) {
+    if (!isActive) return false;
+
+    if (
+      currPhase !== "MAIN_PHASE_1" &&
+      currPhase !== "MAIN_PHASE_2" &&
+      !fastSpells.includes(card.type)
+    )
+      return false;
+  } else if (!fastSpells.includes(card.type)) {
+    return false;
+  }
+
   // Getting all avaliable mana
   const mana: Required<Mana> = {
     ...ManaDefault,
@@ -44,7 +74,9 @@ export const canCast = async (card: CardState, player: Player) => {
     0
   );
   // Checking the outcome
-  const cardImport = await import(`../../cards/logic/card_${card.gameId}`);
+  const cardImport = await import(
+    `../../cards/logic/card_${card.gameId}_${card.name}`
+  );
   const cardData = cardImport.default as CardType;
 
   if (card.manaCost.colorless && card.manaCost.colorless <= remaningMana)
@@ -64,34 +96,54 @@ const useCanCast = (card: CardState, cardPlayer: 1 | 2) => {
     (state: RootState) => state.players.current_player
   );
 
+  const priority = useSelector((state: RootState) => state.players.priority);
+
   const currPhase = useSelector(
     (state: RootState) => state.players.current_phase
   );
 
+  const declaredAttackers = useSelector(
+    (state: RootState) => state.players.declaredAttackers
+  );
+
+  const declaredBlockers = useSelector(
+    (state: RootState) => state.players.declaredBlockers
+  );
+
+  const spellStackLength = useSelector(
+    (state: RootState) => state.players.spell_stack.length
+  );
+
   useEffect(() => {
     (async () => {
-      if (currPlayer !== cardPlayer) {
+      if (
+        (currPhase === "COMBAT_ATTACK" && !declaredAttackers) ||
+        (currPhase === "COMBAT_BLOCK" && !declaredBlockers) ||
+        cardPlayer !== priority
+      ) {
         setCastStyle(false);
         return;
       }
 
-      // TODO: Handle stack case
-      /*
-        117.1a 
-        A player may cast an instant spell any time they have priority. 
-        A player may cast a noninstant spell during their main phase any time they have priority and the stack is empty.
-      */
-      if (currPhase !== "MAIN_PHASE_1" && currPhase !== "MAIN_PHASE_2") {
-        setCastStyle(false);
-        return;
-      }
-
-      const shouldCast = await canCast(card, player);
+      const shouldCast = await canCast(
+        card,
+        spellStackLength,
+        currPhase,
+        player,
+        cardPlayer === currPlayer
+      );
 
       if (shouldCast) setCastStyle(true);
       else setCastStyle(false);
     })();
-  }, [player, currPhase]);
+  }, [
+    player,
+    currPhase,
+    priority,
+    currPlayer,
+    declaredAttackers,
+    declaredBlockers,
+  ]);
 
   return castStyle;
 };

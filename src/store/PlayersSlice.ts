@@ -1,4 +1,4 @@
-import type { CardState, Mana } from "@/types/cards";
+import type { CardResolveData, CardState, Mana } from "@/types/cards";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { PhasesArray, type Phases } from "@/types/phases";
 
@@ -9,8 +9,10 @@ type ArgumentNames = Triggers extends [infer TriggerName, unknown]
   : never;
 
 type StackAbility = {
-  card_id: number;
-  type: ["TRIGGER", ArgumentNames] | ["ACTIVATED", number] | ["CAST"];
+  card: CardState;
+  args: CardResolveData | { cardId: number };
+  castedPlayer: 1 | 2;
+  type: ["TRIGGER", ArgumentNames] | ["ACTIVATED", number] | "CAST";
 };
 
 export type PlayerMana = Required<Mana>;
@@ -29,6 +31,7 @@ export type Player = {
   turn: number;
   landsCasted: number;
 };
+
 export type Fight = {
   attacker: number;
   blockers: number[];
@@ -38,10 +41,13 @@ export type PlayersState = {
   player: [Player, Player];
   current_player: 0 | 1 | 2;
   priority: 0 | 1 | 2;
+  priorityPassNum: number;
   id_counter: number;
   current_phase: Phases;
   spell_stack: StackAbility[];
   fights: Fight[];
+  declaredAttackers: boolean;
+  declaredBlockers: boolean;
 };
 
 const PlayerDefault: Player = {
@@ -74,6 +80,9 @@ const initialState: PlayersState = {
   current_phase: "NONE",
   spell_stack: [],
   fights: [],
+  priorityPassNum: 0,
+  declaredAttackers: false,
+  declaredBlockers: false,
 };
 
 function shuffle(cards: unknown[]) {
@@ -133,6 +142,7 @@ const playersSlice = createSlice({
     startGame(state) {
       state.current_phase = "BEGINNING_UNTAP";
       state.current_player = 1;
+      state.priority = 1;
       state.player[state.current_player - 1].turn++;
 
       for (let i = 0; i < 7; ++i) {
@@ -147,11 +157,16 @@ const playersSlice = createSlice({
         (PhasesArray.findIndex((phase) => phase === state.current_phase) + 1) %
         (PhasesArray.length - 1);
 
+      state.priorityPassNum = 0;
+
       // toggle between the two players
       if (nextIndex === 0) {
         state.player[state.current_player - 1].landsCasted = 0;
-        state.current_player ^= 3;
+        state.current_player = (state.current_player ^ 3) as 1 | 2;
+        state.priority = state.current_player;
         state.player[state.current_player - 1].turn++;
+        state.declaredAttackers = false;
+        state.declaredBlockers = false;
       }
 
       state.current_phase = PhasesArray[nextIndex];
@@ -310,6 +325,31 @@ const playersSlice = createSlice({
         });
       }
     },
+    castSpell(state, action: PayloadAction<StackAbility>) {
+      state.priorityPassNum = 0;
+      state.spell_stack.push(action.payload);
+
+      state.player[state.current_player - 1].hand = state.player[
+        state.current_player - 1
+      ].hand.filter((card) => card.id !== action.payload.card.id);
+    },
+    resolveSpell(state) {
+      state.priority = state.current_player;
+      state.priorityPassNum = 0;
+      state.spell_stack.pop();
+    },
+    passPriority(state) {
+      if (!state.priority) return;
+
+      state.priorityPassNum++;
+      state.priority = (state.priority ^ 3) as 1 | 2;
+    },
+    setDeclaredAttackers(state) {
+      state.declaredAttackers = true;
+    },
+    setDeclaredBlockers(state) {
+      state.declaredBlockers = true;
+    },
   },
 });
 
@@ -331,4 +371,9 @@ export const {
   calculateDamage,
   cleanUpCombat,
   healCreatures,
+  castSpell,
+  resolveSpell,
+  passPriority,
+  setDeclaredAttackers,
+  setDeclaredBlockers,
 } = playersSlice.actions;

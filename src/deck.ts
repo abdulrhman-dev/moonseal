@@ -1,4 +1,12 @@
-export const deck = {
-  "1439": 20,
-  "559542": 30,
-} as const;
+export const deck = [
+  {
+    id: "559542",
+    name: "Forest",
+    amount: 20,
+  },
+  {
+    id: "1439",
+    name: "Grizzly Bears",
+    amount: 40,
+  },
+] as const;

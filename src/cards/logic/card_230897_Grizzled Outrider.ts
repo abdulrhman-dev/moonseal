@@ -3,18 +3,18 @@ import { CardDefault } from "@/types/cards";
 
 const card: Card = {
   ...CardDefault,
-  gameId: 1439,
-  name: "Grizzly Bears",
+  gameId: 230897,
+  name: "Grizzled Outrider",
   type: "creature",
   canTap: false,
   manaCost: {
-    green: 0,
-    colorless: 0,
+    green: 1,
+    colorless: 4,
   },
   summoningSickness: true,
-  defaultPower: 2,
-  defaultToughness: 2,
-  typeLine: "Creature — Bear",
+  defaultPower: 5,
+  defaultToughness: 5,
+  typeLine: "Creature — Elf Warrior",
   text: "",
   keywords: [],
   valid() {

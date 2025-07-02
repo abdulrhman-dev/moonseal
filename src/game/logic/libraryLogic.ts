@@ -10,12 +10,14 @@ import { deck } from "@/deck";
 
 export const getCardData = async (dispatch: Dispatch<UnknownAction>) => {
   for (const player of [1, 2] as const) {
-    for (const key of Object.keys(deck)) {
-      const cardImport = await import(`../../cards/logic/card_${key}`);
-      const card = cardImport.default;
-
+    for (const deck_card of deck) {
+      const cardImport = await import(
+        `../../cards/logic/card_${deck_card.id}_${deck_card.name}`
+      );
+      const orgCard = cardImport.default;
+      const card = { ...orgCard };
       // deleting non serializable props
-      delete card["cast"];
+      delete card["resolve"];
       delete card["triggers"];
       delete card["valid"];
 
@@ -24,11 +26,10 @@ export const getCardData = async (dispatch: Dispatch<UnknownAction>) => {
         ...card,
         ...CardStateDefault,
         power: card.defaultPower,
-        toughness: card.default_toughness,
+        toughness: card.defaultToughness,
       };
 
-      type keysType = keyof typeof deck;
-      let count = deck[key as keysType];
+      let count = deck_card.amount;
 
       while (count--) dispatch(pushLibrary({ player, card: cardInput }));
     }
