@@ -35,7 +35,8 @@ export const Battlefield = ({ data, player, addRef }: BattlefieldProps) => {
               style={{
                 position: "absolute",
                 top: 0,
-                left: index * STEP_SIZE,
+                left: 30 * (data.lands.length - index - 1),
+                margin: 0,
               }}
               card={card}
               location="battlefield"

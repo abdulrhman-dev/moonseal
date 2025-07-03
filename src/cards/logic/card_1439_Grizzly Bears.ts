@@ -9,7 +9,7 @@ const card: Card = {
   canTap: false,
   manaCost: {
     green: 1,
-    colorless: 0,
+    colorless: 1,
   },
   summoningSickness: true,
   defaultPower: 2,

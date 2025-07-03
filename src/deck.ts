@@ -62,6 +62,33 @@ const all_cards = [
 ];
 
 export const decks = {
-  2: [...all_cards],
-  1: [...all_cards],
+  2: [
+    {
+      id: "559542",
+      name: "Forest",
+      amount: 4,
+    },
+    {
+      id: "535861",
+      name: "Wild Growth",
+      amount: 3,
+    },
+  ],
+  1: [
+    {
+      id: "559542",
+      name: "Forest",
+      amount: 1,
+    },
+    {
+      id: "535861",
+      name: "Wild Growth",
+      amount: 1,
+    },
+    {
+      id: "1439",
+      name: "Grizzly Bears",
+      amount: 1,
+    },
+  ],
 } as const;

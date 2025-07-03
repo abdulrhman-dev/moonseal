@@ -11,6 +11,7 @@ import {
   showcaseOnStack,
   toggleAttacker,
   toggleBlocker,
+  updateCard,
 } from "@/store/PlayersSlice";
 import type { RootState } from "@/store/store";
 
@@ -100,11 +101,11 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       ) {
         if (card.summoningSickness || card.tapped) return;
 
-        const targetRule: TargetSelect[] = [
+        const targetRules: TargetSelect[] = [
           {
             type: "creature",
             amount: 1,
-            player: activePLayer,
+            player: 2,
           },
         ];
 
@@ -112,14 +113,14 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
           if (targets.length !== 1) return;
 
           if (!attackers.includes(targets[0].id)) {
-            getTargets(targetRule, callback);
+            getTargets({ targetRules, cardPlayer }, callback);
             return;
           }
 
           dispatch(toggleBlocker({ id: card.id, target: targets[0].id }));
         };
 
-        getTargets(targetRule, callback);
+        getTargets({ targetRules, cardPlayer }, callback);
       }
     } else if (location === "hand") {
       if (!canCast) return;
@@ -154,7 +155,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
           );
         };
 
-        getTargets(card.targetSelects, callback);
+        getTargets({ targetRules: card.targetSelects, cardPlayer }, callback);
       } else {
         dispatch(
           castSpell({
@@ -169,62 +170,76 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   };
 
   return (
-    <div
-      className={`${Style.card} ${
-        location === "hand" ? Style.inhand : Style.inbattlefield
-      } ${canCast && location === "hand" ? Style.canCast : ""} ${
-        card.tapped ? Style.tapped : ""
-      } ${attackers.includes(card.id) ? Style.attacking : ""} ${
-        location === "battlefield" && canTarget ? Style.targetable : ""
-      } ${
-        (card.tapped || card.summoningSickness) && location === "battlefield"
-          ? Style.effect
-          : ""
-      } ${location === "stack" ? Style.instack : ""} `}
-      style={{
-        ...style,
-        backgroundImage: `url(${image})`,
-        transformOrigin: cardPlayer === 1 ? "bottom" : "top",
-      }}
-      onClick={handleCardClick}
-      ref={(node) => {
-        if (addRef && node) addRef(node, card.id);
-      }}
-    >
-      {card.tapped && <IoIosUndo className={Style.icon} />}
-      {card.summoningSickness && location === "battlefield" && (
-        <WiStars className={Style.icon} />
-      )}
+    <div className={Style.cardContainer} style={{ ...style }}>
+      {card.enchanters.map((enchanter, index) => (
+        <Card
+          key={enchanter.id}
+          card={enchanter}
+          location={location}
+          cardPlayer={cardPlayer}
+          style={{
+            position: "absolute",
+            left: 15 * (card.enchanters.length - index),
+            margin: 0,
+          }}
+        />
+      ))}
+      <div
+        className={`${Style.card} ${
+          location === "hand" ? Style.inhand : Style.inbattlefield
+        } ${canCast && location === "hand" ? Style.canCast : ""} ${
+          card.tapped ? Style.tapped : ""
+        } ${attackers.includes(card.id) ? Style.attacking : ""} ${
+          location === "battlefield" && canTarget ? Style.targetable : ""
+        } ${
+          (card.tapped || card.summoningSickness) && location === "battlefield"
+            ? Style.effect
+            : ""
+        } ${location === "stack" ? Style.instack : ""} `}
+        style={{
+          backgroundImage: `url(${image})`,
+          transformOrigin: cardPlayer === 1 ? "bottom" : "top",
+        }}
+        onClick={handleCardClick}
+        ref={(node) => {
+          if (addRef && node) addRef(node, card.id);
+        }}
+      >
+        {card.tapped && <IoIosUndo className={Style.icon} />}
+        {card.summoningSickness && location === "battlefield" && (
+          <WiStars className={Style.icon} />
+        )}
 
-      {card.type === "creature" && (
-        <div className={Style.cardPlate}>
-          <p>
-            <span
-              className={
-                card.power > card.defaultPower
-                  ? Style.cardBuff
-                  : card.power < card.defaultPower
-                  ? Style.cardDebuff
-                  : ""
-              }
-            >
-              {card.power}
-            </span>
-            /
-            <span
-              className={
-                card.toughness > card.defaultToughness
-                  ? Style.cardBuff
-                  : card.toughness < card.defaultToughness
-                  ? Style.cardDebuff
-                  : ""
-              }
-            >
-              {card.toughness}
-            </span>
-          </p>
-        </div>
-      )}
+        {card.type === "creature" && (
+          <div className={Style.cardPlate}>
+            <p>
+              <span
+                className={
+                  card.power > card.defaultPower
+                    ? Style.cardBuff
+                    : card.power < card.defaultPower
+                    ? Style.cardDebuff
+                    : ""
+                }
+              >
+                {card.power}
+              </span>
+              /
+              <span
+                className={
+                  card.toughness > card.defaultToughness
+                    ? Style.cardBuff
+                    : card.toughness < card.defaultToughness
+                    ? Style.cardDebuff
+                    : ""
+                }
+              >
+                {card.toughness}
+              </span>
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

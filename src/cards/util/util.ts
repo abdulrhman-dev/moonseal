@@ -48,3 +48,33 @@ export function getRecentCard(targetId: number) {
     }
   }
 }
+
+export function getRecentEnchantment(targetId: number) {
+  const state = store.getState().players;
+
+  for (const player of [1, 2]) {
+    for (const location of ["graveyard", "library", "hand", "exile"] as const) {
+      for (const card of state.player[player - 1][location]) {
+        const cardIndex = card.enchanters.findIndex(
+          (card) => card.id === targetId
+        );
+
+        if (cardIndex !== -1) {
+          return card.enchanters[cardIndex];
+        }
+      }
+    }
+
+    for (const location of ["creatures", "lands"] as const) {
+      for (const card of state.player[player - 1].battlefield[location]) {
+        const cardIndex = card.enchanters.findIndex(
+          (card) => card.id === targetId
+        );
+
+        if (cardIndex !== -1) {
+          return card.enchanters[cardIndex];
+        }
+      }
+    }
+  }
+}

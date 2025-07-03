@@ -49,15 +49,15 @@ export const canCast = async (
 
   type ManaKeyValue = [keyof Mana, number];
 
-  player.battlefield.lands.forEach((land) => {
-    if (land.tapped === true) return;
+  for (const land of player.battlefield.lands) {
+    if (land.tapped === true) continue;
 
     for (const [key, value] of Object.entries(
       land.manaGiven
     ) as ManaKeyValue[]) {
       mana[key] += value;
     }
-  });
+  }
 
   // Removing appropriate mana
   for (const [key, value] of Object.entries(card.manaCost) as ManaKeyValue[]) {

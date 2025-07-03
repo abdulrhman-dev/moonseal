@@ -18,8 +18,22 @@ function useGetTargets() {
   const dispatch = useDispatch();
   const targeting = useSelector((state: RootState) => state.targeting);
 
-  function getTargets(targetRules: TargetSelect[], cb: GetTargetCallback) {
-    dispatch(initilizeTargets(targetRules));
+  function getTargets(
+    {
+      cardPlayer,
+      targetRules,
+    }: { cardPlayer: 1 | 2; targetRules: TargetSelect[] },
+    cb: GetTargetCallback
+  ) {
+    dispatch(
+      initilizeTargets(
+        targetRules.map((targetRule) => ({
+          ...targetRule,
+          player:
+            targetRule.player === 1 ? cardPlayer : ((cardPlayer ^ 3) as 1 | 2),
+        }))
+      )
+    );
     setCallback(() => cb);
   }
 

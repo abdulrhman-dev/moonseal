@@ -33,7 +33,7 @@ export const spendMana = (
     let remaining = Math.max(value - manaPool[key], 0);
     manaPool[key] = Math.max(manaPool[key] - value, 0);
 
-    while (remaining) {
+    while (remaining > 0) {
       const land = lands.find(
         (land) =>
           land.manaGiven[key] &&
@@ -48,6 +48,11 @@ export const spendMana = (
       dispatch(tapCard(land.id));
 
       remaining -= land.manaGiven[key];
+
+      if (remaining < 0) {
+        manaPool[key] -= remaining;
+        remaining = 0;
+      }
     }
   }
 
@@ -59,8 +64,10 @@ export const spendMana = (
     if (value === 0) continue;
     if (colorless === 0) break;
 
-    colorless -= Math.max(colorless - manaPool[key], 0);
-    manaPool[key] = Math.max(manaPool[key] - colorless, 0);
+    const colorlessTemp = colorless;
+
+    colorless = Math.max(colorless - manaPool[key], 0);
+    manaPool[key] = Math.max(manaPool[key] - colorlessTemp, 0);
   }
   if (colorless > 0) {
     for (const land of lands) {
@@ -71,6 +78,8 @@ export const spendMana = (
 
       colorless--;
     }
+
+    if (colorless > 0) throw Error("spendMana failed");
   }
 
   dispatch(modifyManaPool(manaPool));

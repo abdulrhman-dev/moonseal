@@ -2,21 +2,13 @@ import type { CardResolveData, CardState, Mana } from "@/types/cards";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { PhasesArray, type Phases } from "@/types/phases";
 
-import type { Triggers } from "@/types/triggers";
-
-type ArgumentNames = Triggers extends [infer TriggerName, unknown]
-  ? TriggerName
-  : never;
+import type { TriggerNames } from "@/types/triggers";
 
 export type StackAbility = {
   card: CardState;
   args: CardResolveData;
   castedPlayer: 1 | 2;
-  type:
-    | ["TRIGGER", ArgumentNames]
-    | ["ACTIVATED", number]
-    | "CAST"
-    | "SHOWCASE";
+  type: ["TRIGGER", TriggerNames] | ["ACTIVATED", number] | "CAST" | "SHOWCASE";
 };
 
 export type PlayerMana = Required<Mana>;
@@ -73,7 +65,7 @@ const PlayerDefault: Player = {
     black: 0,
     colorless: 0,
   },
-  landsCasted: 0,
+  landsCasted: -5,
 };
 
 const initialState: PlayersState = {
@@ -428,6 +420,24 @@ const playersSlice = createSlice({
       state.player[action.payload.cardPlayer - 1].landsCasted =
         action.payload.amount;
     },
+    attachEnchantment(
+      state,
+      action: PayloadAction<{
+        targetId: number;
+        type: "lands" | "creatures";
+        card: CardState;
+      }>
+    ) {
+      const permanent = state.player[
+        action.payload.card.cardPlayer - 1
+      ].battlefield[action.payload.type].find(
+        (card) => card.id === action.payload.targetId
+      );
+
+      if (!permanent) return;
+
+      permanent.enchanters.push(action.payload.card);
+    },
   },
 });
 
@@ -459,4 +469,5 @@ export const {
   removeShowcase,
   setLandsUsed,
   moveToGraveyard,
+  attachEnchantment,
 } = playersSlice.actions;

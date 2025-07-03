@@ -1,3 +1,9 @@
+.cardContainer{
+      width: var(--card-width);
+    height: var(--card-height);
+    position: relative;
+}
+
 .card{
     width: var(--card-width);
     height: var(--card-height);
@@ -52,7 +58,9 @@ transform-origin: bottom !important;
   z-index: 200;
 
 }
-.inhand{
+
+
+.cardContainer:has(.inhand){
 
     --card-width: 120px;
     --card-height: calc(var(--card-width) * 1.4);
@@ -66,7 +74,7 @@ transform-origin: bottom !important;
 
 /* battlefield styles */
 
-.inbattlefield{
+.cardContainer:has(.inbattlefield){
   --card-width: 150px;
   margin: 0px 20px;
 }

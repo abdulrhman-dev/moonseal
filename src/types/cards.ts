@@ -1,4 +1,4 @@
-import type { Triggers } from "./triggers";
+import type { TriggerNames, Triggers } from "./triggers";
 
 export type CardTypes =
   | "land"
@@ -103,7 +103,7 @@ export interface CardState {
 
   targetSelects: TargetSelect[];
   targets: number[];
-  enchanters: Card[];
+  enchanters: CardState[];
 
   manaCost: Mana;
   manaGiven: Mana;
@@ -118,4 +118,6 @@ export interface CardState {
   summoningSickness: boolean;
 
   cardPlayer: 0 | 1 | 2;
+
+  triggers: TriggerNames[];
 }
