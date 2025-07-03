@@ -66,7 +66,7 @@ export default function (
       break;
     case "CLEANUP":
       dispatch(healCreatures());
-      dispatch(nextPhase());
+
       break;
   }
 

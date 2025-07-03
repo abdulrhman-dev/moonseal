@@ -14,13 +14,21 @@ import handlePriorityChange from "./game/handlers/handlePriorityChange";
 import { PhaseButton } from "./components/PhaseButton";
 import { SpellStack } from "./components/SpellStack";
 import { Mulligan } from "./modals/Mulligan";
-import { startGame } from "./store/PlayersSlice";
+import {
+  nextPhase,
+  removeCardHand,
+  shuffleLibary,
+  startGame,
+} from "./store/PlayersSlice";
+import useGetTargets from "./game/hooks/useGetTargets";
+import type { CardState, TargetSelect } from "./types/cards";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
 function App() {
   const dispatch = useDispatch();
   const players = useSelector((state: RootState) => state.players);
+  const { getTargets } = useGetTargets();
 
   const cardsElements = useRef<Map<number, HTMLElement>>(new Map());
   const intilizeDeck = useRef(false);
@@ -46,6 +54,41 @@ function App() {
       dispatch(startGame((Math.floor(Math.random() * 2) + 1) as 1 | 2));
     }
   }, [players.player[0].ready, players.player[1].ready]);
+
+  useEffect(() => {
+    if (players.current_phase === "NONE") return;
+
+    const handLength = players.player[players.current_player - 1].hand.length;
+
+    if (handLength > 7 && players.current_phase === "CLEANUP") {
+      const targetRules: TargetSelect[] = [
+        {
+          amount: handLength - 7,
+          player: 1,
+          type: "hand",
+        },
+      ];
+
+      const callback = (targets: CardState[]) => {
+        if (!players.current_player) return;
+
+        for (const target of targets) {
+          dispatch(
+            removeCardHand({ id: target.id, player: players.current_player })
+          );
+        }
+        dispatch(shuffleLibary({ player: players.current_player }));
+        dispatch(nextPhase());
+      };
+
+      if (!players.current_player) return;
+
+      getTargets({ targetRules, cardPlayer: players.current_player }, callback);
+    } else if (players.current_phase === "CLEANUP") {
+      dispatch(nextPhase());
+    }
+  }, [players.current_phase]);
+
   function addRef(node: HTMLElement, cardId: number) {
     cardsElements.current.set(cardId, node);
   }
@@ -63,7 +106,9 @@ function App() {
       )}
       {players.player.map(
         (player, index) =>
-          !player.ready && <Mulligan player={(index + 1) as 1 | 2} />
+          !player.ready && (
+            <Mulligan key={index} player={(index + 1) as 1 | 2} />
+          )
       )}
 
       <Hand cards={players.player[1].hand} player={2} addRef={addRef} />

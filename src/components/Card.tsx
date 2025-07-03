@@ -30,9 +30,11 @@ import { WiStars } from "react-icons/wi";
 // logic
 import { spendMana } from "@/game/logic/manaLogic";
 
+export type CardLocations = "hand" | "battlefield" | "stack";
+
 interface CardProps {
   card: CardState;
-  location: "hand" | "battlefield" | "stack";
+  location: CardLocations;
   style?: React.CSSProperties | undefined;
   cardPlayer: 0 | 1 | 2;
   addRef?: AddRefFunction;
@@ -66,23 +68,29 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   const { image } = useImage(card.gameId.toString());
   const { getTargets } = useGetTargets();
   const canCast = useCanCast(card, cardPlayer);
-  const canTarget = useCanTarget(card, cardPlayer);
+  const canTarget = useCanTarget(card, location, cardPlayer);
 
   const handleCardClick = async () => {
     if (!cardPlayer) return;
-
-    if (location === "battlefield") {
+    if (declaredAttackers && declaredBlockers) {
       if (canTarget) {
         if (targeting.targets.find((target) => target.data.id === card.id)) {
           dispatch(removeTarget(card.id));
         } else {
           dispatch(
-            addTarget({ data: card, type: card.type, player: cardPlayer })
+            addTarget({
+              data: card,
+              type: card.type,
+              player: cardPlayer,
+              location,
+            })
           );
         }
         return;
       }
+    }
 
+    if (location === "battlefield") {
       if (
         currPhase === "COMBAT_ATTACK" &&
         cardPlayer === activePLayer &&
@@ -189,7 +197,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         } ${canCast && location === "hand" ? Style.canCast : ""} ${
           card.tapped ? Style.tapped : ""
         } ${attackers.includes(card.id) ? Style.attacking : ""} ${
-          location === "battlefield" && canTarget ? Style.targetable : ""
+          canTarget ? Style.targetable : ""
         } ${
           (card.tapped || card.summoningSickness) && location === "battlefield"
             ? Style.effect

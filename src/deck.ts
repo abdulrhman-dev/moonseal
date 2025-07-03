@@ -66,7 +66,7 @@ export const decks = {
     {
       id: "559542",
       name: "Forest",
-      amount: 4,
+      amount: 40,
     },
     {
       id: "535861",

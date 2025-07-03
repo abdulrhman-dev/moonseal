@@ -14,6 +14,10 @@ import { useEffect, useState } from "react";
 export const PhaseButton = () => {
   const dispatch = useDispatch();
   const players = useSelector((state: RootState) => state.players);
+  const targetsRules = useSelector(
+    (state: RootState) => state.targeting.targetsRules
+  );
+
   const [buttonData, setButtonData] = useState<{
     style: string;
     buttonText: string;
@@ -106,8 +110,13 @@ export const PhaseButton = () => {
           : "top"]: 20,
       }}
       disabled={
-        players.spell_stack.length > 0 &&
-        players.spell_stack[players.spell_stack.length - 1].type === "SHOWCASE"
+        (players.spell_stack.length > 0 &&
+          players.spell_stack[players.spell_stack.length - 1].type ===
+            "SHOWCASE") ||
+        targetsRules.reduce(
+          (prev, targetRule) => targetRule.amount !== 0 || prev,
+          false
+        )
       }
     >
       {buttonData.buttonText}

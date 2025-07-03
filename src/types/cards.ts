@@ -9,7 +9,7 @@ export type CardTypes =
 
 export type TargetSelect = {
   amount: number;
-  type: CardTypes;
+  type: CardTypes | "hand";
   player: 0 | 1 | 2;
 };
 

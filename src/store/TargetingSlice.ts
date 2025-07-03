@@ -1,11 +1,13 @@
 import type { CardState, TargetSelect } from "@/types/cards";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { CardTypes } from "@/types/cards";
+import type { CardLocations } from "@/components/Card";
 
 type Target = {
-  type: CardTypes;
+  type: CardTypes | "attacker" | "hand";
   player: 1 | 2;
   data: CardState;
+  location: CardLocations;
 };
 
 export type TargetingState = {
@@ -33,19 +35,37 @@ const targetingSlice = createSlice({
           targetRule.amount > 0
       );
 
-      if (updateIndex === -1) {
-        updateIndex = state.targetsRules.findIndex(
-          (targetRule) =>
-            targetRule.type === action.payload.type &&
-            targetRule.player === 0 &&
-            targetRule.amount > 0
-        );
-
-        if (updateIndex === -1) return;
+      if (updateIndex !== -1) {
+        state.targetsRules[updateIndex].amount--;
+        state.targets.push(action.payload);
+        return;
       }
 
-      state.targetsRules[updateIndex].amount--;
-      state.targets.push(action.payload);
+      updateIndex = state.targetsRules.findIndex(
+        (targetRule) =>
+          targetRule.type === action.payload.location &&
+          targetRule.player === action.payload.player &&
+          targetRule.amount > 0
+      );
+
+      if (updateIndex !== -1) {
+        state.targetsRules[updateIndex].amount--;
+        state.targets.push(action.payload);
+        return;
+      }
+
+      updateIndex = state.targetsRules.findIndex(
+        (targetRule) =>
+          targetRule.type === action.payload.type &&
+          targetRule.player === 0 &&
+          targetRule.amount > 0
+      );
+
+      if (updateIndex !== -1) {
+        state.targetsRules[updateIndex].amount--;
+        state.targets.push(action.payload);
+        return;
+      }
     },
     removeTarget(state, action: PayloadAction<number>) {
       state.targets = state.targets.filter(
