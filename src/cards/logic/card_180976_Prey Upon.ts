@@ -2,6 +2,7 @@ import { moveToGraveyard, updateCard } from "@/store/PlayersSlice";
 import { store } from "@/store/store";
 import type { Card } from "@/types/cards";
 import { CardDefault } from "@/types/cards";
+import { getRecentCard } from "../util/util";
 
 const card: Card = {
   ...CardDefault,
@@ -37,11 +38,13 @@ const card: Card = {
       store.getState().players.player[1].battlefield.creatures.length > 0
     );
   },
-  resolve({ targets }) {
-    if (!targets || targets.length !== 2) return;
+  resolve({ targets, cardPlayer }) {
+    if (!targets || targets.length !== 2 || !cardPlayer) return;
 
-    const attacker = { ...targets[0] };
-    const blocker = { ...targets[1] };
+    const attacker = Object.assign({}, getRecentCard(targets[0].id));
+    const blocker = Object.assign({}, getRecentCard(targets[1].id));
+
+    if (!attacker || !blocker) return;
 
     attacker.toughness -= blocker.power;
     blocker.toughness -= attacker.power;

@@ -22,3 +22,29 @@ export function validTargets(targets: CardState[]) {
 
   return true;
 }
+
+export function getRecentCard(targetId: number) {
+  const state = store.getState().players;
+
+  for (const player of [1, 2]) {
+    for (const location of ["graveyard", "library", "hand", "exile"] as const) {
+      const cardIndex = state.player[player - 1][location].findIndex(
+        (card) => card.id === targetId
+      );
+
+      if (cardIndex !== -1) {
+        return state.player[player - 1][location][cardIndex];
+      }
+    }
+
+    for (const location of ["creatures", "lands"] as const) {
+      const cardIndex = state.player[player - 1].battlefield[
+        location
+      ].findIndex((card) => card.id === targetId);
+
+      if (cardIndex !== -1) {
+        return state.player[player - 1].battlefield[location][cardIndex];
+      }
+    }
+  }
+}

@@ -326,9 +326,15 @@ const playersSlice = createSlice({
 
           if (!blocker) continue;
 
+          const blockerToughness = blocker.toughness;
+
           blocker.toughness -= attacker.power;
           attacker.toughness -= blocker.power;
+
+          attacker.power = Math.max(attacker.power - blockerToughness, 0);
         }
+
+        attacker.power = attacker.defaultPower;
       }
     },
     cleanUpCombat(state) {

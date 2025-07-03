@@ -8,7 +8,7 @@ const card: Card = {
   type: "creature",
   canTap: false,
   manaCost: {
-    green: 0,
+    green: 1,
     colorless: 0,
   },
   summoningSickness: true,
