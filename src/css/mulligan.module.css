@@ -1,0 +1,27 @@
+.mulliganContainer{
+    position: absolute;
+    height: 20vh;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding-left: 1%;
+}
+
+.mulliganContainer button{
+    height: 50px;
+    width: 100px;
+    margin: 20px;
+    border-radius: 25px;
+    border:none;
+    font-weight: bold;
+    cursor: pointer;
+    bottom: 30px;
+    color: white;
+}
+
+.mulliganContainer .draw{
+        background-color: orange;
+}
+.mulliganContainer .keep{
+        background-color: rgb(0, 89, 255);
+}

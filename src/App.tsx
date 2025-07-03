@@ -13,6 +13,8 @@ import { TargetLine } from "./components/TargetLine";
 import handlePriorityChange from "./game/handlers/handlePriorityChange";
 import { PhaseButton } from "./components/PhaseButton";
 import { SpellStack } from "./components/SpellStack";
+import { Mulligan } from "./modals/Mulligan";
+import { startGame } from "./store/PlayersSlice";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
@@ -32,7 +34,6 @@ function App() {
   }, []);
 
   useEffect(() => {
-    let mount = true;
     handlePhaseChange(players, dispatch);
   }, [players.current_phase]);
 
@@ -40,6 +41,11 @@ function App() {
     handlePriorityChange(players, dispatch);
   }, [players.priority, players.spell_stack, players.current_phase, dispatch]);
 
+  useEffect(() => {
+    if (players.player[0].ready && players.player[1].ready) {
+      dispatch(startGame((Math.floor(Math.random() * 2) + 1) as 1 | 2));
+    }
+  }, [players.player[0].ready, players.player[1].ready]);
   function addRef(node: HTMLElement, cardId: number) {
     cardsElements.current.set(cardId, node);
   }
@@ -55,6 +61,11 @@ function App() {
           />
         ))
       )}
+      {players.player.map(
+        (player, index) =>
+          !player.ready && <Mulligan player={(index + 1) as 1 | 2} />
+      )}
+
       <Hand cards={players.player[1].hand} player={2} addRef={addRef} />
       <Battlefield
         data={players.player[1].battlefield}

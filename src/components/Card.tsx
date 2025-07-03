@@ -11,7 +11,6 @@ import {
   showcaseOnStack,
   toggleAttacker,
   toggleBlocker,
-  updateCard,
 } from "@/store/PlayersSlice";
 import type { RootState } from "@/store/store";
 

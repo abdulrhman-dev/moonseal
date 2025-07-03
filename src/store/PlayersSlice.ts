@@ -26,6 +26,7 @@ export type Player = {
   life: number;
   turn: number;
   landsCasted: number;
+  ready: boolean;
 };
 
 export type Fight = {
@@ -65,7 +66,8 @@ const PlayerDefault: Player = {
     black: 0,
     colorless: 0,
   },
-  landsCasted: -5,
+  landsCasted: 0,
+  ready: false,
 };
 
 const initialState: PlayersState = {
@@ -128,25 +130,23 @@ const playersSlice = createSlice({
           false;
       }
     },
-    drawCard(state) {
-      const topCard = state.player[state.current_player - 1].library.pop();
+    drawCard(state, action: PayloadAction<1 | 2 | undefined>) {
+      let player = -1;
+
+      if (action.payload) player = action.payload;
+      else player = state.current_player;
+
+      const topCard = state.player[player - 1].library.pop();
 
       if (!topCard) return;
 
-      state.player[state.current_player - 1].hand.push(topCard);
+      state.player[player - 1].hand.push(topCard);
     },
-    startGame(state) {
+    startGame(state, action: PayloadAction<1 | 2>) {
       state.current_phase = "BEGINNING_UNTAP";
-      state.current_player = 1;
-      state.priority = 1;
+      state.current_player = action.payload;
+      state.priority = action.payload;
       state.player[state.current_player - 1].turn++;
-
-      for (let i = 0; i < 7; ++i) {
-        for (const player of [1, 2] as const) {
-          const topCard = state.player[player - 1].library.pop();
-          if (topCard) state.player[player - 1].hand.push(topCard);
-        }
-      }
     },
     updateCard(state, action: PayloadAction<CardState>) {
       for (const player of [1, 2]) {
@@ -438,6 +438,19 @@ const playersSlice = createSlice({
 
       permanent.enchanters.push(action.payload.card);
     },
+    setReady(state, action: PayloadAction<1 | 2>) {
+      state.player[action.payload - 1].ready = true;
+    },
+    removeCardHand(
+      state,
+      action: PayloadAction<{ id: number; player: 1 | 2 }>
+    ) {
+      state.player[action.payload.player - 1].hand = state.player[
+        action.payload.player - 1
+      ].hand.filter((handCard) => {
+        return handCard.id !== action.payload.id;
+      });
+    },
   },
 });
 
@@ -470,4 +483,6 @@ export const {
   setLandsUsed,
   moveToGraveyard,
   attachEnchantment,
+  setReady,
+  removeCardHand,
 } = playersSlice.actions;

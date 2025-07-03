@@ -10,8 +10,6 @@ type BattlefieldProps = {
   addRef: AddRefFunction;
 };
 
-const STEP_SIZE = 20;
-
 export const Battlefield = ({ data, player, addRef }: BattlefieldProps) => {
   return (
     <div className={Style.battlefield}>

@@ -38,6 +38,4 @@ export const getCardData = async (dispatch: Dispatch<UnknownAction>) => {
 
     dispatch(shuffleLibary({ player }));
   }
-
-  dispatch(startGame());
 };
