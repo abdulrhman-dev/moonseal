@@ -8,7 +8,7 @@ type ArgumentNames = Triggers extends [infer TriggerName, unknown]
   ? TriggerName
   : never;
 
-type StackAbility = {
+export type StackAbility = {
   card: CardState;
   args: CardResolveData;
   castedPlayer: 1 | 2;

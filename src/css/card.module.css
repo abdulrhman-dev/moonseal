@@ -90,3 +90,11 @@ transform-origin: bottom !important;
 .targetable{
   outline: greenyellow solid 3px;
 }
+
+.cardBuff{
+  color: green;
+}
+
+.cardDebuff{
+  color:red;
+}

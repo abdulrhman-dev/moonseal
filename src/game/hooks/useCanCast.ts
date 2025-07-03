@@ -110,14 +110,21 @@ const useCanCast = (card: CardState, cardPlayer: 0 | 1 | 2) => {
     (state: RootState) => state.players.declaredBlockers
   );
 
-  const spellStackLength = useSelector(
-    (state: RootState) => state.players.spell_stack.length
+  const spellStack = useSelector(
+    (state: RootState) => state.players.spell_stack
   );
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       if (!cardPlayer) return;
+      if (
+        spellStack.length &&
+        spellStack[spellStack.length - 1].type === "SHOWCASE"
+      ) {
+        setCastStyle(false);
+        return;
+      }
 
       if (
         (currPhase === "COMBAT_ATTACK" && !declaredAttackers) ||
@@ -130,7 +137,7 @@ const useCanCast = (card: CardState, cardPlayer: 0 | 1 | 2) => {
 
       const shouldCast = await canCast(
         card,
-        spellStackLength,
+        spellStack.length,
         currPhase,
         player,
         cardPlayer === currPlayer
@@ -151,7 +158,7 @@ const useCanCast = (card: CardState, cardPlayer: 0 | 1 | 2) => {
     currPhase,
     priority,
     currPlayer,
-    spellStackLength,
+    spellStack,
     declaredAttackers,
     declaredBlockers,
   ]);

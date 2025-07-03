@@ -12,7 +12,7 @@ const card: Card = {
   type: "instant",
   canTap: false,
   manaCost: {
-    green: 0,
+    green: 1,
     colorless: 0,
   },
   targetSelects: [{ type: "creature", amount: 1, player: 0 }],

@@ -29,7 +29,6 @@ import { WiStars } from "react-icons/wi";
 
 // logic
 import { spendMana } from "@/game/logic/manaLogic";
-import { useEffect } from "react";
 
 interface CardProps {
   card: CardState;
@@ -69,7 +68,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   const canCast = useCanCast(card, cardPlayer);
   const canTarget = useCanTarget(card, cardPlayer);
 
-  const handleCardClick = () => {
+  const handleCardClick = async () => {
     if (!cardPlayer) return;
 
     if (location === "battlefield") {
@@ -157,7 +156,6 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
 
         getTargets(card.targetSelects, callback);
       } else {
-        dispatch(removeShowcase());
         dispatch(
           castSpell({
             card,
@@ -201,7 +199,29 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       {card.type === "creature" && (
         <div className={Style.cardPlate}>
           <p>
-            {card.power}/{card.toughness}
+            <span
+              className={
+                card.power > card.defaultPower
+                  ? Style.cardBuff
+                  : card.power < card.defaultPower
+                  ? Style.cardDebuff
+                  : ""
+              }
+            >
+              {card.power}
+            </span>
+            /
+            <span
+              className={
+                card.toughness > card.defaultToughness
+                  ? Style.cardBuff
+                  : card.toughness < card.defaultToughness
+                  ? Style.cardDebuff
+                  : ""
+              }
+            >
+              {card.toughness}
+            </span>
           </p>
         </div>
       )}

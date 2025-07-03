@@ -6,10 +6,11 @@ import { CardStateDefault } from "@/types/cards";
 import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { shuffleLibary, pushLibrary, startGame } from "@/store/PlayersSlice";
 
-import { deck } from "@/deck";
+import { decks } from "@/deck";
 
 export const getCardData = async (dispatch: Dispatch<UnknownAction>) => {
   for (const player of [1, 2] as const) {
+    const deck = decks[player];
     for (const deck_card of deck) {
       const cardImport = await import(
         `../../cards/logic/card_${deck_card.id}_${deck_card.name}`

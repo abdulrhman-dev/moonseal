@@ -10,7 +10,7 @@ const card: Card = {
   type: "sorcery",
   canTap: false,
   manaCost: {
-    green: 0,
+    green: 1,
     colorless: 0,
   },
   targetSelects: [

@@ -4,37 +4,36 @@ import {
   addToBattleField,
   resolveSpell,
   type PlayersState,
+  type StackAbility,
 } from "@/store/PlayersSlice";
 import type { Card } from "@/types/cards";
-import { checkNeedPriority } from "../logic/checkBoard";
+
+export const resolveTopCard = async (
+  stackTop: StackAbility,
+  dispatch: Dispatch
+) => {
+  const cardImport = await import(
+    `../../cards/logic/card_${stackTop.card.gameId}_${stackTop.card.name}`
+  );
+
+  const card = cardImport.default as Card;
+
+  card.resolve({ ...stackTop.args });
+
+  if (card.type === "creature") dispatch(addToBattleField(stackTop.card));
+
+  dispatch(resolveSpell());
+};
 
 export default function (
   players: PlayersState,
   dispatch: Dispatch<UnknownAction>
 ) {
   (async () => {
-    const nextNeedPriority = await checkNeedPriority(
-      players,
-      (players.priority ^ 3) as 1 | 2
-    );
-    if (
-      (players.priorityPassNum >= 2 || !nextNeedPriority) &&
-      players.spell_stack.length
-    ) {
+    if (players.priorityPassNum >= 2 && players.spell_stack.length) {
       const stackTop = players.spell_stack[players.spell_stack.length - 1];
-      if (stackTop.type === "SHOWCASE") return;
       if (stackTop.type === "CAST") {
-        const cardImport = await import(
-          `../../cards/logic/card_${stackTop.card.gameId}_${stackTop.card.name}`
-        );
-
-        const card = cardImport.default as Card;
-
-        card.resolve({ ...stackTop.args });
-
-        if (card.type === "creature") dispatch(addToBattleField(stackTop.card));
-
-        dispatch(resolveSpell());
+        resolveTopCard(stackTop, dispatch);
       }
     }
   })();

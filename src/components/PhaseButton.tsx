@@ -96,13 +96,18 @@ export const PhaseButton = () => {
     <button
       onClick={handleButtonClick}
       className={Style.phaseButton + " " + buttonData.style}
-      style={
-        {
-          // [players.priority ===
-          // (1 ^ (players.current_phase === "COMBAT_BLOCK" ? 3 : 0))
-          //   ? "bottom"
-          //   : "top"]: 20,
-        }
+      style={{
+        [players.priority ===
+        (1 ^
+          (players.current_phase === "COMBAT_BLOCK" && !players.declaredBlockers
+            ? 3
+            : 0))
+          ? "bottom"
+          : "top"]: 20,
+      }}
+      disabled={
+        players.spell_stack.length > 0 &&
+        players.spell_stack[players.spell_stack.length - 1].type === "SHOWCASE"
       }
     >
       {buttonData.buttonText}

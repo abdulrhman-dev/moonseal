@@ -10,8 +10,8 @@ const card: Card = {
   type: "sorcery",
   canTap: false,
   manaCost: {
-    green: 0,
-    colorless: 0,
+    green: 1,
+    colorless: 1,
   },
   summoningSickness: false,
   defaultPower: 0,
