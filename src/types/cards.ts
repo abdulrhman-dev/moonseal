@@ -15,6 +15,7 @@ export type TargetSelect = {
   player: 1 | 2;
   isAttacker?: boolean;
   // isBlocker?: boolean;
+  isTapped?: boolean;
 };
 
 // !If at least  one property has a non restricting value like "all" or 0
@@ -28,6 +29,7 @@ export type TargetSelectGroup =
         location: CardLocations | "all";
         player: 0 | 1 | 2;
         isAttacker?: boolean;
+        isTapped?: boolean;
       }
     ];
 
@@ -98,7 +100,10 @@ export const CardStateDefault = {
   cardPlayer: 0,
 };
 
-export type CardResolveData = { targets?: CardState[]; cardPlayer?: 0 | 1 | 2 };
+export type CardResolveData = {
+  targets?: CardState[][];
+  cardPlayer?: 0 | 1 | 2;
+};
 
 export interface Card {
   readonly gameId: number;

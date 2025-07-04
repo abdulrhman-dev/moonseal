@@ -1,8 +1,12 @@
-import React from "react";
-
 import Style from "@/css/activated.module.css";
-import type { ActivatedData, Card, CardState } from "@/types/cards";
-import { tapCard, type Player } from "@/store/PlayersSlice";
+import type { ActivatedData, CardState } from "@/types/cards";
+import {
+  castSpell,
+  removeShowcase,
+  showcaseOnStack,
+  tapCard,
+  type Player,
+} from "@/store/PlayersSlice";
 import { checkMana, spendMana } from "@/game/logic/manaLogic";
 import { useDispatch } from "react-redux";
 import useGetTargets from "@/game/hooks/useGetTargets";
@@ -21,7 +25,6 @@ export const ActivatedAbility = ({
   const { getTargets } = useGetTargets();
   const dispatch = useDispatch();
   const checkCost = (index: number) => {
-    console.log(checkMana(player, activatedAbilities[index].cost.mana));
     return (
       checkMana(player, activatedAbilities[index].cost.mana) &&
       (activatedAbilities[index].cost.tap ? !card.tapped : true)
@@ -37,13 +40,19 @@ export const ActivatedAbility = ({
 
     if (activatedAbility.cost.tap) dispatch(tapCard(card.id));
 
-    const cardImport = await import(
-      `../cards/logic/card_${card.gameId}_${card.name}`
-    );
-    const fulllCard = cardImport.default as Card;
-
+    // handle targets
     if (activatedAbility.targets.length > 0) {
+      const chosenTargets = [];
       for (const targetData of activatedAbility.targets) {
+        dispatch(
+          showcaseOnStack({
+            card,
+            castedPlayer: card.cardPlayer,
+            args: {},
+            type: "SHOWCASE",
+          })
+        );
+
         const targets = await getTargets({
           cardPlayer: card.cardPlayer,
           targetData,
@@ -51,17 +60,31 @@ export const ActivatedAbility = ({
 
         if (!targets) continue;
 
-        fulllCard.activatedActions[index]({
-          cardPlayer: card.cardPlayer,
-          targets,
-        });
+        // activate ability by pushing it to stack
+        chosenTargets.push(targets);
+        dispatch(removeShowcase());
       }
 
+      dispatch(
+        castSpell({
+          card,
+          castedPlayer: card.cardPlayer,
+          args: { targets: chosenTargets, cardPlayer: card.cardPlayer },
+          type: ["ACTIVATED", index],
+        })
+      );
       return;
     }
 
-    // activate ability
-    fulllCard.activatedActions[index]({ cardPlayer: card.cardPlayer });
+    // activate ability by pushing it to stack
+    dispatch(
+      castSpell({
+        card,
+        castedPlayer: card.cardPlayer,
+        args: { cardPlayer: card.cardPlayer },
+        type: ["ACTIVATED", index],
+      })
+    );
   };
 
   return (

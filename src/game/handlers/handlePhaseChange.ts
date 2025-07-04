@@ -5,6 +5,7 @@ import type { PlayersState } from "@/store/PlayersSlice";
 import {
   calculateDamage,
   cleanUpCombat,
+  clearFlags,
   drawCard,
   healCreatures,
   nextPhase,
@@ -66,6 +67,7 @@ export default function (
       break;
     case "CLEANUP":
       dispatch(healCreatures());
+      dispatch(clearFlags());
 
       break;
   }

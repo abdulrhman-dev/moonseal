@@ -1,6 +1,6 @@
 import { StartAppListening } from "../store";
 import { castSpell } from "../PlayersSlice";
-import { resolveTopCard } from "@/game/handlers/handlePriorityChange";
+import { handleStackResolution } from "@/game/handlers/handlePriorityChange";
 import { checkNeedPriority } from "@/game/logic/checkBoard";
 
 export const addPlayerListener = () => {
@@ -18,7 +18,8 @@ export const addPlayerListener = () => {
 
       if (!nextNeedPriority) {
         const spellStack = players.spell_stack;
-        resolveTopCard(spellStack[spellStack.length - 1], api.dispatch);
+        const stackTop = spellStack[spellStack.length - 1];
+        handleStackResolution(stackTop, api.dispatch);
       }
     },
   });

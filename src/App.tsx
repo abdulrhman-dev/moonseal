@@ -65,7 +65,7 @@ function App() {
           {
             amount: handLength - 7,
             type: "all",
-            player: players.current_player,
+            player: 1,
             location: "hand",
           },
         ],
@@ -133,8 +133,7 @@ function App() {
         Player 2: {players.player[1].life}
       </p>
       <PhaseButton />
-      {/* <SpellStack cards={players.spell_stack.map((ability) => ability.card)} /> */}
-      <SpellStack cards={players.player[0].hand} />
+      <SpellStack cards={players.spell_stack.map((ability) => ability.card)} />
 
       <p className={Style.phaseText}>{players.current_phase}</p>
     </div>

@@ -75,5 +75,10 @@ export const decks = {
       name: "Grizzly Bears",
       amount: 4,
     },
+    {
+      id: "118683",
+      name: "Fog",
+      amount: 1,
+    },
   ],
 } as const;

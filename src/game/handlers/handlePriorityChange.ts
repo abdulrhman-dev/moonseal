@@ -23,7 +23,7 @@ export const resolveTopCard = async (
 
   card.resolve({ ...stackTop.args });
 
-  // TODO: add triggers
+  // TODO: Don't forget to handle removing the triggres when a card goes to the exile/gravyard
   for (const trigger of Object.keys(card.triggers) as TriggerNames[]) {
     dispatch(
       addTrigger({
@@ -60,6 +60,35 @@ export const resolveTopCard = async (
   dispatch(resolveSpell());
 };
 
+export const resolveAbility = async (
+  stackTop: StackAbility,
+  abilityNumber: number,
+  dispatch: Dispatch
+) => {
+  const cardImport = await import(
+    `../../cards/logic/card_${stackTop.card.gameId}_${stackTop.card.name}`
+  );
+
+  const card = cardImport.default as Card;
+
+  card.activatedActions[abilityNumber]({ ...stackTop.args });
+
+  dispatch(resolveSpell());
+};
+
+export const handleStackResolution = (
+  stackTop: StackAbility,
+  dispatch: Dispatch
+) => {
+  if (stackTop.type === "CAST") resolveTopCard(stackTop, dispatch);
+
+  if (Array.isArray(stackTop.type)) {
+    const [type, data] = stackTop.type;
+
+    if (type === "ACTIVATED") resolveAbility(stackTop, data, dispatch);
+  }
+};
+
 export default function (
   players: PlayersState,
   dispatch: Dispatch<UnknownAction>
@@ -67,9 +96,7 @@ export default function (
   (async () => {
     if (players.priorityPassNum >= 2 && players.spell_stack.length) {
       const stackTop = players.spell_stack[players.spell_stack.length - 1];
-      if (stackTop.type === "CAST") {
-        resolveTopCard(stackTop, dispatch);
-      }
+      handleStackResolution(stackTop, dispatch);
     }
   })();
 }

@@ -16,11 +16,7 @@ import {
 import type { RootState } from "@/store/store";
 
 // types
-import {
-  type CardState,
-  type TargetData,
-  type TargetSelect,
-} from "@/types/cards";
+import { type CardState, type TargetData } from "@/types/cards";
 
 import Style from "@/css/card.module.css";
 import useGetTargets from "@/game/hooks/useGetTargets";
@@ -164,6 +160,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
           })
         );
 
+        const chosenTargets = [];
         for (const targetElement of card.targetData) {
           const targets = await getTargets({
             targetData: targetElement,
@@ -171,15 +168,18 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
           });
 
           dispatch(removeShowcase());
-          dispatch(
-            castSpell({
-              card,
-              castedPlayer: cardPlayer,
-              args: { targets, cardPlayer },
-              type: "CAST",
-            })
-          );
+
+          chosenTargets.push(targets);
         }
+
+        dispatch(
+          castSpell({
+            card,
+            castedPlayer: cardPlayer,
+            args: { targets: chosenTargets, cardPlayer },
+            type: "CAST",
+          })
+        );
       } else {
         dispatch(
           castSpell({

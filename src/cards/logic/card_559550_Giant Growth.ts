@@ -12,7 +12,7 @@ const card: Card = {
   type: "instant",
   canTap: false,
   manaCost: {
-    green: 0,
+    green: 1,
     colorless: 0,
   },
   targetData: [
@@ -41,8 +41,8 @@ const card: Card = {
       store.getState().players.player[0].battlefield.creatures.length > 0
     );
   },
-  resolve({ targets }) {
-    console.log(targets);
+  resolve({ targets: rawTargets }) {
+    const targets = !rawTargets ? [] : rawTargets[0];
 
     if (!targets || targets.length !== 1 || !validTargets(targets)) return;
     store.dispatch(

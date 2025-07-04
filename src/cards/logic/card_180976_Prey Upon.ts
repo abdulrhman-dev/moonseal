@@ -46,7 +46,9 @@ const card: Card = {
       store.getState().players.player[1].battlefield.creatures.length > 0
     );
   },
-  resolve({ targets, cardPlayer }) {
+  resolve({ targets: rawTargets, cardPlayer }) {
+    const targets = !rawTargets ? [] : rawTargets[0];
+
     if (!targets || targets.length !== 2 || !cardPlayer) return;
 
     const attacker = Object.assign({}, getRecentCard(targets[0].id));

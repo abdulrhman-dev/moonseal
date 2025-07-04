@@ -37,7 +37,8 @@ function useCanTarget(
         (targetRule.type === "all" || targetRule.type === card.type) &&
         (targetRule.location === "all" || targetRule.location === location) &&
         (targetRule.player === 0 || targetRule.player === cardPlayer) &&
-        (targetRule.isAttacker ? isAttacker : true)
+        (targetRule.isAttacker ? isAttacker : true) &&
+        (targetRule.isTapped ? card.tapped : true)
     );
 
     if (targetingType === "AND") {

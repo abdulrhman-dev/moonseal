@@ -45,6 +45,9 @@ export type PlayersState = {
   fights: Fight[];
   declaredAttackers: boolean;
   declaredBlockers: boolean;
+  flags: {
+    preventDamage: boolean;
+  };
 };
 
 const PlayerDefault: Player = {
@@ -81,6 +84,9 @@ const initialState: PlayersState = {
   priorityPassNum: 0,
   declaredAttackers: false,
   declaredBlockers: false,
+  flags: {
+    preventDamage: false,
+  },
 };
 
 function shuffle(cards: unknown[]) {
@@ -226,19 +232,36 @@ const playersSlice = createSlice({
       state.player[state.current_player - 1].landsCasted++;
     },
     tapCard(state, action: PayloadAction<number>) {
-      // TODO: CHANGE THIS TO BE MORE Effecient
-      state.player[state.current_player - 1].battlefield.lands.forEach(
-        (land) => {
-          if (land.id == action.payload && !land.tapped) land.tapped = true;
-        }
-      );
+      for (const player of [1, 2]) {
+        for (const location of ["creatures", "lands"] as const) {
+          const oldCardIndex = state.player[player - 1].battlefield[
+            location
+          ].findIndex((card) => card.id === action.payload);
 
-      state.player[state.current_player - 1].battlefield.creatures.forEach(
-        (creature) => {
-          if (creature.id == action.payload && !creature.tapped)
-            creature.tapped = true;
+          if (oldCardIndex !== -1) {
+            state.player[player - 1].battlefield[location][
+              oldCardIndex
+            ].tapped = true;
+            return;
+          }
         }
-      );
+      }
+    },
+    upTapCard(state, action: PayloadAction<number>) {
+      for (const player of [1, 2]) {
+        for (const location of ["creatures", "lands"] as const) {
+          const oldCardIndex = state.player[player - 1].battlefield[
+            location
+          ].findIndex((card) => card.id === action.payload);
+
+          if (oldCardIndex !== -1) {
+            state.player[player - 1].battlefield[location][
+              oldCardIndex
+            ].tapped = false;
+            return;
+          }
+        }
+      }
     },
     addToBattleField(state, action: PayloadAction<CardState>) {
       state.player[state.current_player - 1].hand = state.player[
@@ -295,6 +318,8 @@ const playersSlice = createSlice({
       newFight.blockers.push(action.payload.id);
     },
     calculateDamage(state) {
+      if (state.flags.preventDamage) return;
+
       const defendingPlayer = state.current_player ^ 3;
 
       for (const fight of state.fights) {
@@ -382,6 +407,11 @@ const playersSlice = createSlice({
         });
       }
     },
+    clearFlags(state) {
+      for (const key of Object.keys(state.flags)) {
+        state.flags[key as keyof typeof state.flags] = false;
+      }
+    },
     showcaseOnStack(state, action: PayloadAction<StackAbility>) {
       state.spell_stack.push(action.payload);
     },
@@ -451,6 +481,16 @@ const playersSlice = createSlice({
         return handCard.id !== action.payload.id;
       });
     },
+
+    setFlag(
+      state,
+      action: PayloadAction<{ key: keyof typeof state.flags; value: boolean }>
+    ) {
+      const { key, value } = action.payload;
+      if (key in state.flags) {
+        state.flags[key] = value;
+      }
+    },
   },
 });
 
@@ -465,6 +505,7 @@ export const {
   nextPhase,
   modifyManaPool,
   tapCard,
+  upTapCard,
   addToBattleField,
   incrementLandUsage,
   toggleAttacker,
@@ -472,6 +513,7 @@ export const {
   calculateDamage,
   cleanUpCombat,
   healCreatures,
+  clearFlags,
   castSpell,
   resolveSpell,
   passPriority,
@@ -485,4 +527,5 @@ export const {
   attachEnchantment,
   setReady,
   removeCardHand,
+  setFlag,
 } = playersSlice.actions;

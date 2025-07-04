@@ -47,7 +47,8 @@ const targetingSlice = createSlice({
             targetRule.location === action.payload.location) &&
           (targetRule.player === 0 ||
             targetRule.player === action.payload.player) &&
-          (targetRule.isAttacker ? action.payload.isAttacker : true)
+          (targetRule.isAttacker ? action.payload.isAttacker : true) &&
+          (targetRule.isTapped ? action.payload.data.tapped : true)
       );
 
       if (targetIndex === -1) return;

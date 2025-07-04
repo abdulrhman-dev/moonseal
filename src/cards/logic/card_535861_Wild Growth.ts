@@ -30,8 +30,9 @@ const card: Card = {
   text: "Enchant land\nWhenever enchanted land is tapped for mana, its controller adds an additional {G}.",
   keywords: ["Enchant"],
   triggers: {
-    RESOLVES: ({ targets, selfId }) => {
+    RESOLVES: ({ targets: rawTargets, selfId }) => {
       const card = getRecentEnchantment(selfId);
+      const targets = !rawTargets ? [] : rawTargets[0];
 
       if (!targets || targets.length !== 1 || !card || card.gameId !== 535861)
         return;

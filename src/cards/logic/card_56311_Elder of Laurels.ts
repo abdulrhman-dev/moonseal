@@ -11,9 +11,8 @@ const card: Card = {
   type: "creature",
   canTap: false,
   manaCost: {
-    // 1, 2
-    green: 0,
-    colorless: 0,
+    green: 1,
+    colorless: 2,
   },
   summoningSickness: true,
   defaultPower: 2,
@@ -48,7 +47,9 @@ const card: Card = {
     },
   ],
   activatedActions: [
-    ({ targets, cardPlayer }) => {
+    ({ targets: rawTargets, cardPlayer }) => {
+      const targets = !rawTargets ? [] : rawTargets[0];
+
       if (!targets || !cardPlayer || targets.length !== 1) return;
 
       const x =

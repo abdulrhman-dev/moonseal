@@ -5,19 +5,19 @@ import { CardDefault } from "@/types/cards";
 
 const card: Card = {
   ...CardDefault,
-  gameId: 507123,
-  name: "Elvish Mystic",
+  gameId: 33313,
+  name: "Greenweaver Druid",
   type: "creature",
-  canTap: true,
   manaCost: {
     green: 1,
-    colorless: 0,
+    colorless: 2,
   },
+  canTap: true,
   summoningSickness: true,
   defaultPower: 1,
   defaultToughness: 1,
   typeLine: "Creature — Elf Druid",
-  text: "{T}: Add {G}.",
+  text: "{T}: Add {G}{G}.",
   activatedAbilities: [
     {
       cost: {
@@ -26,7 +26,7 @@ const card: Card = {
         sacrfice: [],
       },
       targets: [],
-      text: "أحصل على مانا خضراء إضافية",
+      text: "أحصل على 2 مانا خضراء إضافية",
     },
   ],
   activatedActions: [
@@ -34,14 +34,14 @@ const card: Card = {
       if (!cardPlayer) return;
       const playerManaPool =
         store.getState().players.player[cardPlayer - 1].mana;
+
       store.dispatch(
         modifyManaPool({
           ...playerManaPool,
-          green: playerManaPool["green"] + 1,
+          green: playerManaPool.green + 2,
         })
       );
     },
-    () => {},
   ],
   keywords: [],
   valid() {
