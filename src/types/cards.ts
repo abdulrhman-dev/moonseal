@@ -28,6 +28,16 @@ export type Mana = {
   colorless?: number;
 };
 
+export type ActivatedData = {
+  cost: {
+    mana: Mana;
+    sacrfice: TargetSelect[];
+    tap: boolean;
+  };
+  targets: TargetSelect[];
+  text: string;
+};
+
 export const ManaDefault = {
   white: 0,
   blue: 0,
@@ -51,6 +61,8 @@ export const CardDefault = {
   triggers: {},
   manaGiven: {},
   summoningSickness: false,
+  activatedAbilities: [],
+  activatedActions: [],
   resolve() {},
   valid() {},
 };
@@ -62,7 +74,7 @@ export const CardStateDefault = {
   cardPlayer: 0,
 };
 
-export type CardResolveData = { targets?: CardState[]; cardPlayer?: 1 | 2 };
+export type CardResolveData = { targets?: CardState[]; cardPlayer?: 0 | 1 | 2 };
 
 export interface Card {
   readonly gameId: number;
@@ -85,7 +97,12 @@ export interface Card {
   readonly defaultPower: number;
   readonly defaultToughness: number;
 
+  activatedAbilities: ActivatedData[];
+
+  activatedActions: ((args: CardResolveData) => void)[];
+
   triggers: CardTrigger;
+
   resolve: (data: CardResolveData) => void;
   valid: (args: { card: CardState }) => boolean;
 }
@@ -116,6 +133,8 @@ export interface CardState {
 
   tapped: boolean;
   summoningSickness: boolean;
+
+  activatedAbilities: ActivatedData[];
 
   cardPlayer: 0 | 1 | 2;
 

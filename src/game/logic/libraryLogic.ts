@@ -4,7 +4,7 @@ import { CardStateDefault } from "@/types/cards";
 
 // redux
 import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
-import { shuffleLibary, pushLibrary, startGame } from "@/store/PlayersSlice";
+import { shuffleLibary, pushLibrary } from "@/store/PlayersSlice";
 
 import { decks } from "@/deck";
 
@@ -21,6 +21,7 @@ export const getCardData = async (dispatch: Dispatch<UnknownAction>) => {
       delete card["resolve"];
       delete card["triggers"];
       delete card["valid"];
+      delete card["activatedActions"];
 
       // Adding extra props associated with card state
       const cardInput: CardState = {

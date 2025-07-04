@@ -1,33 +1,20 @@
-import {
-  modifyManaPool,
-  tapCard,
-  incrementLandUsage,
-  type Player,
-} from "@/store/PlayersSlice";
+import { modifyManaPool, tapCard, type Player } from "@/store/PlayersSlice";
 import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
-import { type CardState } from "@/types/cards";
+import { ManaDefault, type Mana } from "@/types/cards";
 
 export const spendMana = (
-  card: CardState,
+  manaCost: Mana,
   player: Player,
   dispatch: Dispatch<UnknownAction>
 ) => {
-  if (card.type === "land") {
-    dispatch(incrementLandUsage());
-    return;
-  }
-
   const manaPool = { ...player.mana };
   const lands = [...player.battlefield.lands];
 
-  type keyType = keyof typeof card.manaCost;
+  type keyType = keyof typeof manaCost;
   const landIds: number[] = [];
 
   // colored mana handling
-  for (const [key, value] of Object.entries(card.manaCost) as [
-    keyType,
-    number
-  ][]) {
+  for (const [key, value] of Object.entries(manaCost) as [keyType, number][]) {
     if (key === "colorless" || value === 0) continue;
 
     let remaining = Math.max(value - manaPool[key], 0);
@@ -56,9 +43,7 @@ export const spendMana = (
     }
   }
 
-  let colorless: number = card.manaCost["colorless"]
-    ? card.manaCost["colorless"]
-    : 0;
+  let colorless: number = manaCost["colorless"] ? manaCost["colorless"] : 0;
 
   for (const [key, value] of Object.entries(manaPool) as [keyType, number][]) {
     if (value === 0) continue;
@@ -83,4 +68,42 @@ export const spendMana = (
   }
 
   dispatch(modifyManaPool(manaPool));
+};
+
+export const checkMana = (player: Player, manaCost: Mana) => {
+  // Getting all avaliable mana
+  const mana: Required<Mana> = {
+    ...ManaDefault,
+    ...player.mana,
+  };
+
+  type ManaKeyValue = [keyof Mana, number];
+
+  for (const land of player.battlefield.lands) {
+    if (land.tapped === true) continue;
+
+    for (const [key, value] of Object.entries(
+      land.manaGiven
+    ) as ManaKeyValue[]) {
+      mana[key] += value;
+    }
+  }
+
+  // Removing appropriate mana
+  for (const [key, value] of Object.entries(manaCost) as ManaKeyValue[]) {
+    if (key === "colorless") continue;
+
+    mana[key] -= value;
+
+    if (mana[key] < 0) return false;
+  }
+
+  const remaningMana = Object.values(mana).reduce(
+    (prev, curr) => prev + curr,
+    0
+  );
+
+  if (manaCost.colorless && manaCost.colorless <= remaningMana) return true;
+
+  return !manaCost.colorless;
 };

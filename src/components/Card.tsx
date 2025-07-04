@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   addToBattleField,
   castSpell,
+  incrementLandUsage,
   removeShowcase,
   showcaseOnStack,
   toggleAttacker,
@@ -29,6 +30,8 @@ import { WiStars } from "react-icons/wi";
 
 // logic
 import { spendMana } from "@/game/logic/manaLogic";
+import { useState } from "react";
+import { ActivatedAbility } from "./ActivatedAbility";
 
 export type CardLocations = "hand" | "battlefield" | "stack";
 
@@ -41,7 +44,8 @@ interface CardProps {
 }
 
 function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
-  // redux state
+  const [showActivated, setShowActivated] = useState(0);
+
   const player = useSelector(
     (state: RootState) => state.players.player[cardPlayer - 1]
   );
@@ -72,22 +76,21 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
 
   const handleCardClick = async () => {
     if (!cardPlayer) return;
-    if (declaredAttackers && declaredBlockers) {
-      if (canTarget) {
-        if (targeting.targets.find((target) => target.data.id === card.id)) {
-          dispatch(removeTarget(card.id));
-        } else {
-          dispatch(
-            addTarget({
-              data: card,
-              type: card.type,
-              player: cardPlayer,
-              location,
-            })
-          );
-        }
-        return;
+
+    if (canTarget) {
+      if (targeting.targets.find((target) => target.data.id === card.id)) {
+        dispatch(removeTarget(card.id));
+      } else {
+        dispatch(
+          addTarget({
+            data: card,
+            type: card.type,
+            player: cardPlayer,
+            location,
+          })
+        );
       }
+      return;
     }
 
     if (location === "battlefield") {
@@ -99,6 +102,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         if (card.summoningSickness || card.tapped) return;
 
         dispatch(toggleAttacker(card.id));
+        return;
       }
 
       if (
@@ -106,7 +110,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         cardPlayer !== activePLayer &&
         !declaredBlockers
       ) {
-        if (card.summoningSickness || card.tapped) return;
+        if (card.tapped) return;
 
         const targetRules: TargetSelect[] = [
           {
@@ -128,13 +132,20 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         };
 
         getTargets({ targetRules, cardPlayer }, callback);
+
+        return;
       }
-    } else if (location === "hand") {
+
+      setShowActivated((showActivated + 1) % 3);
+    }
+
+    if (location === "hand") {
       if (!canCast) return;
 
-      spendMana(card, player, dispatch);
+      spendMana(card.manaCost, player, dispatch);
 
       if (card.type === "land") {
+        dispatch(incrementLandUsage());
         dispatch(addToBattleField(card));
         return;
       }
@@ -178,6 +189,15 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
 
   return (
     <div className={Style.cardContainer} style={{ ...style }}>
+      {!card.summoningSickness &&
+        showActivated === 2 &&
+        card.activatedAbilities.length > 0 && (
+          <ActivatedAbility
+            activatedAbilities={card.activatedAbilities}
+            player={player}
+            card={card}
+          />
+        )}
       {card.enchanters.map((enchanter, index) => (
         <Card
           key={enchanter.id}

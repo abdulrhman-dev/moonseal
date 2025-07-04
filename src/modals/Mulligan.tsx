@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Style from "@/css/mulligan.module.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +13,7 @@ import type { RootState } from "@/store/store";
 import { decks } from "@/deck";
 
 export const Mulligan = ({ player }: { player: 1 | 2 }) => {
-  const [drawNum, setDrawNum] = useState(10);
+  const [drawNum, setDrawNum] = useState(7);
   const dispatch = useDispatch();
   const library = useSelector(
     (state: RootState) => state.players.player[player - 1].library

@@ -6,11 +6,10 @@ import {
   type Card as CardType,
   type CardTypes,
   type CardState,
-  type Mana,
-  ManaDefault,
 } from "@/types/cards";
 import type { Player } from "@/store/PlayersSlice";
 import type { Phases } from "@/types/phases";
+import { checkMana } from "../logic/manaLogic";
 
 const fastSpells: CardTypes[] = ["instant"] as const;
 
@@ -41,48 +40,12 @@ export const canCast = async (
     return false;
   }
 
-  // Getting all avaliable mana
-  const mana: Required<Mana> = {
-    ...ManaDefault,
-    ...player.mana,
-  };
-
-  type ManaKeyValue = [keyof Mana, number];
-
-  for (const land of player.battlefield.lands) {
-    if (land.tapped === true) continue;
-
-    for (const [key, value] of Object.entries(
-      land.manaGiven
-    ) as ManaKeyValue[]) {
-      mana[key] += value;
-    }
-  }
-
-  // Removing appropriate mana
-  for (const [key, value] of Object.entries(card.manaCost) as ManaKeyValue[]) {
-    if (key === "colorless") continue;
-
-    mana[key] -= value;
-
-    if (mana[key] < 0) return false;
-  }
-
-  const remaningMana = Object.values(mana).reduce(
-    (prev, curr) => prev + curr,
-    0
-  );
-
-  // Checking the outcome
   const cardImport = await import(
     `../../cards/logic/card_${card.gameId}_${card.name}`
   );
   const cardData = cardImport.default as CardType;
 
-  if (card.manaCost.colorless && card.manaCost.colorless <= remaningMana)
-    return cardData.valid({ card });
-
-  return (!card.manaCost.colorless && cardData.valid({ card })) || false;
+  return checkMana(player, card.manaCost) && cardData.valid({ card });
 };
 
 const useCanCast = (card: CardState, cardPlayer: 0 | 1 | 2) => {

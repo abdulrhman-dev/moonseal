@@ -51,7 +51,8 @@ function App() {
 
   useEffect(() => {
     if (players.player[0].ready && players.player[1].ready) {
-      dispatch(startGame((Math.floor(Math.random() * 2) + 1) as 1 | 2));
+      // dispatch(startGame((Math.floor(Math.random() * 2) + 1) as 1 | 2));
+      dispatch(startGame(1));
     }
   }, [players.player[0].ready, players.player[1].ready]);
 

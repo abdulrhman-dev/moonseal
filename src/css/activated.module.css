@@ -1,0 +1,17 @@
+.activatedContainer{
+    position: absolute;
+    background-color: rgba(34, 34, 34, 0.24);
+    width: 80%;
+    height: 60%;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.activatedContainer button{
+    font-size: 0.6rem;
+}

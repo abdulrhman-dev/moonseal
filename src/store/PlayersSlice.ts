@@ -66,7 +66,7 @@ const PlayerDefault: Player = {
     black: 0,
     colorless: 0,
   },
-  landsCasted: 0,
+  landsCasted: -5,
   ready: false,
 };
 

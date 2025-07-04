@@ -68,27 +68,17 @@ export const decks = {
       name: "Forest",
       amount: 40,
     },
-    {
-      id: "535861",
-      name: "Wild Growth",
-      amount: 3,
-    },
   ],
   1: [
     {
+      id: "56311",
+      name: "Elder of Laurels",
+      amount: 3,
+    },
+    {
       id: "559542",
       name: "Forest",
-      amount: 20,
-    },
-    {
-      id: "535861",
-      name: "Wild Growth",
-      amount: 1,
-    },
-    {
-      id: "1439",
-      name: "Grizzly Bears",
-      amount: 1,
+      amount: 4,
     },
   ],
 } as const;
