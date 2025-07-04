@@ -13,7 +13,7 @@ import type { RootState } from "@/store/store";
 import { decks } from "@/deck";
 
 export const Mulligan = ({ player }: { player: 1 | 2 }) => {
-  const [drawNum, setDrawNum] = useState(7);
+  const [drawNum, setDrawNum] = useState(10);
   const dispatch = useDispatch();
   const library = useSelector(
     (state: RootState) => state.players.player[player - 1].library

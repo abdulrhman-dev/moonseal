@@ -43,19 +43,20 @@ export const ActivatedAbility = ({
     const fulllCard = cardImport.default as Card;
 
     if (activatedAbility.targets.length > 0) {
-      const callback = (targets: CardState[]) => {
-        if (!targets) return;
+      for (const targetData of activatedAbility.targets) {
+        const targets = await getTargets({
+          cardPlayer: card.cardPlayer,
+          targetData,
+        });
+
+        if (!targets) continue;
 
         fulllCard.activatedActions[index]({
           cardPlayer: card.cardPlayer,
           targets,
         });
-      };
+      }
 
-      getTargets(
-        { cardPlayer: card.cardPlayer, targetRules: activatedAbility.targets },
-        callback
-      );
       return;
     }
 

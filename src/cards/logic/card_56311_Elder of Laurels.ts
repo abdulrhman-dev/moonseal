@@ -32,9 +32,16 @@ const card: Card = {
       },
       targets: [
         {
-          amount: 1,
-          player: 1,
-          type: "creature",
+          text: "",
+          type: "AND",
+          targetSelects: [
+            {
+              type: "creature",
+              location: "battlefield",
+              amount: 1,
+              player: 1,
+            },
+          ],
         },
       ],
       text: "إضافية حتى نهاية الدور لمخلوق +ْX/+X",

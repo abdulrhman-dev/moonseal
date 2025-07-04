@@ -39,9 +39,6 @@ export const checkCanBlock = (players: PlayersState) => {
     players.fights.length &&
     players.player[
       (players.current_player ^ 3) - 1
-    ].battlefield.creatures.reduce(
-      (prev, card) => prev || (!card.tapped && !card.summoningSickness),
-      false
-    )
+    ].battlefield.creatures.reduce((prev, card) => prev || !card.tapped, false)
   );
 };

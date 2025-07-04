@@ -13,8 +13,14 @@ function useCanTarget(
   const targetsRules = useSelector(
     (state: RootState) => state.targeting.targetsRules
   );
+  const selectedRules = useSelector(
+    (state: RootState) => state.targeting.selectedRules
+  );
   const targets = useSelector((state: RootState) => state.targeting.targets);
-
+  const targetingType = useSelector((state: RootState) => state.targeting.type);
+  const attackers = useSelector((state: RootState) => state.players.fights).map(
+    (fight) => fight.attacker
+  );
   useEffect(() => {
     if (!cardPlayer) return;
     if (targetsRules.length === 0) return;
@@ -23,42 +29,27 @@ function useCanTarget(
       setCanTarget(false);
       return;
     }
+    const isAttacker = attackers.includes(card.id);
 
-    const rules: number[] = [];
-
-    rules.push(
-      targetsRules.findIndex(
-        (targetRule) =>
-          targetRule.type === card.type &&
-          targetRule.player === cardPlayer &&
-          targetRule.amount > 0
-      )
+    const target = targetsRules.findIndex(
+      (targetRule) =>
+        targetRule.amount > 0 &&
+        (targetRule.type === "all" || targetRule.type === card.type) &&
+        (targetRule.location === "all" || targetRule.location === location) &&
+        (targetRule.player === 0 || targetRule.player === cardPlayer) &&
+        (targetRule.isAttacker ? isAttacker : true)
     );
 
-    rules.push(
-      targetsRules.findIndex(
-        (targetRule) =>
-          targetRule.type === card.type &&
-          targetRule.player === 0 &&
-          targetRule.amount > 0
-      )
-    );
-
-    rules.push(
-      targetsRules.findIndex(
-        (targetRule) =>
-          targetRule.type === location &&
-          targetRule.player === cardPlayer &&
-          targetRule.amount > 0
-      )
-    );
-
-    if (rules.findIndex((rule) => rule !== -1) !== -1) {
-      setCanTarget(true);
+    if (targetingType === "AND") {
+      setCanTarget(target !== -1);
     } else {
-      setCanTarget(false);
+      const selectedRule = selectedRules.findIndex(
+        (selectRule) => selectRule === true
+      );
+
+      setCanTarget(selectedRule === -1 || selectedRule === target);
     }
-  }, [targetsRules]);
+  }, [targetsRules, selectedRules, targetingType]);
 
   return canTarget;
 }

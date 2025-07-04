@@ -20,6 +20,7 @@ export const SpellStack = ({ cards }: SpellStackProps) => {
             style={{
               position: "absolute",
               top: 0,
+              transformOrigin: "bottom",
               transform: `rotate(${
                 -20 - (-20 / (cards.length - 1)) * index
               }deg)`,

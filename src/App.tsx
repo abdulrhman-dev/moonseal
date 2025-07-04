@@ -20,8 +20,8 @@ import {
   shuffleLibary,
   startGame,
 } from "./store/PlayersSlice";
+import type { TargetData } from "./types/cards";
 import useGetTargets from "./game/hooks/useGetTargets";
-import type { CardState, TargetSelect } from "./types/cards";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
@@ -58,33 +58,35 @@ function App() {
 
   useEffect(() => {
     if (players.current_phase === "NONE") return;
-
     const handLength = players.player[players.current_player - 1].hand.length;
-
     if (handLength > 7 && players.current_phase === "CLEANUP") {
-      const targetRules: TargetSelect[] = [
-        {
-          amount: handLength - 7,
-          player: 1,
-          type: "hand",
-        },
-      ];
-
-      const callback = (targets: CardState[]) => {
-        if (!players.current_player) return;
-
-        for (const target of targets) {
-          dispatch(
-            removeCardHand({ id: target.id, player: players.current_player })
-          );
-        }
-        dispatch(shuffleLibary({ player: players.current_player }));
-        dispatch(nextPhase());
+      const targetData: TargetData = {
+        targetSelects: [
+          {
+            amount: handLength - 7,
+            type: "all",
+            player: players.current_player,
+            location: "hand",
+          },
+        ],
+        type: "AND",
+        text: "",
       };
 
       if (!players.current_player) return;
+      getTargets({ targetData, cardPlayer: players.current_player }).then(
+        (targets) => {
+          if (!players.current_player) return;
 
-      getTargets({ targetRules, cardPlayer: players.current_player }, callback);
+          for (const target of targets) {
+            dispatch(
+              removeCardHand({ id: target.id, player: players.current_player })
+            );
+          }
+          dispatch(shuffleLibary({ player: players.current_player }));
+          dispatch(nextPhase());
+        }
+      );
     } else if (players.current_phase === "CLEANUP") {
       dispatch(nextPhase());
     }
@@ -131,7 +133,9 @@ function App() {
         Player 2: {players.player[1].life}
       </p>
       <PhaseButton />
-      <SpellStack cards={players.spell_stack.map((ability) => ability.card)} />
+      {/* <SpellStack cards={players.spell_stack.map((ability) => ability.card)} /> */}
+      <SpellStack cards={players.player[0].hand} />
+
       <p className={Style.phaseText}>{players.current_phase}</p>
     </div>
   );

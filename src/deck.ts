@@ -64,20 +64,15 @@ const all_cards = [
 export const decks = {
   2: [
     {
-      id: "559542",
-      name: "Forest",
-      amount: 40,
+      id: "1439",
+      name: "Grizzly Bears",
+      amount: 4,
     },
   ],
   1: [
     {
-      id: "56311",
-      name: "Elder of Laurels",
-      amount: 3,
-    },
-    {
-      id: "559542",
-      name: "Forest",
+      id: "1439",
+      name: "Grizzly Bears",
       amount: 4,
     },
   ],

@@ -12,10 +12,23 @@ const card: Card = {
   type: "instant",
   canTap: false,
   manaCost: {
-    green: 1,
+    green: 0,
     colorless: 0,
   },
-  targetSelects: [{ type: "creature", amount: 1, player: 0 }],
+  targetData: [
+    {
+      text: "",
+      type: "AND",
+      targetSelects: [
+        {
+          type: "creature",
+          amount: 1,
+          location: "battlefield",
+          player: 0,
+        },
+      ],
+    },
+  ],
   summoningSickness: false,
   defaultPower: 0,
   defaultToughness: 0,

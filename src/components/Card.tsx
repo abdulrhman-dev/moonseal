@@ -16,7 +16,11 @@ import {
 import type { RootState } from "@/store/store";
 
 // types
-import { type CardState, type TargetSelect } from "@/types/cards";
+import {
+  type CardState,
+  type TargetData,
+  type TargetSelect,
+} from "@/types/cards";
 
 import Style from "@/css/card.module.css";
 import useGetTargets from "@/game/hooks/useGetTargets";
@@ -87,6 +91,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
             type: card.type,
             player: cardPlayer,
             location,
+            isAttacker: attackers.includes(card.id),
           })
         );
       }
@@ -112,26 +117,25 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       ) {
         if (card.tapped) return;
 
-        const targetRules: TargetSelect[] = [
-          {
-            type: "creature",
-            amount: 1,
-            player: 2,
-          },
-        ];
-
-        const callback = (targets: CardState[]) => {
-          if (targets.length !== 1) return;
-
-          if (!attackers.includes(targets[0].id)) {
-            getTargets({ targetRules, cardPlayer }, callback);
-            return;
-          }
-
-          dispatch(toggleBlocker({ id: card.id, target: targets[0].id }));
+        const targetData: TargetData = {
+          type: "AND",
+          text: "",
+          targetSelects: [
+            {
+              type: "creature",
+              amount: 1,
+              player: 2,
+              location: "battlefield",
+              isAttacker: true,
+            },
+          ],
         };
 
-        getTargets({ targetRules, cardPlayer }, callback);
+        const targets = await getTargets({ targetData, cardPlayer });
+
+        if (targets.length !== 1) return;
+
+        dispatch(toggleBlocker({ id: card.id, target: targets[0].id }));
 
         return;
       }
@@ -150,7 +154,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         return;
       }
 
-      if (card.targetSelects.length > 0) {
+      if (card.targetData.length > 0) {
         dispatch(
           showcaseOnStack({
             card,
@@ -160,8 +164,12 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
           })
         );
 
-        const callback = (targets: CardState[]) => {
-          if (targets.length !== card.targetSelects.length) return;
+        for (const targetElement of card.targetData) {
+          const targets = await getTargets({
+            targetData: targetElement,
+            cardPlayer,
+          });
+
           dispatch(removeShowcase());
           dispatch(
             castSpell({
@@ -171,9 +179,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
               type: "CAST",
             })
           );
-        };
-
-        getTargets({ targetRules: card.targetSelects, cardPlayer }, callback);
+        }
       } else {
         dispatch(
           castSpell({

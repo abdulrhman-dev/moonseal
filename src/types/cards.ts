@@ -1,3 +1,4 @@
+import type { CardLocations } from "@/components/Card";
 import type { TriggerNames, Triggers } from "./triggers";
 
 export type CardTypes =
@@ -9,8 +10,31 @@ export type CardTypes =
 
 export type TargetSelect = {
   amount: number;
-  type: CardTypes | "hand";
-  player: 0 | 1 | 2;
+  type: CardTypes | "attacker";
+  location: CardLocations;
+  player: 1 | 2;
+  isAttacker?: boolean;
+  // isBlocker?: boolean;
+};
+
+// !If at least  one property has a non restricting value like "all" or 0
+// !there can only be one instance of this in TargetSelect array
+export type TargetSelectGroup =
+  | TargetSelect[]
+  | [
+      {
+        amount: number;
+        type: CardTypes | "all";
+        location: CardLocations | "all";
+        player: 0 | 1 | 2;
+        isAttacker?: boolean;
+      }
+    ];
+
+export type TargetData = {
+  targetSelects: TargetSelectGroup;
+  type: "AND" | "OR";
+  text: string;
 };
 
 type CardTrigger = {
@@ -31,10 +55,10 @@ export type Mana = {
 export type ActivatedData = {
   cost: {
     mana: Mana;
-    sacrfice: TargetSelect[];
+    sacrfice: TargetData[];
     tap: boolean;
   };
-  targets: TargetSelect[];
+  targets: TargetData[];
   text: string;
 };
 
@@ -55,7 +79,7 @@ export const CardDefault = {
   keywords: [],
   enchanters: [],
   targets: [],
-  targetSelects: [],
+  targetData: [],
   defaultPower: 0,
   defaultToughness: 0,
   triggers: {},
@@ -88,7 +112,7 @@ export interface Card {
 
   keywords: Keyword[];
 
-  targetSelects: TargetSelect[];
+  targetData: TargetData[];
   enchanters: Card[];
 
   manaCost: Mana;
@@ -118,7 +142,7 @@ export interface CardState {
 
   keywords: Keyword[];
 
-  targetSelects: TargetSelect[];
+  targetData: TargetData[];
   targets: number[];
   enchanters: CardState[];
 

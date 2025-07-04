@@ -12,11 +12,18 @@ const card: Card = {
   manaCost: {
     green: 1,
   },
-  targetSelects: [
+  targetData: [
     {
-      type: "land",
-      player: 1,
-      amount: 1,
+      text: "",
+      type: "AND",
+      targetSelects: [
+        {
+          type: "land",
+          amount: 1,
+          location: "battlefield",
+          player: 1,
+        },
+      ],
     },
   ],
   typeLine: "Enchantment — Aura",

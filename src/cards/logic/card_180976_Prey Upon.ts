@@ -14,16 +14,24 @@ const card: Card = {
     green: 1,
     colorless: 0,
   },
-  targetSelects: [
+  targetData: [
     {
-      type: "creature",
-      amount: 1,
-      player: 1,
-    },
-    {
-      type: "creature",
-      amount: 1,
-      player: 2,
+      type: "AND",
+      text: "",
+      targetSelects: [
+        {
+          type: "creature",
+          amount: 1,
+          player: 1,
+          location: "battlefield",
+        },
+        {
+          type: "creature",
+          amount: 1,
+          player: 2,
+          location: "battlefield",
+        },
+      ],
     },
   ],
   summoningSickness: false,
