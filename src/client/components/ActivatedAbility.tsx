@@ -1,5 +1,5 @@
 import Style from "@/css/activated.module.css";
-import type { ActivatedData, CardState } from "@/types/cards";
+import type { ActivatedData, CardState } from "@backend/types/cards";
 import {
   castSpell,
   removeShowcase,

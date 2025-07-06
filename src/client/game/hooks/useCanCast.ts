@@ -6,9 +6,9 @@ import {
   type Card as CardType,
   type CardTypes,
   type CardState,
-} from "@/types/cards";
+} from "@backend/types/cards";
 import type { Player } from "@/store/PlayersSlice";
-import type { Phases } from "@/types/phases";
+import type { Phases } from "@backend/types/phases";
 import { checkMana } from "../logic/manaLogic";
 
 const fastSpells: CardTypes[] = ["instant"] as const;

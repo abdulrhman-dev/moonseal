@@ -1,11 +1,10 @@
 // types
-import type { CardState } from "@/types/cards";
-import { CardStateDefault } from "@/types/cards";
+import type { CardState } from "@backend/types/cards";
+import { CardStateDefault } from "@backend/types/cards";
 
 // redux
 import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 import { shuffleLibary, pushLibrary } from "@/store/PlayersSlice";
-
 import { decks } from "@/deck";
 
 export const getCardData = async (dispatch: Dispatch<UnknownAction>) => {

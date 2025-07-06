@@ -1,4 +1,4 @@
-import type { Card } from "@/types/cards";
+import type { Card } from "@backend/types/cards";
 import { resolveSpell } from "../PlayersSlice";
 import { StartAppListening } from "../store";
 

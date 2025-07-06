@@ -1,4 +1,4 @@
-import type { CardState } from "@/types/cards";
+import type { CardState } from "@backend/types/cards";
 import type { RootState } from "@/store/store";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";

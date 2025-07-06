@@ -1,7 +1,7 @@
 import { modifyManaPool } from "@/store/PlayersSlice";
 import { store } from "@/store/store";
-import type { Card } from "@/types/cards";
-import { CardDefault } from "@/types/cards";
+import type { Card } from "@backend/types/cards";
+import { CardDefault } from "@backend/types/cards";
 
 const card: Card = {
   ...CardDefault,

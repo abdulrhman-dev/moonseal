@@ -1,5 +1,5 @@
-import type { CardResolveData } from "@/types/cards";
-import type { TriggerNames } from "@/types/triggers";
+import type { CardResolveData } from "@backend/types/cards";
+import type { TriggerNames } from "@backend/types/triggers";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 export type TriggerElement = {

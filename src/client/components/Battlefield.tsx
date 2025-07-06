@@ -1,7 +1,7 @@
 import Style from "@/css/battlefield.module.css";
 import Card from "./Card";
 
-import type { CardState } from "@/types/cards";
+import type { CardState } from "@backend/types/cards";
 import type { AddRefFunction } from "@/App";
 
 type BattlefieldProps = {

@@ -1,4 +1,4 @@
-import type { CardState } from "@/types/cards";
+import type { CardState } from "@backend/types/cards";
 import Card from "./Card";
 
 import Style from "@/css/hand.module.css";

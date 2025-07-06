@@ -1,6 +1,6 @@
 import { modifyManaPool, tapCard, type Player } from "@/store/PlayersSlice";
 import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
-import { ManaDefault, type Mana } from "@/types/cards";
+import { ManaDefault, type Mana } from "@backend/types/cards";
 
 export const spendMana = (
   manaCost: Mana,

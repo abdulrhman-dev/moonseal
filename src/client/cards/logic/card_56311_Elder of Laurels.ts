@@ -1,5 +1,5 @@
-import type { Card } from "@/types/cards";
-import { CardDefault } from "@/types/cards";
+import type { Card } from "@backend/types/cards";
+import { CardDefault } from "@backend/types/cards";
 import { getRecentCard } from "../util/util";
 import { store } from "@/store/store";
 import { updateCard } from "@/store/PlayersSlice";

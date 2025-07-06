@@ -1,8 +1,8 @@
-import type { CardResolveData, CardState, Mana } from "@/types/cards";
+import type { CardResolveData, CardState, Mana } from "@backend/types/cards";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import { PhasesArray, type Phases } from "@/types/phases";
+import { PhasesArray, type Phases } from "@backend/types/phases";
 
-import type { TriggerNames } from "@/types/triggers";
+import type { TriggerNames } from "@backend/types/triggers";
 
 export type StackAbility = {
   card: CardState;

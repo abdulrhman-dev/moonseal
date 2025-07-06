@@ -20,7 +20,7 @@ import {
   shuffleLibary,
   startGame,
 } from "./store/PlayersSlice";
-import type { TargetData } from "./types/cards";
+import type { TargetData } from "@backend/types/cards";
 import useGetTargets from "./game/hooks/useGetTargets";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;

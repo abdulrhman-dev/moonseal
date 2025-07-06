@@ -7,8 +7,8 @@ import {
   type PlayersState,
   type StackAbility,
 } from "@/store/PlayersSlice";
-import type { Card } from "@/types/cards";
-import type { TriggerNames } from "@/types/triggers";
+import type { Card } from "@backend/types/cards";
+import type { TriggerNames } from "@backend/types/triggers";
 import { addTrigger } from "@/store/TriggerSlice";
 
 export const resolveTopCard = async (
@@ -45,11 +45,11 @@ export const resolveTopCard = async (
     stackTop.args.targets.length === 1
   ) {
     const cardType =
-      stackTop.args.targets[0].type === "creature" ? "creatures" : "lands";
+      stackTop.args.targets[0][0].type === "creature" ? "creatures" : "lands";
     dispatch(
       attachEnchantment({
         card: stackTop.card,
-        targetId: stackTop.args.targets[0].id,
+        targetId: stackTop.args.targets[0][0].id,
         type: cardType,
       })
     );

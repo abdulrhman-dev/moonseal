@@ -1,6 +1,10 @@
-import type { CardState, TargetData, TargetSelectGroup } from "@/types/cards";
+import type {
+  CardState,
+  TargetData,
+  TargetSelectGroup,
+} from "@backend/types/cards";
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
-import type { CardTypes } from "@/types/cards";
+import type { CardTypes } from "@backend/types/cards";
 import type { CardLocations } from "@/components/Card";
 
 type Target = {

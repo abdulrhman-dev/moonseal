@@ -16,7 +16,7 @@ import {
 import type { RootState } from "@/store/store";
 
 // types
-import { type CardState, type TargetData } from "@/types/cards";
+import { type CardState, type TargetData } from "@backend/types/cards";
 
 import Style from "@/css/card.module.css";
 import useGetTargets from "@/game/hooks/useGetTargets";

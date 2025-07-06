@@ -4,7 +4,11 @@ import {
   initilizeTargets,
   type TargetingState,
 } from "@/store/TargetingSlice";
-import type { CardState, TargetData, TargetSelectGroup } from "@/types/cards";
+import type {
+  CardState,
+  TargetData,
+  TargetSelectGroup,
+} from "@backend/types/cards";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 

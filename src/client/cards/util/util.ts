@@ -1,5 +1,5 @@
 import { store } from "@/store/store";
-import type { Card, CardState } from "@/types/cards";
+import type { Card, CardState } from "@backend/types/cards";
 
 export function validTargets(targets: CardState[]) {
   const players = store.getState().players;

@@ -24,7 +24,8 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": "./src/client",
     "paths":    {
-      "@/*": ["*"]
+      "@/*": ["*"],
+      "@backend/*": ["../server/*"]
     },
     "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },
