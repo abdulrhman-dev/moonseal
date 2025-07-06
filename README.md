@@ -1,2 +1,0 @@
-# Moonseal
-An MTG clone

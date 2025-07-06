@@ -80,5 +80,10 @@ export const decks = {
       name: "Fog",
       amount: 1,
     },
+    {
+      id: "559542",
+      name: "Forest",
+      amount: 22,
+    },
   ],
 } as const;
