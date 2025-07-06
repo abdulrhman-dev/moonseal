@@ -43,7 +43,7 @@ type CardTrigger = {
   [Trigger in Triggers as `${Trigger[0]}`]?: (args: Trigger[1]) => void;
 };
 
-type Keyword = "Enchant" | "Fight";
+export type Keyword = "Enchant" | "Fight";
 
 export type Mana = {
   white?: number;
