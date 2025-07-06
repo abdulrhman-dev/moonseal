@@ -1,6 +1,6 @@
 import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
 
-import type { PlayersState } from "@/store/PlayersSlice";
+import type { PlayersState } from "@/features/GameSlice";
 
 import {
   calculateDamage,
@@ -13,7 +13,7 @@ import {
   setDeclaredAttackers,
   setDeclaredBlockers,
   unTapCards,
-} from "@/store/PlayersSlice";
+} from "@/features/GameSlice";
 import { checkCanAttack, checkCanBlock } from "../logic/checkBoard";
 // import type { Phases } from "@/types/phases";
 

@@ -143,29 +143,23 @@ export interface CardState {
   name: string;
   typeLine: string;
   text: string;
-  canTap: boolean;
-
-  keywords: Keyword[];
 
   targetData: TargetData[];
   targets: number[];
   enchanters: CardState[];
 
-  manaCost: Mana;
-  manaGiven: Mana;
+  power: number;
+  toughness: number;
 
   readonly defaultPower: number;
   readonly defaultToughness: number;
 
-  power: number;
-  toughness: number;
-
   tapped: boolean;
   summoningSickness: boolean;
 
-  activatedAbilities: ActivatedData[];
+  // activatedAbilities: ActivatedData[];
 
   cardPlayer: 0 | 1 | 2;
 
-  triggers: TriggerNames[];
+  // triggers: TriggerNames[];
 }

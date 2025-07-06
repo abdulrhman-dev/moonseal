@@ -1,3 +1,4 @@
+import type { CardState } from "@backend/types/cards";
 import { Card } from "./Card";
 export class CardCollection {
   collection: Card[] = [];
@@ -30,6 +31,54 @@ export class CardCollection {
       this.collection[j] = this.collection[i];
       this.collection[i] = temp;
     }
+  }
+
+  toCardState(): CardState[] {
+    const cards: CardState[] = [];
+
+    for (const card of this.collection) {
+      cards.push({
+        id: card.id,
+        type: card.data.type,
+        name: card.data.name,
+        enchanters: [],
+        targets: [],
+        targetData: card.targetData,
+        summoningSickness: card.summoningSickness,
+        power: card.power,
+        toughness: card.toughness,
+        defaultPower: card.data.defaultPower,
+        defaultToughness: card.data.defaultToughness,
+        cardPlayer: card.cardPlayer,
+        gameId: card.data.gameId,
+        tapped: card.tapped,
+        text: card.data.text,
+        typeLine: card.data.typeLine,
+      });
+    }
+
+    return cards;
+  }
+
+  toEmptyCardList(): CardState[] {
+    return Array(this.collection.length).fill({
+      id: 0,
+      type: "instant",
+      name: "",
+      enchanters: [],
+      targets: [],
+      targetData: [],
+      summoningSickness: false,
+      power: 0,
+      toughness: 0,
+      defaultPower: 0,
+      defaultToughness: 0,
+      cardPlayer: 2,
+      gameId: 0,
+      tapped: 0,
+      text: "",
+      typeLine: "",
+    });
   }
 
   [Symbol.iterator]() {

@@ -1,9 +1,9 @@
-import type { RootState } from "@/store/store";
+import type { RootState } from "@/features/store";
 import {
   clearTargets,
   initilizeTargets,
   type TargetingState,
-} from "@/store/TargetingSlice";
+} from "@/features/TargetingSlice";
 import type {
   CardState,
   TargetData,

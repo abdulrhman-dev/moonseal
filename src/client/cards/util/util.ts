@@ -1,4 +1,4 @@
-import { store } from "@/store/store";
+import { store } from "@/features/store";
 import type { Card, CardState } from "@backend/types/cards";
 
 export function validTargets(targets: CardState[]) {

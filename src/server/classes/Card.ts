@@ -5,7 +5,7 @@ import type {
   // Mana,
   // ActivatedData,
   // CardResolveData,
-} from "@backend/types/cards";
+} from "../types/cards";
 
 import Mana from "./Mana";
 import type Player from "./Player";

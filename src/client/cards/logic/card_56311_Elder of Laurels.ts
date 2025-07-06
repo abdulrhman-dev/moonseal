@@ -1,8 +1,8 @@
 import type { Card } from "@backend/types/cards";
 import { CardDefault } from "@backend/types/cards";
 import { getRecentCard } from "../util/util";
-import { store } from "@/store/store";
-import { updateCard } from "@/store/PlayersSlice";
+import { store } from "@/features/store";
+import { updateCard } from "@/features/GameSlice";
 
 const card: Card = {
   ...CardDefault,

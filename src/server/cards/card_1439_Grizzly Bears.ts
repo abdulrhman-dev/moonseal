@@ -1,5 +1,5 @@
-import Mana from "@backend/classes/Mana";
-import { Card } from "@backend/classes/Card";
+import Mana from "../classes/Mana";
+import { Card } from "../classes/Card";
 
 class CardCreator extends Card {
   cast() {}

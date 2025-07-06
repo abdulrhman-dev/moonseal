@@ -9,7 +9,7 @@ export type Deck = {
 }[];
 
 export default class Player {
-  playerNum: number;
+  playerNum: 1 | 2;
   library: CardCollection = new CardCollection();
   graveyard: CardCollection = new CardCollection();
   exile: CardCollection = new CardCollection();
@@ -27,7 +27,7 @@ export default class Player {
   landsCasted: number = 0;
   ready: boolean = false;
 
-  constructor(playerNum: number) {
+  constructor(playerNum: 1 | 2) {
     this.playerNum = playerNum;
   }
 
@@ -48,7 +48,10 @@ export default class Player {
       );
 
       const card = cardImport.default as Card;
+
       let count = deckCard.amount;
+
+      card.cardPlayer = this.playerNum;
 
       while (count--) this.library.add(card);
     }

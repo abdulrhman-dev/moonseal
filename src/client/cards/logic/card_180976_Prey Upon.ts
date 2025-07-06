@@ -1,5 +1,5 @@
-import { moveToGraveyard, updateCard } from "@/store/PlayersSlice";
-import { store } from "@/store/store";
+import { moveToGraveyard, updateCard } from "@/features/GameSlice";
+import { store } from "@/features/store";
 import type { Card } from "@backend/types/cards";
 import { CardDefault } from "@backend/types/cards";
 import { getRecentCard } from "../util/util";

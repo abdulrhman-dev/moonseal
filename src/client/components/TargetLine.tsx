@@ -1,4 +1,4 @@
-import type { RootState } from "@/store/store";
+import type { RootState } from "@/features/store";
 import { useEffect, useState, type RefObject } from "react";
 import { useSelector } from "react-redux";
 

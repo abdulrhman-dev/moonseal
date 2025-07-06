@@ -6,10 +6,10 @@ import {
   resolveSpell,
   type PlayersState,
   type StackAbility,
-} from "@/store/PlayersSlice";
+} from "@/features/GameSlice";
 import type { Card } from "@backend/types/cards";
 import type { TriggerNames } from "@backend/types/triggers";
-import { addTrigger } from "@/store/TriggerSlice";
+import { addTrigger } from "@/features/TriggerSlice";
 
 export const resolveTopCard = async (
   stackTop: StackAbility,

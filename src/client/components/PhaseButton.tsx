@@ -1,11 +1,11 @@
-import type { RootState } from "@/store/store";
+import type { RootState } from "@/features/store";
 import { useDispatch, useSelector } from "react-redux";
 import {
   nextPhase,
   passPriority,
   setDeclaredAttackers,
   setDeclaredBlockers,
-} from "@/store/PlayersSlice";
+} from "@/features/GameSlice";
 
 import Style from "@/css/app.module.css";
 import { checkNeedPriority } from "@/game/logic/checkBoard";

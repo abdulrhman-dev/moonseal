@@ -4,7 +4,7 @@ import { CardStateDefault } from "@backend/types/cards";
 
 // redux
 import type { Dispatch, UnknownAction } from "@reduxjs/toolkit";
-import { shuffleLibary, pushLibrary } from "@/store/PlayersSlice";
+import { shuffleLibary, pushLibrary } from "@/features/GameSlice";
 import { decks } from "@/deck";
 
 export const getCardData = async (dispatch: Dispatch<UnknownAction>) => {

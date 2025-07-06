@@ -8,8 +8,8 @@ import {
   removeCardHand,
   setReady,
   shuffleLibary,
-} from "@/store/PlayersSlice";
-import type { RootState } from "@/store/store";
+} from "@/features/GameSlice";
+import type { RootState } from "@/features/store";
 import { decks } from "@/deck";
 
 export const Mulligan = ({ player }: { player: 1 | 2 }) => {

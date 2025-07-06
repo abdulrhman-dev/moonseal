@@ -1,5 +1,5 @@
 import type { CardState } from "@backend/types/cards";
-import type { RootState } from "@/store/store";
+import type { RootState } from "@/features/store";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import type { CardLocations } from "@/components/Card";

@@ -1,5 +1,5 @@
-import Player from "@backend/classes/Player";
-import type { Phases } from "@backend/types/phases";
+import Player from "./Player";
+import type { Phases } from "../types/phases";
 
 import { decks } from "../deck";
 
@@ -53,9 +53,9 @@ class Game {
     this.players = [new Player(1), new Player(2)];
   }
 
-  initlizeDecks() {
+  async initlizeDecks() {
     for (const player of this.players) {
-      player.initializeLibrary(decks[player.playerNum - 1]);
+      await player.initializeLibrary(decks[player.playerNum - 1]);
     }
   }
 
@@ -124,3 +124,5 @@ class Game {
     }
   }
 }
+
+export default Game;

@@ -1,5 +1,5 @@
-import { setFlag } from "@/store/PlayersSlice";
-import { store } from "@/store/store";
+import { setFlag } from "@/features/GameSlice";
+import { store } from "@/features/store";
 import type { Card } from "@backend/types/cards";
 import { CardDefault } from "@backend/types/cards";
 
