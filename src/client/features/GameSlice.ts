@@ -3,7 +3,11 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import { PhasesArray, type Phases } from "@backend/types/phases";
 
 import type { TriggerNames } from "@backend/types/triggers";
-import type { listChangeArgs } from "@backend/types/socket";
+import type {
+  activePlayerChangeArgs,
+  listChangeArgs,
+  priorityChangeArgs,
+} from "@backend/types/socket";
 
 export type StackAbility = {
   card: CardState;
@@ -24,7 +28,6 @@ export type Player = {
   };
   mana: PlayerMana;
   life: number;
-  turn: number;
   landsCasted: number;
   ready: boolean;
 };
@@ -38,7 +41,6 @@ export type OpponentPlayer = {
     lands: CardState[];
   };
   life: number;
-  turn: number;
   ready: boolean;
 };
 
@@ -50,13 +52,13 @@ export type Fight = {
 export type GameState = {
   player: Player;
   opponentPlayer: OpponentPlayer;
-  current_player: 0 | 1 | 2;
   priority: 0 | 1 | 2;
   currentPhase: Phases;
   spellStack: StackAbility[];
   fights: Fight[];
   declaredAttackers: boolean;
   declaredBlockers: boolean;
+  isActive: boolean;
 };
 
 const PlayerDefault: Player = {
@@ -68,7 +70,6 @@ const PlayerDefault: Player = {
     lands: [],
   },
   life: 20,
-  turn: 0,
   mana: {
     red: 0,
     green: 0,
@@ -90,16 +91,17 @@ const OpponentPlayerDefault: OpponentPlayer = {
     lands: [],
   },
   life: 20,
-  turn: 0,
   ready: false,
 };
 
 const initialState: GameState = {
   player: { ...PlayerDefault },
   opponentPlayer: { ...OpponentPlayerDefault },
-  current_player: 0,
+
   priority: 0,
   currentPhase: "NONE",
+  isActive: false,
+
   spellStack: [],
   fights: [],
   declaredAttackers: false,
@@ -118,8 +120,19 @@ const gameSlice = createSlice({
       if (listName == "battlefield") player[listName] = list;
       else player[listName] = list;
     },
+    changePriority(state, action: PayloadAction<priorityChangeArgs>) {
+      const { phase, priority } = action.payload;
+
+      state.currentPhase = phase;
+      state.priority = priority;
+    },
+    changeActive(state, action: PayloadAction<activePlayerChangeArgs>) {
+      const { activePlayer } = action.payload;
+
+      state.isActive = activePlayer;
+    },
   },
 });
 
 export default gameSlice.reducer;
-export const { changeList } = gameSlice.actions;
+export const { changeList, changePriority, changeActive } = gameSlice.actions;

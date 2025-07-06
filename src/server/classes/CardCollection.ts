@@ -61,24 +61,28 @@ export class CardCollection {
   }
 
   toEmptyCardList(): CardState[] {
-    return Array(this.collection.length).fill({
-      id: 0,
-      type: "instant",
-      name: "",
-      enchanters: [],
-      targets: [],
-      targetData: [],
-      summoningSickness: false,
-      power: 0,
-      toughness: 0,
-      defaultPower: 0,
-      defaultToughness: 0,
-      cardPlayer: 2,
-      gameId: 0,
-      tapped: 0,
-      text: "",
-      typeLine: "",
-    });
+    const cards: CardState[] = [];
+    for (const card of this.collection) {
+      cards.push({
+        id: card.id,
+        type: "instant",
+        name: "",
+        enchanters: [],
+        targets: [],
+        targetData: [],
+        summoningSickness: false,
+        power: 0,
+        toughness: 0,
+        defaultPower: 0,
+        defaultToughness: 0,
+        cardPlayer: 2,
+        gameId: 0,
+        tapped: false,
+        text: "",
+        typeLine: "",
+      });
+    }
+    return cards;
   }
 
   [Symbol.iterator]() {

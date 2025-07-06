@@ -5,8 +5,10 @@ import { Server, type Socket } from "socket.io";
 import Game from "./classes/Game";
 import {
   type ClientToServerEvents,
+  type ServerSocket,
   type ServerToClientEvents,
 } from "./types/socket";
+import registerHandleGame from "./socket/handleGame";
 
 const app = express();
 
@@ -21,43 +23,31 @@ const server = ViteExpress.listen(app, 3000, () =>
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server);
 
 let connectionLimit = 2;
-const playerSockets: Socket<ClientToServerEvents, ServerToClientEvents>[] = [];
+let playerSockets: ServerSocket[] = [];
 
-io.on("connect", async (socket) => {
+function getPlayerNum() {
+  if (playerSockets.length === 0) return 1;
+  else return playerSockets[0].data.playerNum ^ 3;
+}
+
+io.on("connect", async (socket: ServerSocket) => {
   if (!connectionLimit) return;
 
-  console.log("SOCKET CONNECTED");
+  console.log("SOCKET CONNECTED", socket.id);
+  socket.data.playerNum = getPlayerNum();
+
   connectionLimit--;
   playerSockets.push(socket);
 
   socket.on("disconnect", () => {
-    console.log("SOCKET DISCONNECTED");
+    console.log("SOCKET DISCONNECTED", socket.id);
     connectionLimit++;
-    playerSockets.pop();
+    playerSockets = playerSockets.filter(
+      (playerSocket) => playerSocket.id !== socket.id
+    );
   });
 
   if (connectionLimit === 0) {
-    console.log("STARTED GAME");
-    const game = new Game();
-    await game.initlizeDecks();
-
-    game.players[0].drawCard();
-    game.players[1].drawCard();
-
-    let num = 0;
-
-    for (const playerSocket of playerSockets) {
-      playerSocket.join("game");
-      playerSocket.emit("listChange", {
-        type: "player",
-        listName: "hand",
-        list: game.players[num].hand.toCardState(),
-      });
-      playerSocket.emit("listChange", {
-        type: "opposing",
-        listName: "hand",
-        list: game.players[(num + 1) % 2].hand.toEmptyCardList(),
-      });
-    }
+    registerHandleGame(io, playerSockets);
   }
 });

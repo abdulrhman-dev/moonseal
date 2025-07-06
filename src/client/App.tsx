@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 import Style from "./css/app.module.css";
 import { Hand } from "./components/Hand";
 import { initSocket } from "./features/SocketSlice";
+import { Battlefield } from "./components/Battlefield";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
@@ -34,17 +35,15 @@ function App() {
           />
         ))
       )} */}
+      <Hand cards={game.opponentPlayer.hand} player={2} addRef={addRef} />
 
-      {/* <Battlefield
-        data={players.player[1].battlefield}
+      <Battlefield
+        data={game.opponentPlayer.battlefield}
         player={2}
         addRef={addRef}
       />
-      <Battlefield
-        data={players.player[0].battlefield}
-        player={1}
-        addRef={addRef}
-      />
+      <Battlefield data={game.player.battlefield} player={1} addRef={addRef} />
+      {/* 
       <p className={Style.playerLife} style={{ bottom: 0, left: 0 }}>
         Player 1: {players.player[0].life}
       </p>
@@ -52,13 +51,12 @@ function App() {
         Player 2: {players.player[1].life}
       </p> */}
 
-      <Hand cards={game.opponentPlayer.hand} player={2} addRef={addRef} />
       <Hand cards={game.player.hand} player={1} addRef={addRef} />
-
+      <p className={Style.phaseText}>{game.currentPhase}</p>
       {/* <PhaseButton />
       <SpellStack cards={players.spell_stack.map((ability) => ability.card)} />
 
-      <p className={Style.phaseText}>{players.current_phase}</p> */}
+      */}
     </div>
   );
 }

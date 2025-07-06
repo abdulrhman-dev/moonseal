@@ -2,6 +2,12 @@ import Player from "./Player";
 import type { Phases } from "../types/phases";
 
 import { decks } from "../deck";
+import type { IO, ServerSocket } from "../types/socket";
+import {
+  updateActivePlayer,
+  updateBoard,
+  updatePriority,
+} from "../socket/handleGame";
 
 const flagDefault = {
   preventDamage: false,
@@ -48,9 +54,17 @@ class Game {
   flags: {
     preventDamage: boolean;
   } = { ...flagDefault };
+  network: {
+    io: IO;
+    playerSockets: ServerSocket[];
+  };
 
-  constructor() {
+  constructor(io: IO, playerSockets: ServerSocket[]) {
     this.players = [new Player(1), new Player(2)];
+    this.network = {
+      io,
+      playerSockets,
+    };
   }
 
   async initlizeDecks() {
@@ -67,9 +81,14 @@ class Game {
 
   startGame() {
     this.currentPhase = "BEGINNING_UNTAP";
+
     this.activePlayer = 1;
     this.priority = 1;
     this.players[this.activePlayer - 1].turn++;
+
+    updateActivePlayer(this.network, this);
+    updatePriority(this.network, this);
+    this.handlePhaseChange();
   }
 
   nextPhase() {
@@ -81,15 +100,20 @@ class Game {
 
     if (nextIndex === 0) {
       this.players[this.activePlayer - 1].landsCasted = 0;
+
       this.activePlayer = (this.activePlayer ^ 3) as 1 | 2;
-      this.priority = this.activePlayer;
       this.players[this.activePlayer - 1].turn++;
+
       this.declaredAttackers = false;
       this.declaredBlockers = false;
+
+      updateActivePlayer(this.network, this);
     }
 
     this.priority = this.activePlayer;
     this.currentPhase = PhasesArray[nextIndex];
+
+    if (this.priority) updatePriority(this.network, this);
 
     this.handlePhaseChange();
   }
@@ -101,17 +125,21 @@ class Game {
       case "BEGINNING_UNTAP":
         player.unTapCards();
         player.removeSummoningSickness();
+        updateBoard(this.network, this);
         this.nextPhase();
         break;
       case "BEGINNING_DRAW":
         if (player.turn !== 1) player.drawCard();
+        updateBoard(this.network, this);
         this.nextPhase();
         break;
       case "BEGINNING_UNKEEP":
       case "COMBAT_BEGIN":
       case "COMBAT_END":
       case "END_STEP":
+        updateBoard(this.network, this);
         this.nextPhase();
+
         break;
       case "COMBAT_ATTACK":
         break;

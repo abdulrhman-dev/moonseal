@@ -1,4 +1,4 @@
-import type { Card } from "./Card";
+import { type Card as CardType, Card } from "./Card";
 import { CardCollection } from "./CardCollection";
 import Mana from "./Mana";
 
@@ -7,6 +7,8 @@ export type Deck = {
   name: string;
   amount: number;
 }[];
+
+let idCounter = 0;
 
 export default class Player {
   playerNum: 1 | 2;
@@ -47,13 +49,14 @@ export default class Player {
         `../cards/card_${deckCard.id}_${deckCard.name}`
       );
 
-      const card = cardImport.default as Card;
-
+      const cardCreator = cardImport.default as () => CardType;
       let count = deckCard.amount;
 
-      card.cardPlayer = this.playerNum;
-
-      while (count--) this.library.add(card);
+      while (count--) {
+        const card = cardCreator();
+        card.cardPlayer = this.playerNum;
+        this.library.add(card);
+      }
     }
 
     this.library.shuffle();
