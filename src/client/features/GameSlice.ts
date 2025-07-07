@@ -1,5 +1,9 @@
 import type { CardResolveData, CardState, Mana } from "@backend/types/cards";
-import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  type PayloadAction,
+} from "@reduxjs/toolkit";
 import { PhasesArray, type Phases } from "@backend/types/phases";
 
 import type { TriggerNames } from "@backend/types/triggers";

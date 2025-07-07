@@ -30,6 +30,12 @@ function getPlayerNum() {
   else return playerSockets[0].data.playerNum ^ 3;
 }
 
+function unRegisterEvents() {
+  for (const playerSocket of playerSockets) {
+    playerSocket.removeAllListeners("next-phase:action");
+  }
+}
+
 io.on("connect", async (socket: ServerSocket) => {
   if (!connectionLimit) return;
 
@@ -41,6 +47,7 @@ io.on("connect", async (socket: ServerSocket) => {
 
   socket.on("disconnect", () => {
     console.log("SOCKET DISCONNECTED", socket.id);
+    unRegisterEvents();
     connectionLimit++;
     playerSockets = playerSockets.filter(
       (playerSocket) => playerSocket.id !== socket.id

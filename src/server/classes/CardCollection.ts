@@ -16,8 +16,11 @@ export class CardCollection {
   }
 
   draw() {
+    if (this.collection.length === 0) return;
+
     const collectionTop = this.collection[this.collection.length - 1];
     this.collection.pop();
+
     return collectionTop;
   }
 

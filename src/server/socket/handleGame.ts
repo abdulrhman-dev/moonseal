@@ -24,7 +24,7 @@ export default async function registerHandleGame(
     updateLists(io, game, "hand", num++, playerSocket);
   }
   game.startGame();
-  // registerGameListeners(io, playerSockets, game);
+  registerGameListeners(io, playerSockets, game);
 }
 
 const registerGameListeners = (
@@ -86,7 +86,6 @@ export function updateBoard(network: GameNetwork, game: Game) {
 export function updatePriority(network: GameNetwork, game: Game) {
   let num = 0;
   for (const playerSocket of network.playerSockets) {
-    // console.log(num + 1, game.priority, "PRIORITY");
     playerSocket.emit("priority:change", {
       phase: game.currentPhase,
       priority: playerSocket.data.playerNum === game.priority ? 1 : 2,
@@ -97,7 +96,6 @@ export function updatePriority(network: GameNetwork, game: Game) {
 
 export function updateActivePlayer(network: GameNetwork, game: Game) {
   for (const playerSocket of network.playerSockets) {
-    console.log(playerSocket.data.playerNum, game.activePlayer, "ACTIVE");
     playerSocket.emit("active-player:change", {
       activePlayer: playerSocket.data.playerNum === game.activePlayer,
     });

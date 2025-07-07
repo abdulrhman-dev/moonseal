@@ -1,17 +1,18 @@
 import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "./features/store";
+import { type AppDispatch, type RootState } from "./features/store";
 import { useEffect, useRef } from "react";
 
 import Style from "./css/app.module.css";
 import { Hand } from "./components/Hand";
 import { initSocket } from "./features/SocketSlice";
 import { Battlefield } from "./components/Battlefield";
+import { PhaseButton } from "./components/PhaseButton";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
 function App() {
   const game = useSelector((state: RootState) => state.game);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const cardsElements = useRef<Map<number, HTMLElement>>(new Map());
 
   function addRef(node: HTMLElement, cardId: number) {
@@ -52,8 +53,9 @@ function App() {
       </p> */}
 
       <Hand cards={game.player.hand} player={1} addRef={addRef} />
+      <PhaseButton />
       <p className={Style.phaseText}>{game.currentPhase}</p>
-      {/* <PhaseButton />
+      {/* 
       <SpellStack cards={players.spell_stack.map((ability) => ability.card)} />
 
       */}

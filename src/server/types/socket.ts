@@ -27,7 +27,19 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   "next-phase:action": () => void;
+  "next-phase:action2": (data: listChangeArgs) => void;
 }
+
+export type ClientSocketEmitArgs = {
+  [K in keyof ClientToServerEvents]: Parameters<
+    ClientToServerEvents[K]
+  > extends [infer DataType]
+    ? {
+        name: K;
+        data: DataType;
+      }
+    : { name: K; data?: undefined };
+}[keyof ClientToServerEvents];
 
 interface InterServerEvents {
   ping: () => void;
@@ -36,10 +48,12 @@ interface InterServerEvents {
 interface SocketData {
   playerNum: number;
 }
+
 export type ServerSocket = Socket<
   ClientToServerEvents,
   ServerToClientEvents,
   InterServerEvents,
   SocketData
 >;
+
 export type IO = Server<ClientToServerEvents, ServerToClientEvents>;

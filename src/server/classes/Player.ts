@@ -89,6 +89,7 @@ export default class Player {
   }
 
   drawCard() {
-    this.hand.add(this.library.draw());
+    const card = this.library.draw();
+    if (card) this.hand.add(card);
   }
 }

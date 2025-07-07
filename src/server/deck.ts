@@ -5,14 +5,14 @@ export const decks: Deck[] = [
     {
       id: "1439",
       name: "Grizzly Bears",
-      amount: 7,
+      amount: 20,
     },
   ],
   [
     {
       id: "1439",
       name: "Grizzly Bears",
-      amount: 7,
+      amount: 20,
     },
   ],
 ];

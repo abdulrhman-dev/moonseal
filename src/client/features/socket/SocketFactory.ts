@@ -1,4 +1,5 @@
 import type {
+  ClientSocketEmitArgs,
   ClientToServerEvents,
   ServerToClientEvents,
 } from "@backend/types/socket";
@@ -30,5 +31,12 @@ class SocketFactory {
     return socketConnection;
   }
 }
+
+export const socketEmit = (args: ClientSocketEmitArgs) => {
+  if (!socketConnection) return;
+
+  if (args.data) socketConnection.socket.emit(args.name, args.data);
+  else socketConnection.socket.emit(args.name);
+};
 
 export default SocketFactory;
