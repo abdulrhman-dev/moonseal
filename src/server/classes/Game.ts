@@ -6,8 +6,11 @@ import type { IO, ServerSocket } from "../types/socket";
 import {
   updateActivePlayer,
   updateBoard,
+  updateFights,
   updatePriority,
 } from "../socket/handleGame";
+import type { Card } from "./Card";
+import type { Fight } from "@/features/GameSlice";
 
 const flagDefault = {
   preventDamage: false,
@@ -29,26 +32,18 @@ export const PhasesArray = [
   "NONE",
 ] as const;
 
-// Game
-// passPriority, client
-// setDeclaredAttackers, client
-// setDeclaredBlockers, client
-// toggleAttacker, client
-// toggleBlocker, client
-// calculateDamage,
-// cleanUpCombat,
-// healCreatures,
-// clearFlags,
-// startGame, client
-// nextPhase, client
-// castSpell, client
+type GameFight = {
+  attacker: Card;
+  blockers: Card[];
+};
+
 class Game {
   players: Player[] = [];
   activePlayer: 0 | 1 | 2 = 0;
   priority: 0 | 1 | 2 = 0;
   priorityPassNum: number = 0;
   currentPhase: Phases = "NONE";
-  //   fights: Fight[] = [];
+  fights: GameFight[] = [];
   declaredAttackers: boolean = false;
   declaredBlockers: boolean = false;
   flags: {
@@ -94,8 +89,8 @@ class Game {
     this.priority = 1;
     this.getPlayer(this.activePlayer).turn++;
 
-    updateActivePlayer(this.network, this);
-    updatePriority(this.network, this);
+    updateActivePlayer(this);
+    updatePriority(this);
     this.handlePhaseChange();
   }
 
@@ -115,15 +110,134 @@ class Game {
       this.declaredAttackers = false;
       this.declaredBlockers = false;
 
-      updateActivePlayer(this.network, this);
+      updateActivePlayer(this);
+      updateFights(this);
     }
 
     this.priority = this.activePlayer;
     this.currentPhase = PhasesArray[nextIndex];
 
-    if (this.priority) updatePriority(this.network, this);
-
     this.handlePhaseChange();
+  }
+
+  toggleAttacker(attackerId: number) {
+    const prevAttacker = this.fights.find(
+      (fight) => fight.attacker.id === attackerId
+    );
+
+    if (prevAttacker) {
+      this.fights = this.fights.filter(
+        (fight) => fight.attacker.id !== attackerId
+      );
+
+      prevAttacker.attacker.unTapCard();
+      updateBoard(this);
+      return;
+    }
+
+    const attackerCard = this.getPlayer(
+      this.activePlayer
+    ).battlefield.creatures.search(attackerId);
+
+    if (!attackerCard) throw new Error("Attacker not found on battlefield");
+
+    attackerCard.tapCard();
+    // add attacker
+    this.fights.push({
+      attacker: attackerCard,
+      blockers: [],
+    });
+    updateBoard(this);
+  }
+
+  toggleBlocker(blockerId: number, targetId: number) {
+    const fight = this.fights.find((fight) =>
+      fight.blockers.map((blocker) => blocker.id).includes(blockerId)
+    );
+
+    if (fight) {
+      fight.blockers = fight.blockers.filter(
+        (blocker) => blocker.id !== blockerId
+      );
+    }
+
+    const newFight = this.fights.find(
+      (fight) => fight.attacker.id === targetId
+    );
+
+    if (!newFight) return;
+
+    const blockerCard = this.getPlayer(
+      this.activePlayer ^ 3
+    ).battlefield.creatures.search(blockerId);
+
+    if (!blockerCard) throw new Error("Blocker not found on battlefield");
+
+    newFight.blockers.push(blockerCard);
+  }
+
+  handleCombat() {
+    if (this.flags.preventDamage) return;
+
+    for (const fight of this.fights) {
+      const attacker = fight.attacker;
+
+      if (!fight.blockers.length) {
+        this.getPlayer(this.activePlayer ^ 3).life -= attacker.power;
+        continue;
+      }
+
+      for (const blocker of fight.blockers) {
+        const blockerToughness = blocker.toughness;
+
+        blocker.toughness -= attacker.power;
+        attacker.toughness -= blocker.power;
+
+        attacker.power = Math.max(attacker.power - blockerToughness, 0);
+      }
+
+      attacker.power = attacker.data.defaultPower;
+    }
+
+    this.fights = [];
+
+    updateBoard(this);
+  }
+
+  cleanupDeadCreatures() {
+    for (const player of this.players) {
+      const deadCreatures: number[] = [];
+
+      for (const creature of player.battlefield.creatures) {
+        // Handle lethal damage
+        if (creature.toughness <= 0) {
+          deadCreatures.push(creature.id);
+        }
+      }
+
+      for (const deadCreatureId of deadCreatures)
+        player.battlefield.creatures.remove(deadCreatureId);
+    }
+
+    updateBoard(this);
+  }
+
+  healCreatures() {
+    for (const player of this.players) {
+      for (const creature of player.battlefield.creatures) {
+        creature.power = creature.data.defaultPower;
+        creature.toughness = creature.data.defaultToughness;
+      }
+    }
+
+    updateBoard(this);
+  }
+
+  getClientFights(): Fight[] {
+    return this.fights.map((fight) => ({
+      attacker: fight.attacker.id,
+      blockers: fight.blockers.map((blocker) => blocker.id),
+    }));
   }
 
   handlePhaseChange() {
@@ -133,13 +247,14 @@ class Game {
       case "BEGINNING_UNTAP":
         player.unTapCards();
         player.removeSummoningSickness();
-        updateBoard(this.network, this);
+        updateBoard(this);
         this.nextPhase();
         break;
       case "BEGINNING_DRAW":
         if (player.turn !== 1) player.drawCard();
-        updateBoard(this.network, this);
+        updateBoard(this);
         this.nextPhase();
+        updatePriority(this);
         break;
       case "BEGINNING_UNKEEP":
       case "COMBAT_BEGIN":
@@ -152,9 +267,14 @@ class Game {
       case "COMBAT_BLOCK":
         break;
       case "COMBAT_DAMAGE":
+        this.handleCombat();
+        this.cleanupDeadCreatures();
+        updatePriority(this);
         this.nextPhase();
         break;
       case "CLEANUP":
+        this.healCreatures();
+        this.nextPhase();
         break;
     }
   }

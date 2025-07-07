@@ -10,7 +10,12 @@ import {
 } from "../SocketSlice";
 import type { SocketInterface } from "./SocketFactory";
 import SocketFactory from "./SocketFactory";
-import { changeActive, changeList, changePriority } from "../GameSlice";
+import {
+  changeActive,
+  changeFights,
+  changeList,
+  changePriority,
+} from "../GameSlice";
 
 const socketMiddleware: Middleware = (store) => {
   let socket: SocketInterface;
@@ -40,6 +45,10 @@ const socketMiddleware: Middleware = (store) => {
 
         socket.socket.on("active-player:change", (data) => {
           store.dispatch(changeActive(data));
+        });
+
+        socket.socket.on("fight:change", (data) => {
+          store.dispatch(changeFights(data));
         });
       }
     }

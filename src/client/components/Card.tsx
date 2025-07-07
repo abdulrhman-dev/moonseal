@@ -17,7 +17,7 @@ import type { RootState } from "@/features/store";
 // types
 import { type CardState, type TargetData } from "@backend/types/cards";
 
-import Style, { canCast } from "@/css/card.module.css";
+import Style from "@/css/card.module.css";
 import useGetTargets from "@/game/hooks/useGetTargets";
 import { addTarget, removeTarget } from "@/features/TargetingSlice";
 import useCanTarget from "@/game/hooks/useCanTarget";
@@ -44,38 +44,99 @@ interface CardProps {
 }
 
 function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
-  const [showActivated, setShowActivated] = useState(0);
+  // const [showActivated, setShowActivated] = useState(0);
 
   // const player = useSelector(
-  //   (state: RootState) => state.players.player[cardPlayer - 1]
+  //   (state: RootState) => state.game.player[cardPlayer - 1]
   // );
-  // const currPhase = useSelector(
-  //   (state: RootState) => state.players.current_phase
-  // );
+  const currentPhase = useSelector(
+    (state: RootState) => state.game.currentPhase
+  );
+  const isActive = useSelector((state: RootState) => state.game.isActive);
+
   // const activePLayer = useSelector(
-  //   (state: RootState) => state.players.current_player
+  //   (state: RootState) => state.game.current_player
   // );
-  // const targeting = useSelector((state: RootState) => state.targeting);
-  // const attackers = useSelector((state: RootState) => state.players.fights).map(
-  //   (fight) => fight.attacker
-  // );
+  const targeting = useSelector((state: RootState) => state.targeting);
+  const attackers = useSelector((state: RootState) => state.game.fights).map(
+    (fight) => fight.attacker
+  );
 
-  // const declaredAttackers = useSelector(
-  //   (state: RootState) => state.players.declaredAttackers
-  // );
+  const declaredAttackers = useSelector(
+    (state: RootState) => state.game.declaredAttackers
+  );
 
-  // const declaredBlockers = useSelector(
-  //   (state: RootState) => state.players.declaredBlockers
-  // );
+  const declaredBlockers = useSelector(
+    (state: RootState) => state.game.declaredBlockers
+  );
   const dispatch = useDispatch();
 
   const { image } = useImage(card.gameId.toString());
-  // const { getTargets } = useGetTargets();
-  // const canCast = useCanCast(card, cardPlayer);
-  // const canTarget = useCanTarget(card, location, cardPlayer);
+  const { getTargets } = useGetTargets();
+  const canTarget = useCanTarget(card, location, cardPlayer);
 
   const handleCardClick = async () => {
     if (!cardPlayer) return;
+
+    if (location === "battlefield") {
+    }
+
+    if (canTarget) {
+      if (targeting.targets.find((target) => target.data.id === card.id)) {
+        dispatch(removeTarget(card.id));
+      } else {
+        dispatch(
+          addTarget({
+            data: card,
+            type: card.type,
+            player: cardPlayer,
+            location,
+            isAttacker: attackers.includes(card.id),
+          })
+        );
+      }
+      return;
+    }
+
+    if (location === "battlefield") {
+      if (currentPhase === "COMBAT_ATTACK" && isActive && !declaredAttackers) {
+        const attacking = attackers.includes(card.id);
+        if (card.summoningSickness || (card.tapped && !attacking)) return;
+
+        socketEmit({
+          name: "toggle-attacker:action",
+          data: { attackerId: card.id },
+        });
+        return;
+      }
+
+      if (currentPhase === "COMBAT_BLOCK" && !isActive && !declaredBlockers) {
+        if (card.tapped) return;
+
+        const targetData: TargetData = {
+          type: "AND",
+          text: "",
+          targetSelects: [
+            {
+              type: "creature",
+              amount: 1,
+              player: 2,
+              location: "battlefield",
+              isAttacker: true,
+            },
+          ],
+        };
+
+        const targets = await getTargets({ targetData, cardPlayer });
+
+        if (targets.length !== 1) return;
+
+        socketEmit({
+          name: "toggle-blocker:action",
+          data: { blockerId: card.id, attackerId: targets[0].id },
+        });
+      }
+    }
 
     if (card.canCast && location === "hand")
       socketEmit({ name: "cast-spell:action", data: { id: card.id } });
@@ -107,14 +168,16 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       ))} */}
       <div
         className={`${Style.card} ${
-          card.canCast && location === "hand" ? Style.canCast : ""
-        } ${card.tapped ? Style.tapped : ""} ${
           location === "hand" ? Style.inhand : Style.inbattlefield
+        } ${card.canCast && location === "hand" ? Style.canCast : ""} ${
+          card.tapped ? Style.tapped : ""
+        } ${attackers.includes(card.id) ? Style.attacking : ""} ${
+          canTarget ? Style.targetable : ""
         } ${
           (card.tapped || card.summoningSickness) && location === "battlefield"
             ? Style.effect
             : ""
-        } ${location === "stack" ? Style.instack : ""} `}
+        } ${location === "stack" ? Style.instack : ""}  `}
         style={{
           backgroundImage: `url(${image})`,
           transformOrigin: cardPlayer === 1 ? "bottom" : "top",

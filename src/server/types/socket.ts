@@ -2,6 +2,7 @@ import type { CardLocations } from "@/components/Card";
 import type { CardState } from "./cards";
 import type { Socket, Server } from "socket.io";
 import type { Phases } from "./phases";
+import type { Fight } from "@/features/GameSlice";
 
 export type listChangeArgs =
   | {
@@ -19,15 +20,31 @@ export type priorityChangeArgs = { phase: Phases; priority: 1 | 2 };
 
 export type activePlayerChangeArgs = { activePlayer: boolean };
 
+export type fightChangeArgs = {
+  fights: Fight[];
+  declaredAttackers: boolean;
+  declaredBlockers: boolean;
+};
+
+// TODO: HANDLE LIFE CHANGE
+
 export interface ServerToClientEvents {
   "list:change": (data: listChangeArgs) => void;
   "priority:change": (data: priorityChangeArgs) => void;
   "active-player:change": (data: activePlayerChangeArgs) => void;
+  "fight:change": (data: fightChangeArgs) => void;
 }
 
 export interface ClientToServerEvents {
   "next-phase:action": () => void;
   "cast-spell:action": (data: { id: number }) => void;
+  "set-declared-attackers:action": () => void;
+  "set-declared-blockers:action": () => void;
+  "toggle-blocker:action": (date: {
+    blockerId: number;
+    attackerId: number;
+  }) => void;
+  "toggle-attacker:action": (date: { attackerId: number }) => void;
 }
 
 export type ClientSocketEmitArgs = {

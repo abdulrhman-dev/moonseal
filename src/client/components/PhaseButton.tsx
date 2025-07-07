@@ -22,82 +22,68 @@ export const PhaseButton = () => {
   const [buttonData, setButtonData] = useState<{
     style: string;
     buttonText: string;
-  }>({ style: "", buttonText: "" });
+  }>({ style: Style.redButton, buttonText: "Next" });
 
   async function handleButtonClick() {
-    // if (
-    //   players.current_phase === "COMBAT_ATTACK" &&
-    //   !players.declaredAttackers
-    // ) {
-    //   dispatch(setDeclaredAttackers());
-    //   return;
-    // }
+    if (game.currentPhase === "COMBAT_ATTACK" && !game.declaredAttackers) {
+      socketEmit({ name: "set-declared-attackers:action" });
+      return;
+    }
 
-    // if (players.current_phase === "COMBAT_BLOCK" && !players.declaredBlockers) {
-    //   dispatch(setDeclaredBlockers());
-    //   return;
-    // }
-
-    // if (!players.spell_stack.length) {
-    //   const nextNeedPriority = await checkNeedPriority(
-    //     players,
-    //     (players.priority ^ 3) as 1 | 2
-    //   );
-
-    //   if (players.priorityPassNum >= 1) {
-    //     dispatch(nextPhase());
-    //     return;
-    //   }
-
-    //   dispatch(passPriority());
-
-    //   if (!nextNeedPriority) {
-    //     dispatch(passPriority());
-    //     dispatch(nextPhase());
-    //   }
-    // } else {
-    //   dispatch(passPriority());
-    // }
+    if (game.currentPhase === "COMBAT_BLOCK" && !game.declaredBlockers) {
+      socketEmit({ name: "set-declared-blockers:action" });
+      return;
+    }
 
     socketEmit({ name: "next-phase:action" });
+
+    setButtonData({
+      style: Style.blueButton,
+      buttonText: "Pass",
+    });
   }
 
-  // useEffect(() => {
-  //   if (
-  //     players.current_phase === "COMBAT_ATTACK" &&
-  //     !players.declaredAttackers
-  //   ) {
-  //     setButtonData({
-  //       style: Style.redButton,
-  //       buttonText: "Declare Attackers",
-  //     });
-  //     return;
-  //   }
+  useEffect(() => {
+    if (game.currentPhase === "COMBAT_ATTACK" && !game.declaredAttackers) {
+      setButtonData({
+        style: Style.redButton,
+        buttonText: "Declare Attackers",
+      });
+      return;
+    }
 
-  //   if (players.current_phase === "COMBAT_BLOCK" && !players.declaredBlockers) {
-  //     setButtonData({
-  //       style: Style.blueButton,
-  //       buttonText: "Declare Blockers",
-  //     });
-  //     return;
-  //   }
+    if (game.currentPhase === "COMBAT_BLOCK" && !game.declaredBlockers) {
+      setButtonData({
+        style: Style.blueButton,
+        buttonText: "Declare Blockers",
+      });
+      return;
+    }
 
-  //   if (!players.priorityPassNum) {
-  //     setButtonData({
-  //       style: Style.redButton,
-  //       buttonText: "Next",
-  //     });
-  //     return;
-  //   } else {
-  //     setButtonData({
-  //       style: Style.blueButton,
-  //       buttonText: "Pass",
-  //     });
-  //     return;
-  //   }
-  // }, [players]);
+    if (game.isActive) {
+      setButtonData({
+        style: Style.redButton,
+        buttonText: "Next",
+      });
+    }
+  }, [
+    game.priority,
+    game.currentPhase,
+    game.declaredAttackers,
+    game.declaredBlockers,
+  ]);
 
-  if (game.priority === 1) {
+  const defending =
+    !game.isActive &&
+    game.currentPhase === "COMBAT_BLOCK" &&
+    !game.declaredBlockers;
+
+  console.log("DEFENDING: ", defending);
+  if (
+    (game.priority === 1 &&
+      (game.currentPhase === "COMBAT_BLOCK" ? game.declaredBlockers : true)) ||
+    defending
+  ) {
     return (
       <button
         onClick={handleButtonClick}

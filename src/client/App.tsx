@@ -7,6 +7,7 @@ import { Hand } from "./components/Hand";
 import { initSocket } from "./features/SocketSlice";
 import { Battlefield } from "./components/Battlefield";
 import { PhaseButton } from "./components/PhaseButton";
+import { TargetLine } from "./components/TargetLine";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
@@ -27,7 +28,7 @@ function App() {
   }, []);
   return (
     <div className={Style.container}>
-      {/* {players.fights.map((fight) =>
+      {game.fights.map((fight) =>
         fight.blockers.map((blocker) => (
           <TargetLine
             sourceId={blocker}
@@ -35,7 +36,7 @@ function App() {
             cardsElements={cardsElements}
           />
         ))
-      )} */}
+      )}
       <Hand cards={game.opponentPlayer.hand} player={2} addRef={addRef} />
 
       <Battlefield

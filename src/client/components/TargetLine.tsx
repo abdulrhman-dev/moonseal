@@ -27,7 +27,7 @@ export const TargetLine = ({
 
   const { cx, cy, thickness, length, color, angle } = lineProps;
 
-  const players = useSelector((state: RootState) => state.players);
+  const game = useSelector((state: RootState) => state.game);
 
   useEffect(() => {
     const off1 = cardsElements.current.get(sourceId)?.getBoundingClientRect();
@@ -49,7 +49,7 @@ export const TargetLine = ({
     const angle = Math.atan2(y1 - y2, x1 - x2) * (180 / Math.PI);
 
     setLineProps({ cx, cy, thickness: LINE_THICKNESS, length, color, angle });
-  }, [sourceId, destId, players]);
+  }, [sourceId, destId, game]);
 
   return (
     <>

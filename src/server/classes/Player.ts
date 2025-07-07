@@ -89,7 +89,7 @@ export default class Player {
         this.addManaPool(landMana);
       }
     }
-    updateBoard(this.gameRef.network, this.gameRef);
+    updateBoard(this.gameRef);
   }
 
   addManaPool(mana: Mana) {
@@ -127,7 +127,7 @@ export default class Player {
       this.battlefield.lands.add(card);
     }
 
-    updateBoard(this.gameRef.network, this.gameRef);
+    updateBoard(this.gameRef);
   }
 
   removeSummoningSickness() {

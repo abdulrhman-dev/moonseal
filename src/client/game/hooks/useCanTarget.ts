@@ -18,7 +18,7 @@ function useCanTarget(
   );
   const targets = useSelector((state: RootState) => state.targeting.targets);
   const targetingType = useSelector((state: RootState) => state.targeting.type);
-  const attackers = useSelector((state: RootState) => state.players.fights).map(
+  const attackers = useSelector((state: RootState) => state.game.fights).map(
     (fight) => fight.attacker
   );
   useEffect(() => {

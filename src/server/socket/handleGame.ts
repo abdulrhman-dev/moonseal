@@ -23,26 +23,51 @@ export default async function registerHandleGame(
   }
 
   game.startGame();
-  registerGameListeners(io, playerSockets, game);
+  registerGameListeners(game);
 }
 export const listeners: (keyof ClientToServerEvents)[] = [
   "cast-spell:action",
   "next-phase:action",
+  "set-declared-attackers:action",
+  "set-declared-blockers:action",
+  "toggle-attacker:action",
+  "toggle-blocker:action",
 ];
-const registerGameListeners = (
-  io: IO,
-  playerSockets: ServerSocket[],
-  game: Game
-) => {
+
+const registerGameListeners = (game: Game) => {
+  const playerSockets = game.network.playerSockets;
+
   for (const playerSocket of playerSockets) {
     playerSocket.on("next-phase:action", () => {
       game.nextPhase();
+      updatePriority(game);
     });
 
     playerSocket.on("cast-spell:action", ({ id }) => {
       if (playerSocket.data.playerNum !== game.priority) return;
 
       game.getPlayer(playerSocket.data.playerNum).castSpell(id);
+    });
+
+    playerSocket.on("set-declared-attackers:action", () => {
+      console.log("RECEIVED");
+      game.declaredAttackers = true;
+      updateFights(game);
+    });
+
+    playerSocket.on("set-declared-blockers:action", () => {
+      game.declaredBlockers = true;
+      updateFights(game);
+    });
+
+    playerSocket.on("toggle-attacker:action", ({ attackerId }) => {
+      game.toggleAttacker(attackerId);
+      updateFights(game);
+    });
+
+    playerSocket.on("toggle-blocker:action", ({ blockerId, attackerId }) => {
+      game.toggleBlocker(blockerId, attackerId);
+      updateFights(game);
     });
   }
 };
@@ -112,16 +137,16 @@ export function updatePlayerList(
   }
 }
 
-export function updateBoard(network: GameNetwork, game: Game) {
-  let num = 0;
+export function updateBoard(game: Game) {
+  const network = game.network;
   for (const playerSocket of network.playerSockets) {
     updateLists(network.io, playerSocket, game, "hand");
     updateLists(network.io, playerSocket, game, "battlefield");
-    num++;
   }
 }
 
-export function updatePriority(network: GameNetwork, game: Game) {
+export function updatePriority(game: Game) {
+  const network = game.network;
   for (const playerSocket of network.playerSockets) {
     playerSocket.emit("priority:change", {
       phase: game.currentPhase,
@@ -131,7 +156,9 @@ export function updatePriority(network: GameNetwork, game: Game) {
   }
 }
 
-export function updateActivePlayer(network: GameNetwork, game: Game) {
+export function updateActivePlayer(game: Game) {
+  const network = game.network;
+
   for (const playerSocket of network.playerSockets) {
     console.log(
       "ACTIVE PLAYER: ",
@@ -144,4 +171,14 @@ export function updateActivePlayer(network: GameNetwork, game: Game) {
       activePlayer: playerSocket.data.playerNum === game.activePlayer,
     });
   }
+}
+
+export function updateFights(game: Game) {
+  const network = game.network;
+
+  network.io.to("game").emit("fight:change", {
+    fights: game.getClientFights(),
+    declaredAttackers: game.declaredAttackers,
+    declaredBlockers: game.declaredBlockers,
+  });
 }

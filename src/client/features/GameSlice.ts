@@ -9,6 +9,7 @@ import { PhasesArray, type Phases } from "@backend/types/phases";
 import type { TriggerNames } from "@backend/types/triggers";
 import type {
   activePlayerChangeArgs,
+  fightChangeArgs,
   listChangeArgs,
   priorityChangeArgs,
 } from "@backend/types/socket";
@@ -32,7 +33,6 @@ export type Player = {
   };
   mana: PlayerMana;
   life: number;
-  landsCasted: number;
   ready: boolean;
 };
 
@@ -82,7 +82,6 @@ const PlayerDefault: Player = {
     black: 0,
     colorless: 0,
   },
-  landsCasted: 0,
   ready: false,
 };
 
@@ -107,6 +106,7 @@ const initialState: GameState = {
   isActive: false,
 
   spellStack: [],
+
   fights: [],
   declaredAttackers: false,
   declaredBlockers: false,
@@ -135,8 +135,16 @@ const gameSlice = createSlice({
       console.log(activePlayer);
       state.isActive = activePlayer;
     },
+    changeFights(state, action: PayloadAction<fightChangeArgs>) {
+      const { declaredAttackers, declaredBlockers, fights } = action.payload;
+
+      state.fights = fights;
+      state.declaredAttackers = declaredAttackers;
+      state.declaredBlockers = declaredBlockers;
+    },
   },
 });
 
 export default gameSlice.reducer;
-export const { changeList, changePriority, changeActive } = gameSlice.actions;
+export const { changeList, changePriority, changeActive, changeFights } =
+  gameSlice.actions;
