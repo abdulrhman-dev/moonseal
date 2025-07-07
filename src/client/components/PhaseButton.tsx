@@ -1,14 +1,7 @@
 import type { RootState } from "@/features/store";
 import { useDispatch, useSelector } from "react-redux";
-// import {
-//   nextPhase,
-//   passPriority,
-//   setDeclaredAttackers,
-//   setDeclaredBlockers,
-// } from "@/features/GameSlice";
 
 import Style from "@/css/app.module.css";
-// import { checkNeedPriority } from "@/game/logic/checkBoard";
 import { useEffect, useState } from "react";
 import { socketEmit } from "@/features/socket/SocketFactory";
 
@@ -22,7 +15,11 @@ export const PhaseButton = () => {
   const [buttonData, setButtonData] = useState<{
     style: string;
     buttonText: string;
-  }>({ style: Style.redButton, buttonText: "Next" });
+  }>(
+    game.isActive
+      ? { style: Style.redButton, buttonText: "Next" }
+      : { style: Style.blueButton, buttonText: "Pass" }
+  );
 
   async function handleButtonClick() {
     if (game.currentPhase === "COMBAT_ATTACK" && !game.declaredAttackers) {
@@ -64,6 +61,11 @@ export const PhaseButton = () => {
       setButtonData({
         style: Style.redButton,
         buttonText: "Next",
+      });
+    } else {
+      setButtonData({
+        style: Style.blueButton,
+        buttonText: "Pass",
       });
     }
   }, [

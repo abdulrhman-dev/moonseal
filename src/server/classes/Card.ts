@@ -1,5 +1,6 @@
 import { card } from "@/css/card.module.css";
 import type {
+  CardResolveArgs,
   CardTypes,
   Keyword,
   TargetData,
@@ -11,6 +12,7 @@ import type Game from "./Game";
 
 import Mana from "./Mana";
 import type Player from "./Player";
+import { CardCollection } from "./CardCollection";
 
 export type CardData = {
   readonly gameId: number;
@@ -35,7 +37,7 @@ export abstract class Card {
 
   keywords: Keyword[] = [];
   targetData: TargetData[] = [];
-  // enchanters: Card[];
+  enchanters: CardCollection = new CardCollection();
 
   power: number = 0;
   toughness: number = 0;
@@ -85,10 +87,7 @@ export abstract class Card {
     return new Mana(this.data.manaGiven);
   }
 
-  // attachEnchantment();
-
-  // TODO: Handle arguments better
-  // abstract resolve(Player, targets: Card[]): void;
+  abstract resolve(player: Player, args: CardResolveArgs): void;
   abstract cast(): void;
 
   getManaCost() {
@@ -106,5 +105,9 @@ export abstract class Card {
   addTargetSelector(targetData: TargetData) {
     this.targetData.push(targetData);
     return this;
+  }
+
+  attachEnchantment(enchantment: Card) {
+    this.enchanters.add(enchantment);
   }
 }

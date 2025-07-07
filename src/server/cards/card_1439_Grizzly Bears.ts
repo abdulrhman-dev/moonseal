@@ -1,8 +1,9 @@
 import Mana from "../classes/Mana";
 import { Card } from "../classes/Card";
-
 class CardCreator extends Card {
   cast() {}
+
+  resolve(): void {}
 }
 
 export default function () {

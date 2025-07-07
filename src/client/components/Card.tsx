@@ -139,7 +139,10 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
     }
 
     if (card.canCast && location === "hand")
-      socketEmit({ name: "cast-spell:action", data: { id: card.id } });
+      socketEmit({
+        name: "cast-spell:action",
+        data: { id: card.id, args: {}, type: { name: "CAST" } },
+      });
   };
 
   return (

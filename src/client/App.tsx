@@ -8,6 +8,7 @@ import { initSocket } from "./features/SocketSlice";
 import { Battlefield } from "./components/Battlefield";
 import { PhaseButton } from "./components/PhaseButton";
 import { TargetLine } from "./components/TargetLine";
+import { SpellStack } from "./components/SpellStack";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
@@ -56,10 +57,8 @@ function App() {
       <Hand cards={game.player.hand} player={1} addRef={addRef} />
       <PhaseButton />
       <p className={Style.phaseText}>{game.currentPhase}</p>
-      {/* 
-      <SpellStack cards={players.spell_stack.map((ability) => ability.card)} />
 
-      */}
+      <SpellStack cards={game.spellStack.map((spellCard) => spellCard.data)} />
     </div>
   );
 }

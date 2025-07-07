@@ -1,12 +1,7 @@
-import type { CardResolveData, CardState, Mana } from "@backend/types/cards";
-import {
-  createAsyncThunk,
-  createSlice,
-  type PayloadAction,
-} from "@reduxjs/toolkit";
-import { PhasesArray, type Phases } from "@backend/types/phases";
+import type { CardState, Mana } from "@backend/types/cards";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { type Phases } from "@backend/types/phases";
 
-import type { TriggerNames } from "@backend/types/triggers";
 import type {
   activePlayerChangeArgs,
   fightChangeArgs,
@@ -14,11 +9,9 @@ import type {
   priorityChangeArgs,
 } from "@backend/types/socket";
 
-export type StackAbility = {
-  card: CardState;
-  args: CardResolveData;
-  castedPlayer: 1 | 2;
-  type: ["TRIGGER", TriggerNames] | ["ACTIVATED", number] | "CAST" | "SHOWCASE";
+export type ClientStack = {
+  data: CardState;
+  type: "CAST" | "ABILITY";
 };
 
 export type PlayerMana = Required<Mana>;
@@ -58,7 +51,7 @@ export type GameState = {
   opponentPlayer: OpponentPlayer;
   priority: 0 | 1 | 2;
   currentPhase: Phases;
-  spellStack: StackAbility[];
+  spellStack: ClientStack[];
   fights: Fight[];
   declaredAttackers: boolean;
   declaredBlockers: boolean;
@@ -117,6 +110,11 @@ const gameSlice = createSlice({
   initialState,
   reducers: {
     changeList(state, action: PayloadAction<listChangeArgs>) {
+      if (action.payload.listName === "stack") {
+        state.spellStack = action.payload.list;
+        return;
+      }
+
       const { type, list, listName } = action.payload;
       const player = type === "player" ? state.player : state.opponentPlayer;
 

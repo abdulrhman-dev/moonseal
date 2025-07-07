@@ -39,14 +39,27 @@ const registerGameListeners = (game: Game) => {
 
   for (const playerSocket of playerSockets) {
     playerSocket.on("next-phase:action", () => {
-      game.nextPhase();
+      game.passPriority();
       updatePriority(game);
     });
 
-    playerSocket.on("cast-spell:action", ({ id }) => {
+    playerSocket.on("cast-spell:action", ({ id, args, type }) => {
       if (playerSocket.data.playerNum !== game.priority) return;
+      const card = game.getPlayer(playerSocket.data.playerNum).findCard(id);
+      const opponentPlayer = game.getPlayer(game.priority ^ 3);
 
-      game.getPlayer(playerSocket.data.playerNum).castSpell(id);
+      if (!card) throw new Error("Couldn't find the card on stack");
+
+      if (card.data.type === "land") {
+        game.getPlayer(playerSocket.data.playerNum).castSpell(card);
+        return;
+      }
+
+      game.stack.push({
+        args,
+        type,
+        data: card,
+      });
     });
 
     playerSocket.on("set-declared-attackers:action", () => {
@@ -143,6 +156,11 @@ export function updateBoard(game: Game) {
     updateLists(network.io, playerSocket, game, "hand");
     updateLists(network.io, playerSocket, game, "battlefield");
   }
+
+  network.io.to("game").emit("list:change", {
+    listName: "stack",
+    list: game.stack.toClientStack(),
+  });
 }
 
 export function updatePriority(game: Game) {

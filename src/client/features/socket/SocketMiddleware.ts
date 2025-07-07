@@ -39,7 +39,6 @@ const socketMiddleware: Middleware = (store) => {
         });
 
         socket.socket.on("priority:change", (data) => {
-          console.log(data);
           store.dispatch(changePriority(data));
         });
 

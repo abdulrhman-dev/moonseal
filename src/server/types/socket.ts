@@ -1,8 +1,8 @@
-import type { CardLocations } from "@/components/Card";
-import type { CardState } from "./cards";
+import type { CardResolveArgs, CardState } from "./cards";
 import type { Socket, Server } from "socket.io";
 import type { Phases } from "./phases";
-import type { Fight } from "@/features/GameSlice";
+import type { ClientStack, Fight } from "@/features/GameSlice";
+import type { StackCardTypeProp } from "@backend/classes/Stack";
 
 export type listChangeArgs =
   | {
@@ -14,6 +14,10 @@ export type listChangeArgs =
       type: "player" | "opposing";
       listName: "battlefield";
       list: { creatures: CardState[]; lands: CardState[] };
+    }
+  | {
+      listName: "stack";
+      list: ClientStack[];
     };
 
 export type priorityChangeArgs = { phase: Phases; priority: 1 | 2 };
@@ -37,7 +41,11 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   "next-phase:action": () => void;
-  "cast-spell:action": (data: { id: number }) => void;
+  "cast-spell:action": (data: {
+    id: number;
+    type: StackCardTypeProp;
+    args: CardResolveArgs;
+  }) => void;
   "set-declared-attackers:action": () => void;
   "set-declared-blockers:action": () => void;
   "toggle-blocker:action": (date: {

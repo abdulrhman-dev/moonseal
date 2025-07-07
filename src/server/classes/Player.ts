@@ -111,21 +111,18 @@ export default class Player {
       throw new Error(`Invalid mana pool after spending, ${this.manaPool}`);
   }
 
-  castSpell(cardId: number) {
-    const card = this.hand.search(cardId);
-
-    if (!card) throw new Error("Card not found");
-
-    if (!card.canCast(this.gameRef)) return;
-
-    this.spendMana(card.getManaCost());
-    this.hand.remove(card.id);
+  castSpell(card: Card) {
+    if (this.hand.search(card.id)) {
+      this.hand.remove(card.id);
+    }
 
     if (card.data.type === "creature") {
       this.battlefield.creatures.add(card);
     } else if (card.data.type === "land") {
       this.battlefield.lands.add(card);
     }
+
+    card.resolve(this, {});
 
     updateBoard(this.gameRef);
   }
@@ -143,5 +140,44 @@ export default class Player {
   drawCard() {
     const card = this.library.draw();
     if (card) this.hand.add(card);
+  }
+
+  findCard(cardId: number) {
+    for (const location of ["hand", "exile", "graveyard", "library"] as const) {
+      let card = this[location].search(cardId);
+      if (card) return card;
+    }
+
+    for (const location of ["creatures", "lands"] as const) {
+      let card = this.battlefield[location].search(cardId);
+      if (card) return card;
+    }
+  }
+
+  checkNeedPriority() {
+    for (const card of this.hand) {
+      if (card.canCast(this.gameRef)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  checkCanAttack() {
+    return this.battlefield.creatures.collection.reduce(
+      (prev, card) => prev || (!card.tapped && !card.data.summoningSickness),
+      false
+    );
+  }
+
+  checkCanBlock() {
+    return (
+      this.gameRef.fights.length &&
+      this.battlefield.creatures.collection.reduce(
+        (prev, card) => prev || !card.tapped,
+        false
+      )
+    );
   }
 }

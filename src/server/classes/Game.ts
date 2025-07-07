@@ -11,6 +11,7 @@ import {
 } from "../socket/handleGame";
 import type { Card } from "./Card";
 import type { Fight } from "@/features/GameSlice";
+import Stack from "./Stack";
 
 const flagDefault = {
   preventDamage: false,
@@ -44,6 +45,7 @@ class Game {
   priorityPassNum: number = 0;
   currentPhase: Phases = "NONE";
   fights: GameFight[] = [];
+  stack: Stack;
   declaredAttackers: boolean = false;
   declaredBlockers: boolean = false;
   flags: {
@@ -68,6 +70,8 @@ class Game {
         })
       );
     }
+
+    this.stack = new Stack(this);
   }
 
   async initlizeDecks() {
@@ -92,6 +96,28 @@ class Game {
     updateActivePlayer(this);
     updatePriority(this);
     this.handlePhaseChange();
+  }
+
+  passPriority() {
+    if (!this.priority) return;
+
+    if (this.getPlayer(this.priority ^ 3).checkNeedPriority()) {
+      this.priorityPassNum++;
+      this.priority = (this.priority ^ 3) as 1 | 2;
+    } else {
+      if (this.stack.cards.length) this.stack.resolveTop();
+      else this.nextPhase();
+    }
+
+    this.handlePriorityChange();
+  }
+
+  handlePriorityChange() {
+    if (this.priorityPassNum < 2) return;
+
+    if (this.stack.cards.length) {
+      this.stack.resolveTop();
+    }
   }
 
   nextPhase() {
@@ -263,8 +289,12 @@ class Game {
         this.nextPhase();
         break;
       case "COMBAT_ATTACK":
+        if (!player.checkCanAttack()) this.declaredAttackers = true;
+        updateFights(this);
         break;
       case "COMBAT_BLOCK":
+        if (!player.checkCanBlock()) this.declaredBlockers = true;
+        updateFights(this);
         break;
       case "COMBAT_DAMAGE":
         this.handleCombat();

@@ -3,6 +3,8 @@ import { Card } from "../classes/Card";
 
 class CardCreator extends Card {
   cast() {}
+
+  resolve(): void {}
 }
 
 export default function () {
@@ -18,6 +20,7 @@ export default function () {
     manaGiven: new Mana({
       green: 1,
     }),
+    summoningSickness: false,
   });
 
   return card;
