@@ -12,6 +12,7 @@ export default function () {
     type: "creature",
     typeLine: "Creature — Bear",
     text: "",
+    summoningSickness: true,
     defaultPower: 2,
     defaultToughness: 2,
     manaCost: new Mana({

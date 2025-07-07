@@ -14,9 +14,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "paths":    {
-      "@backend/*": ["../server/*"]
-    }
+
+
   },
   "include": ["src"]
 }

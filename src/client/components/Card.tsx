@@ -17,19 +17,20 @@ import type { RootState } from "@/features/store";
 // types
 import { type CardState, type TargetData } from "@backend/types/cards";
 
-import Style from "@/css/card.module.css";
+import Style, { canCast } from "@/css/card.module.css";
 import useGetTargets from "@/game/hooks/useGetTargets";
 import { addTarget, removeTarget } from "@/features/TargetingSlice";
 import useCanTarget from "@/game/hooks/useCanTarget";
 import type { AddRefFunction } from "@/App";
 
 // icons
-// import { IoIosUndo } from "react-icons/io";
-// import { WiStars } from "react-icons/wi";
+import { IoIosUndo } from "react-icons/io";
+import { WiStars } from "react-icons/wi";
 
 // logic
 // import { spendMana } from "@/game/logic/manaLogic";
 import { useState } from "react";
+import { socketEmit } from "@/features/socket/SocketFactory";
 // import { ActivatedAbility } from "./ActivatedAbility";
 
 export type CardLocations = "hand" | "battlefield" | "stack";
@@ -73,124 +74,12 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   // const canCast = useCanCast(card, cardPlayer);
   // const canTarget = useCanTarget(card, location, cardPlayer);
 
-  // const handleCardClick = async () => {
-  //   if (!cardPlayer) return;
+  const handleCardClick = async () => {
+    if (!cardPlayer) return;
 
-  //   if (canTarget) {
-  //     if (targeting.targets.find((target) => target.data.id === card.id)) {
-  //       dispatch(removeTarget(card.id));
-  //     } else {
-  //       dispatch(
-  //         addTarget({
-  //           data: card,
-  //           type: card.type,
-  //           player: cardPlayer,
-  //           location,
-  //           isAttacker: attackers.includes(card.id),
-  //         })
-  //       );
-  //     }
-  //     return;
-  //   }
-
-  //   if (location === "battlefield") {
-  //     if (
-  //       currPhase === "COMBAT_ATTACK" &&
-  //       cardPlayer === activePLayer &&
-  //       !declaredAttackers
-  //     ) {
-  //       if (card.summoningSickness || card.tapped) return;
-
-  //       dispatch(toggleAttacker(card.id));
-  //       return;
-  //     }
-
-  //     if (
-  //       currPhase === "COMBAT_BLOCK" &&
-  //       cardPlayer !== activePLayer &&
-  //       !declaredBlockers
-  //     ) {
-  //       if (card.tapped) return;
-
-  //       const targetData: TargetData = {
-  //         type: "AND",
-  //         text: "",
-  //         targetSelects: [
-  //           {
-  //             type: "creature",
-  //             amount: 1,
-  //             player: 2,
-  //             location: "battlefield",
-  //             isAttacker: true,
-  //           },
-  //         ],
-  //       };
-
-  //       const targets = await getTargets({ targetData, cardPlayer });
-
-  //       if (targets.length !== 1) return;
-
-  //       dispatch(toggleBlocker({ id: card.id, target: targets[0].id }));
-
-  //       return;
-  //     }
-
-  //     setShowActivated((showActivated + 1) % 3);
-  //   }
-
-  //   if (location === "hand") {
-  //     if (!canCast) return;
-
-  //     spendMana(card.manaCost, player, dispatch);
-
-  //     if (card.type === "land") {
-  //       dispatch(incrementLandUsage());
-  //       dispatch(addToBattleField(card));
-  //       return;
-  //     }
-
-  //     if (card.targetData.length > 0) {
-  //       dispatch(
-  //         showcaseOnStack({
-  //           card,
-  //           castedPlayer: cardPlayer,
-  //           args: {},
-  //           type: "SHOWCASE",
-  //         })
-  //       );
-
-  //       const chosenTargets = [];
-  //       for (const targetElement of card.targetData) {
-  //         const targets = await getTargets({
-  //           targetData: targetElement,
-  //           cardPlayer,
-  //         });
-
-  //         dispatch(removeShowcase());
-
-  //         chosenTargets.push(targets);
-  //       }
-
-  //       dispatch(
-  //         castSpell({
-  //           card,
-  //           castedPlayer: cardPlayer,
-  //           args: { targets: chosenTargets, cardPlayer },
-  //           type: "CAST",
-  //         })
-  //       );
-  //     } else {
-  //       dispatch(
-  //         castSpell({
-  //           card,
-  //           castedPlayer: cardPlayer,
-  //           args: { cardPlayer },
-  //           type: "CAST",
-  //         })
-  //       );
-  //     }
-  //   }
-  // };
+    if (card.canCast && location === "hand")
+      socketEmit({ name: "cast-spell:action", data: { id: card.id } });
+  };
 
   return (
     <div className={Style.cardContainer} style={{ ...style }}>
@@ -218,6 +107,8 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       ))} */}
       <div
         className={`${Style.card} ${
+          card.canCast && location === "hand" ? Style.canCast : ""
+        } ${card.tapped ? Style.tapped : ""} ${
           location === "hand" ? Style.inhand : Style.inbattlefield
         } ${
           (card.tapped || card.summoningSickness) && location === "battlefield"
@@ -228,15 +119,15 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
           backgroundImage: `url(${image})`,
           transformOrigin: cardPlayer === 1 ? "bottom" : "top",
         }}
-        // onClick={handleCardClick}
+        onClick={handleCardClick}
         ref={(node) => {
           if (addRef && node) addRef(node, card.id);
         }}
       >
-        {/* {card.tapped && <IoIosUndo className={Style.icon} />}
+        {card.tapped && <IoIosUndo className={Style.icon} />}
         {card.summoningSickness && location === "battlefield" && (
           <WiStars className={Style.icon} />
-        )} */}
+        )}
 
         {card.type === "creature" && (
           <div className={Style.cardPlate}>

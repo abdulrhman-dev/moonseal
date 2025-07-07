@@ -27,7 +27,7 @@ export interface ServerToClientEvents {
 
 export interface ClientToServerEvents {
   "next-phase:action": () => void;
-  "next-phase:action2": (data: listChangeArgs) => void;
+  "cast-spell:action": (data: { id: number }) => void;
 }
 
 export type ClientSocketEmitArgs = {

@@ -157,6 +157,8 @@ export interface CardState {
   tapped: boolean;
   summoningSickness: boolean;
 
+  canCast: boolean;
+
   // activatedAbilities: ActivatedData[];
 
   cardPlayer: 0 | 1 | 2;

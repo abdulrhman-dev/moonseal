@@ -1,3 +1,4 @@
+import { card } from "@/css/card.module.css";
 import type {
   CardTypes,
   Keyword,
@@ -6,39 +7,32 @@ import type {
   // ActivatedData,
   // CardResolveData,
 } from "../types/cards";
+import type Game from "./Game";
 
 import Mana from "./Mana";
 import type Player from "./Player";
 
-export type CardParams = {
+export type CardData = {
   readonly gameId: number;
   type: CardTypes;
   name: string;
   typeLine: string;
   text: string;
+  summoningSickness: boolean;
   manaCost: Mana;
   manaGiven?: Mana;
   readonly defaultPower: number;
   readonly defaultToughness: number;
 };
 
+const fastSpells: CardTypes[] = ["instant"] as const;
+
 export abstract class Card {
   static idCounter: number = 0;
   id: number;
 
-  data: {
-    readonly gameId: number;
-    type: CardTypes;
-    name: string;
-    typeLine: string;
-    text: string;
-    manaCost: Mana;
-    manaGiven?: Mana;
-    readonly defaultPower: number;
-    readonly defaultToughness: number;
-  };
+  data: CardData;
 
-  summoningSickness: boolean = false;
   keywords: Keyword[] = [];
   targetData: TargetData[] = [];
   // enchanters: Card[];
@@ -52,7 +46,7 @@ export abstract class Card {
   //   activatedAbilities: ActivatedData[] = [];
   //   activatedActions: ((args: CardResolveData) => void)[] = [];
 
-  constructor(data: CardParams) {
+  constructor(data: CardData) {
     this.id = Card.idCounter++;
     this.data = data;
 
@@ -60,11 +54,34 @@ export abstract class Card {
     this.toughness = this.data.defaultToughness;
   }
 
-  canCast(player: Player) {
-    return player.manaPool.canFit(this.data.manaCost);
+  canCast(game: Game) {
+    const player = game.getPlayer(this.cardPlayer);
+    const currPhase = game.currentPhase;
+    const isActive = game.activePlayer === this.cardPlayer;
+
+    if (currPhase === "NONE") return false;
+
+    if (this.data.type === "land")
+      return (
+        (currPhase === "MAIN_PHASE_1" || currPhase === "MAIN_PHASE_2") &&
+        player.landsCasted <= 0 &&
+        isActive
+      );
+
+    if (!isActive && !fastSpells.includes(this.data.type)) return false;
+
+    if (
+      currPhase !== "MAIN_PHASE_1" &&
+      currPhase !== "MAIN_PHASE_2" &&
+      !fastSpells.includes(this.data.type)
+    )
+      return false;
+    if (!isActive) return false;
+
+    return player.maxManaPool.canFit(this.data.manaCost);
   }
 
-  getManaGiven(player: Player) {
+  getManaGiven() {
     return new Mana(this.data.manaGiven);
   }
 

@@ -44,6 +44,8 @@ export default class Mana {
     for (const manaType of manaTypes) {
       this[manaType] += mana[manaType];
     }
+
+    return this;
   }
 
   sub(mana: Mana) {
@@ -56,7 +58,7 @@ export default class Mana {
       this.colorless = 0;
 
       for (const manaType of manaTypes) {
-        if (remaining === 0) return;
+        if (remaining === 0) break;
         if (manaType === "colorless") continue;
 
         const remainingTemp = remaining;
@@ -65,8 +67,10 @@ export default class Mana {
         this[manaType] = Math.max(this[manaType] - remainingTemp, 0);
       }
 
-      this.colorless = -remaining;
+      if (remaining > 0) this.colorless = -remaining;
     }
+
+    return this;
   }
 
   get invalid() {
@@ -89,7 +93,7 @@ export default class Mana {
   }
 
   shareTypes(mana: Mana) {
-    if (mana.colorless > 0) return true;
+    if (mana.colorless > 0 || this.colorless > 0) return true;
 
     let share = false;
 
@@ -106,5 +110,13 @@ export default class Mana {
     res.sub(mana);
 
     return !res.invalid;
+  }
+
+  normalize() {
+    for (const manaType of manaTypes) {
+      this[manaType] = Math.max(this[manaType], 0);
+    }
+
+    return this;
   }
 }

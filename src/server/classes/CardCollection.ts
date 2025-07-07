@@ -1,5 +1,6 @@
 import type { CardState } from "@backend/types/cards";
 import { Card } from "./Card";
+import type Game from "./Game";
 export class CardCollection {
   collection: Card[] = [];
 
@@ -36,7 +37,7 @@ export class CardCollection {
     }
   }
 
-  toCardState(): CardState[] {
+  toCardState(game: Game): CardState[] {
     const cards: CardState[] = [];
 
     for (const card of this.collection) {
@@ -47,7 +48,7 @@ export class CardCollection {
         enchanters: [],
         targets: [],
         targetData: card.targetData,
-        summoningSickness: card.summoningSickness,
+        summoningSickness: card.data.summoningSickness,
         power: card.power,
         toughness: card.toughness,
         defaultPower: card.data.defaultPower,
@@ -57,6 +58,7 @@ export class CardCollection {
         tapped: card.tapped,
         text: card.data.text,
         typeLine: card.data.typeLine,
+        canCast: card.canCast(game),
       });
     }
 
@@ -83,6 +85,7 @@ export class CardCollection {
         tapped: false,
         text: "",
         typeLine: "",
+        canCast: false,
       });
     }
     return cards;

@@ -43,7 +43,7 @@ export const PhasesArray = [
 // nextPhase, client
 // castSpell, client
 class Game {
-  players: [Player, Player];
+  players: Player[] = [];
   activePlayer: 0 | 1 | 2 = 0;
   priority: 0 | 1 | 2 = 0;
   priorityPassNum: number = 0;
@@ -60,11 +60,19 @@ class Game {
   };
 
   constructor(io: IO, playerSockets: ServerSocket[]) {
-    this.players = [new Player(1), new Player(2)];
     this.network = {
       io,
       playerSockets,
     };
+
+    for (const playerSocket of this.network.playerSockets) {
+      this.players.push(
+        new Player(playerSocket.data.playerNum as 1 | 2, this, {
+          io: this.network.io,
+          socket: playerSocket,
+        })
+      );
+    }
   }
 
   async initlizeDecks() {
@@ -84,7 +92,7 @@ class Game {
 
     this.activePlayer = 1;
     this.priority = 1;
-    this.players[this.activePlayer - 1].turn++;
+    this.getPlayer(this.activePlayer).turn++;
 
     updateActivePlayer(this.network, this);
     updatePriority(this.network, this);
@@ -99,10 +107,10 @@ class Game {
     this.priorityPassNum = 0;
 
     if (nextIndex === 0) {
-      this.players[this.activePlayer - 1].landsCasted = 0;
+      this.getPlayer(this.activePlayer).landsCasted = 0;
 
       this.activePlayer = (this.activePlayer ^ 3) as 1 | 2;
-      this.players[this.activePlayer - 1].turn++;
+      this.getPlayer(this.activePlayer).turn++;
 
       this.declaredAttackers = false;
       this.declaredBlockers = false;
@@ -119,7 +127,7 @@ class Game {
   }
 
   handlePhaseChange() {
-    const player = this.players[this.activePlayer - 1];
+    const player = this.getPlayer(this.activePlayer);
 
     switch (this.currentPhase) {
       case "BEGINNING_UNTAP":
@@ -137,19 +145,28 @@ class Game {
       case "COMBAT_BEGIN":
       case "COMBAT_END":
       case "END_STEP":
-        updateBoard(this.network, this);
         this.nextPhase();
-
         break;
       case "COMBAT_ATTACK":
         break;
       case "COMBAT_BLOCK":
         break;
       case "COMBAT_DAMAGE":
+        this.nextPhase();
         break;
       case "CLEANUP":
         break;
     }
+  }
+
+  getPlayer(playerNum: number) {
+    const player = this.players.find(
+      (player) => player.playerNum === playerNum
+    );
+
+    if (!player) throw new Error(`Player not found for ${playerNum}`);
+
+    return player;
   }
 }
 

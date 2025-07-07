@@ -3,12 +3,13 @@ import ViteExpress from "vite-express";
 
 import { Server, type Socket } from "socket.io";
 import Game from "./classes/Game";
+import http from "http";
 import {
   type ClientToServerEvents,
   type ServerSocket,
   type ServerToClientEvents,
 } from "./types/socket";
-import registerHandleGame from "./socket/handleGame";
+import registerHandleGame, { listeners } from "./socket/handleGame";
 
 const app = express();
 
@@ -16,9 +17,13 @@ app.get("/hello", (_, res) => {
   res.send("Hello Vite + React + TypeScript!");
 });
 
-const server = ViteExpress.listen(app, 3000, () =>
-  console.log("Server is listening on port 3000...")
-);
+const server = http.createServer(app);
+
+server.listen(3000, () => {
+  console.log("CONNECTED ON PORT 3000");
+});
+
+ViteExpress.bind(app, server);
 
 const io = new Server<ClientToServerEvents, ServerToClientEvents>(server);
 
@@ -31,8 +36,10 @@ function getPlayerNum() {
 }
 
 function unRegisterEvents() {
-  for (const playerSocket of playerSockets) {
-    playerSocket.removeAllListeners("next-phase:action");
+  for (const listener of listeners) {
+    for (const playerSocket of playerSockets) {
+      playerSocket.removeAllListeners(listener);
+    }
   }
 }
 

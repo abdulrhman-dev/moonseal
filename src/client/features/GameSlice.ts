@@ -132,7 +132,7 @@ const gameSlice = createSlice({
     },
     changeActive(state, action: PayloadAction<activePlayerChangeArgs>) {
       const { activePlayer } = action.payload;
-
+      console.log(activePlayer);
       state.isActive = activePlayer;
     },
   },
