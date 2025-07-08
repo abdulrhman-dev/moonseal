@@ -113,11 +113,6 @@ class Game {
       this.nextPhase();
     }
 
-    console.log(
-      "PRIORITY PASSED, AUTO PASS: ",
-      this.getPlayer(this.priority).autoPassPriority
-    );
-
     if (
       this.getPlayer(this.priority).autoPassPriority &&
       this.priority !== this.activePlayer &&
@@ -125,13 +120,15 @@ class Game {
     ) {
       this.nextPhase();
     }
-
     if (
-      !this.getPlayer(this.priority ^ 3).checkNeedPriority() &&
-      this.priorityPassNum < 2 &&
-      this.stack.cards.length
+      !this.getPlayer(this.priority).checkNeedPriority() &&
+      this.priorityPassNum < 2
     ) {
-      this.stack.resolveTop();
+      if (this.stack.cards.length) {
+        this.stack.resolveTop();
+      } else {
+        this.nextPhase();
+      }
     }
 
     if (this.priorityPassNum >= 2 && this.stack.cards.length) {

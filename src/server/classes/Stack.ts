@@ -45,9 +45,6 @@ class Stack {
 
     if (card.type.name !== "SHOWCASE") {
       this.gameRef.priorityPassNum = 0;
-      this.gameRef
-        .getPlayer(card.data.cardPlayer)
-        .battlefield.creatures.remove(card.data.id);
       updatePriority(this.gameRef);
 
       if (
@@ -78,13 +75,18 @@ class Stack {
 
   handleCardResolution(stackTop: StackCard) {
     if (stackTop.type.name === "CAST") {
-      // TODO: HANDLE ADDING/REMOVING Stack Cards
       this.gameRef
         .getPlayer(stackTop.data.cardPlayer)
         .castSpell(stackTop.data, stackTop.args);
     }
 
-    if (stackTop.type.name === "ACTIVITED") return;
+    if (stackTop.type.name === "ACTIVITED") {
+      const player = this.gameRef.getPlayer(stackTop.data.cardPlayer);
+      stackTop.data.activateAbility(stackTop.type.activitedNum, player, {
+        ...stackTop.args,
+        targets: player.getTargetCards(stackTop.args.targets),
+      });
+    }
   }
 
   toClientStack(): ClientStack[] {
@@ -122,6 +124,7 @@ class Stack {
           text: card.data.text,
           typeLine: card.data.typeLine,
           canCast: card.canCast(this.gameRef),
+          activatedAbilities: [],
         },
         type:
           stackCard.type.name === "ACTIVITED" ||

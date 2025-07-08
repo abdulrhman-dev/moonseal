@@ -21,8 +21,9 @@ import { TbTargetArrow } from "react-icons/tb";
 
 // logic
 // import { spendMana } from "@/game/logic/manaLogic";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { socketEmit } from "@/features/socket/SocketFactory";
+import { ActivatedAbility } from "./ActivatedAbility";
 // import { ActivatedAbility } from "./ActivatedAbility";
 
 export type CardLocations = "hand" | "battlefield" | "stack";
@@ -36,19 +37,14 @@ interface CardProps {
 }
 
 function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
-  // const [showActivated, setShowActivated] = useState(0);
+  const [showActivated, setShowActivated] = useState(0);
 
-  // const player = useSelector(
-  //   (state: RootState) => state.game.player[cardPlayer - 1]
-  // );
   const currentPhase = useSelector(
     (state: RootState) => state.game.currentPhase
   );
   const isActive = useSelector((state: RootState) => state.game.isActive);
+  const priority = useSelector((state: RootState) => state.game.priority);
 
-  // const activePLayer = useSelector(
-  //   (state: RootState) => state.game.current_player
-  // );
   const targeting = useSelector((state: RootState) => state.targeting);
   const attackers = useSelector((state: RootState) => state.game.fights).map(
     (fight) => fight.attacker
@@ -69,11 +65,12 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   const { getTargets } = useGetTargets();
   const canTarget = useCanTarget(card, location, cardPlayer);
 
+  useEffect(() => {
+    setShowActivated(0);
+  }, [currentPhase]);
+
   const handleCardClick = async () => {
     if (!cardPlayer) return;
-
-    if (location === "battlefield") {
-    }
 
     if (canTarget) {
       if (targeting.targets.find((target) => target.data.id === card.id)) {
@@ -169,20 +166,21 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         });
       }
     }
+    if (showActivated === 2) setShowActivated(0);
+    else setShowActivated(showActivated + 1);
   };
 
   return (
     <div className={Style.cardContainer} style={{ ...style }}>
-      {/* {!card.summoningSickness &&
+      {!card.summoningSickness &&
         showActivated === 2 &&
+        priority === 1 &&
         card.activatedAbilities.length > 0 && (
           <ActivatedAbility
             activatedAbilities={card.activatedAbilities}
-            player={player}
             card={card}
           />
         )}
-      */}
 
       {card.enchanters.map((enchanter, index) => (
         <Card

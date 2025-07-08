@@ -17,6 +17,17 @@ export const decks: Deck[] = [
       name: "Grizzly Bears",
       amount: 2,
     },
+    {
+      id: "507123",
+      name: "Elvish Mystic",
+      amount: 1,
+    },
   ],
-  [],
+  [
+    {
+      id: "559550",
+      name: "Giant Growth",
+      amount: 5,
+    },
+  ],
 ];

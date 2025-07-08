@@ -68,6 +68,10 @@ export type CardResolveArgs = {
   targets?: CardState[][];
 };
 
+export type ActivatedDataClient = ActivatedData & {
+  canActivate: boolean;
+};
+
 export interface CardState {
   readonly gameId: number;
   id: number;
@@ -91,9 +95,7 @@ export interface CardState {
 
   canCast: boolean;
 
-  // activatedAbilities: ActivatedData[];
+  activatedAbilities: ActivatedDataClient[];
 
   cardPlayer: 0 | 1 | 2;
-
-  // triggers: TriggerNames[];
 }

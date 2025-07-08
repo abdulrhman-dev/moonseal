@@ -33,7 +33,7 @@ export default class Player {
     creatures: new CardCollection(),
     lands: new CardCollection(),
   };
-  manaPool: Mana = new Mana();
+  manaPool: Mana = new Mana({});
   life: number = 20;
   turn: number = 0;
   landsCasted: number = -5;
@@ -115,8 +115,6 @@ export default class Player {
   }
 
   spendMana(mana: Mana) {
-    console.log("MANA COST:", mana);
-
     if (this.manaPool.canFit(mana)) {
       this.manaPool.sub(mana);
       return;
@@ -205,6 +203,7 @@ export default class Player {
 
     for (const card of this.hand) {
       if (card.canCast(this.gameRef)) {
+        console.log("PASS CARD APPROVED", card.data.name);
         return true;
       }
     }

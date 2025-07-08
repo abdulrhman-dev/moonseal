@@ -1,5 +1,7 @@
 import { card } from "@/css/card.module.css";
 import type {
+  ActivatedData,
+  ActivatedDataClient,
   CardTypes,
   Keyword,
   TargetData,
@@ -42,6 +44,11 @@ export function enchantCard(args: CardResolveServerArgs, enchantment: Card) {
 
   targets[0].attachEnchantment(enchantment);
 }
+
+export type ActivatedAction = (
+  player: Player,
+  args: CardResolveServerArgs
+) => void;
 export abstract class Card {
   static idCounter: number = 0;
   id: number;
@@ -58,8 +65,8 @@ export abstract class Card {
   tapped: boolean = false;
   cardPlayer: 0 | 1 | 2 = 0;
 
-  //   activatedAbilities: ActivatedData[] = [];
-  //   activatedActions: ((args: CardResolveData) => void)[] = [];
+  activatedAbilities: ActivatedData[] = [];
+  activatedActions: ActivatedAction[] = [];
 
   constructor(data: CardData) {
     this.id = Card.idCounter++;
@@ -125,10 +132,43 @@ export abstract class Card {
     return this;
   }
 
+  addActivitedAbility(
+    activitedData: ActivatedData,
+    activitedAction: ActivatedAction
+  ) {
+    this.activatedAbilities.push(activitedData);
+    this.activatedActions.push(activitedAction);
+  }
+
+  activateAbility(
+    actionNumber: number,
+    player: Player,
+    args: CardResolveServerArgs
+  ) {
+    if (actionNumber >= this.activatedActions.length) return;
+    const ability = this.activatedAbilities[actionNumber];
+
+    player.spendMana(new Mana(ability.cost.mana));
+
+    if (ability.cost.tap) this.tapCard();
+
+    this.activatedActions[actionNumber](player, args);
+  }
+
   attachEnchantment(enchantment: Card) {
     enchantment.enchant(this);
     this.enchanters.add(enchantment);
   }
 
   enchant(card: Card) {}
+
+  getClientActivatedAbilities(game: Game): ActivatedDataClient[] {
+    const player = game.getPlayer(this.cardPlayer);
+    return this.activatedAbilities.map((activatedAbiliity) => ({
+      ...activatedAbiliity,
+      canActivate:
+        player.maxManaPool.canFit(new Mana(activatedAbiliity.cost.mana)) &&
+        !this.tapped,
+    }));
+  }
 }
