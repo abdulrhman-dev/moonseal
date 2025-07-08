@@ -33,7 +33,7 @@ export default class Player {
     creatures: new CardCollection(),
     lands: new CardCollection(),
   };
-  manaPool: Mana = new Mana({ green: 200 });
+  manaPool: Mana = new Mana({});
   life: number = 20;
   turn: number = 0;
   landsCasted: number = 0;

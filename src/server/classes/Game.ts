@@ -4,6 +4,7 @@ import type { Phases } from "../types/phases";
 import { decks } from "../deck";
 import type { IO, ServerSocket } from "../types/socket";
 import {
+  getTargets,
   updateActivePlayer,
   updateBoard,
   updateFights,
@@ -302,7 +303,7 @@ class Game {
     }));
   }
 
-  handlePhaseChange() {
+  async handlePhaseChange() {
     const player = this.getPlayer(this.activePlayer);
 
     switch (this.currentPhase) {
@@ -343,7 +344,39 @@ class Game {
       case "CLEANUP":
         this.healCreatures();
         this.clearFlags();
-        this.nextPhase();
+        if (player.hand.collection.length > 7) {
+          const targets = await getTargets(player.network.socket, {
+            data: {
+              targetSelects: [
+                {
+                  amount: player.hand.collection.length - 7,
+                  location: "hand",
+                  type: "all",
+                  player: 1,
+                },
+              ],
+              text: "",
+              type: "AND",
+            },
+            mode: "auto",
+          });
+
+          for (const target of targets) {
+            const card = player.hand.search(target.data.id);
+            if (!card) {
+              throw new Error(
+                `Target not found on server ${target.data.name} - ${target.data.id}`
+              );
+            }
+
+            player.hand.remove(card.id);
+            player.library.add(card);
+          }
+
+          player.library.shuffle();
+          updatePlayer(this, player.playerNum);
+          this.nextPhase();
+        } else this.nextPhase();
         break;
     }
   }

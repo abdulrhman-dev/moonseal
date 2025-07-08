@@ -3,6 +3,7 @@ import type { Socket, Server } from "socket.io";
 import type { Phases } from "./phases";
 import type { ClientStack, Fight, PlayerMana } from "@/features/GameSlice";
 import type { StackCardTypeProp } from "@backend/classes/Stack";
+import type { InitilizeTargetingArgs, Target } from "@/features/TargetingSlice";
 
 export type listChangeArgs =
   | {
@@ -47,6 +48,7 @@ export interface ServerToClientEvents {
   "active-player:change": (data: activePlayerChangeArgs) => void;
   "fight:change": (data: fightChangeArgs) => void;
   "player:change": (data: playerChangeArgs) => void;
+  "targeting:change": (data: InitilizeTargetingArgs) => void;
 }
 
 export interface ClientToServerEvents {
@@ -67,6 +69,9 @@ export interface ClientToServerEvents {
     autoPassPriority: boolean;
     autoResolvePriority: boolean;
   }) => void;
+  "mulligan:action": () => void;
+  "set-ready:action": () => void;
+  "send-targets:action": (targets: Target[]) => void;
 }
 
 export type ClientSocketEmitArgs = {

@@ -1,5 +1,20 @@
 import type { Deck } from "./classes/Player";
 
+// { id: "161851", name: "Arbor Elf", amount: 3 },
+// { id: "33313", name: "Greenweaver Druid", amount: 3 },
+// { id: "56311", name: "Elder of Laurels", amount: 2 },
+// { id: "1439", name: "Grizzly Bears", amount: 3 },
+// { id: "69165", name: "Kalonian Tusker", amount: 2 },
+// { id: "215615", name: "Garruk's Gorehorn", amount: 2 },
+// { id: "230897", name: "Grizzled Outrider", amount: 2 },
+// { id: "168484", name: "Gigantosaurus", amount: 1 },
+// { id: "180976", name: "Prey Upon", amount: 2 },
+// { id: "535861", name: "Wild Growth", amount: 2 },
+// { id: "118683", name: "Fog", amount: 1 },
+// { id: "545092", name: "Explore", amount: 2 },
+// { id: "559550", name: "Giant Growth", amount: 2 },
+// { id: "559542", name: "Forest", amount: 20 },
+
 export const decks: Deck[] = [
   [
     { id: "161851", name: "Arbor Elf", amount: 3 },

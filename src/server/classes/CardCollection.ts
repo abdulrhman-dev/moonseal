@@ -37,7 +37,7 @@ export class CardCollection {
     }
   }
 
-  toCardState(game: Game): CardState[] {
+  toCardState(game: Game, isPlayer = true): CardState[] {
     const cards: CardState[] = [];
 
     for (const card of this.collection) {
@@ -45,7 +45,7 @@ export class CardCollection {
         id: card.id,
         type: card.data.type,
         name: card.data.name,
-        enchanters: card.enchanters.toCardState(game),
+        enchanters: card.enchanters.toCardState(game, isPlayer),
         targets: [],
         targetData: card.targetData,
         summoningSickness: card.data.summoningSickness,
@@ -53,7 +53,7 @@ export class CardCollection {
         toughness: card.toughness,
         defaultPower: card.data.defaultPower,
         defaultToughness: card.data.defaultToughness,
-        cardPlayer: card.cardPlayer,
+        cardPlayer: isPlayer ? 1 : 2,
         gameId: card.data.gameId,
         tapped: card.tapped,
         text: card.data.text,

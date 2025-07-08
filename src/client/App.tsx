@@ -9,6 +9,7 @@ import { Battlefield } from "./components/Battlefield";
 import { PhaseButton } from "./components/PhaseButton";
 import { TargetLine } from "./components/TargetLine";
 import { SpellStack } from "./components/SpellStack";
+import { Mulligan } from "./modals/Mulligan";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
@@ -63,6 +64,8 @@ function App() {
           cards={game.spellStack.map((spellCard) => spellCard.data)}
         />
       )}
+
+      {!game.player.ready && <Mulligan />}
     </div>
   );
 }

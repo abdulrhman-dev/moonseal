@@ -142,7 +142,6 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
         }
       }
     }
-
     if (card.canCast && location === "hand") {
       if (card.targetData.length > 0) {
         socketEmit({

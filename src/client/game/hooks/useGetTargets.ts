@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 type GetTargetCallback = (targets: CardState[]) => void;
 
-const targetsFulfilled = (targeting: TargetingState): boolean => {
+export const targetsFulfilled = (targeting: TargetingState): boolean => {
   if (targeting.type === "AND") {
     return targeting.targetsRules.reduce(
       (prev, targetRule) => targetRule.amount === 0 && prev,
@@ -53,7 +53,12 @@ function useGetTargets() {
             }
       ) as TargetSelectGroup;
 
-      dispatch(initilizeTargets({ ...targetData, targetSelects }));
+      dispatch(
+        initilizeTargets({
+          data: { ...targetData, targetSelects },
+          mode: "manual",
+        })
+      );
 
       return new Promise<CardState[]>((resolve) => {
         setCallback(() => resolve);

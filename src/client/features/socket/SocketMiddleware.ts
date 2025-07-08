@@ -17,6 +17,7 @@ import {
   changePlayers,
   changePriority,
 } from "../GameSlice";
+import { initilizeTargets } from "../TargetingSlice";
 
 const socketMiddleware: Middleware = (store) => {
   let socket: SocketInterface;
@@ -48,12 +49,15 @@ const socketMiddleware: Middleware = (store) => {
         });
 
         socket.socket.on("fight:change", (data) => {
-          console.log("FIGHTS CHANGED BRO: ", data);
           store.dispatch(changeFights(data));
         });
 
         socket.socket.on("player:change", (data) => {
           store.dispatch(changePlayers(data));
+        });
+
+        socket.socket.on("targeting:change", (data) => {
+          store.dispatch(initilizeTargets(data));
         });
       }
     }

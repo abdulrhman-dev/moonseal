@@ -29,6 +29,7 @@ export const ActivatedAbility = ({
       const chosenTargets = [];
 
       for (const targetElement of activatedAbility.targets) {
+        console.log(targetElement);
         const targets = await getTargets({
           targetData: targetElement,
           cardPlayer: card.cardPlayer,

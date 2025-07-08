@@ -1,10 +1,11 @@
 .mulliganContainer{
     position: absolute;
     height: 20vh;
-    width: 100%;
+    width: 20%;
     display: flex;
     align-items: center;
     padding-left: 1%;
+    top: 80vh;
 }
 
 .mulliganContainer button{
@@ -24,4 +25,8 @@
 }
 .mulliganContainer .keep{
         background-color: rgb(0, 89, 255);
+}
+
+.mulliganContainer button:disabled{
+   filter: saturate(0.3)
 }

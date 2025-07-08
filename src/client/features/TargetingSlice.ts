@@ -7,7 +7,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { CardTypes } from "@backend/types/cards";
 import type { CardLocations } from "@/components/Card";
 
-type Target = {
+export type Target = {
   type: CardTypes;
   player: 1 | 2;
   data: CardState;
@@ -21,6 +21,12 @@ export type TargetingState = {
   selectedRules: boolean[];
   text: string;
   type: "AND" | "OR";
+  mode: "manual" | "auto";
+};
+
+export type InitilizeTargetingArgs = {
+  data: TargetData;
+  mode: "auto" | "manual";
 };
 
 const initialState: TargetingState = {
@@ -29,17 +35,19 @@ const initialState: TargetingState = {
   selectedRules: [],
   text: "",
   type: "AND",
+  mode: "manual",
 };
 
 const targetingSlice = createSlice({
   name: "targeting",
   initialState,
   reducers: {
-    initilizeTargets(state, action: PayloadAction<TargetData>) {
-      state.targetsRules = action.payload.targetSelects;
-      state.selectedRules = action.payload.targetSelects.map(() => false);
-      state.text = action.payload.text;
-      state.type = action.payload.type;
+    initilizeTargets(state, action: PayloadAction<InitilizeTargetingArgs>) {
+      state.targetsRules = action.payload.data.targetSelects;
+      state.selectedRules = action.payload.data.targetSelects.map(() => false);
+      state.text = action.payload.data.text;
+      state.type = action.payload.data.type;
+      state.mode = action.payload.mode;
     },
     addTarget(state, action: PayloadAction<Target>) {
       const targetIndex = state.targetsRules.findIndex(
@@ -67,11 +75,10 @@ const targetingSlice = createSlice({
       );
     },
     clearTargets(state) {
-      state.targets = [];
-      state.targetsRules = [];
-      state.selectedRules = [];
-      state.text = "";
-      state.type = "AND";
+      state = {
+        ...state,
+        ...initialState,
+      };
     },
   },
 });

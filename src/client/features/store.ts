@@ -4,22 +4,29 @@ import {
   type TypedStartListening,
 } from "@reduxjs/toolkit";
 import PlayersSlice from "./GameSlice";
-import TriggerSlice from "./TriggerSlice";
 import TargetingSlice from "./TargetingSlice";
 import socketMiddleware from "./socket/SocketMiddleware";
+import setupListeners from "./listeners/setup";
 
-// const listener = createListenerMiddleware();
+const listener = createListenerMiddleware();
+
+export const startAppListening = listener.startListening as TypedStartListening<
+  RootState,
+  AppDispatch
+>;
 
 export const store = configureStore({
   reducer: {
     game: PlayersSlice,
-    triggers: TriggerSlice,
     targeting: TargetingSlice,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(socketMiddleware),
-  // getDefaultMiddleware().prepend(listener.middleware),
+    getDefaultMiddleware()
+      .concat(socketMiddleware)
+      .prepend(listener.middleware),
 });
+
+setupListeners();
 
 export type AppStore = typeof store;
 export type RootState = ReturnType<AppStore["getState"]>;
