@@ -6,12 +6,14 @@ import type {
   activePlayerChangeArgs,
   fightChangeArgs,
   listChangeArgs,
+  playerChangeArgs,
   priorityChangeArgs,
 } from "@backend/types/socket";
 
 export type ClientStack = {
   data: CardState;
-  type: "CAST" | "ABILITY";
+  type: "CAST" | "ABILITY" | "SHOWCASE";
+  targets: number[];
 };
 
 export type PlayerMana = Required<Mana>;
@@ -140,9 +142,25 @@ const gameSlice = createSlice({
       state.declaredAttackers = declaredAttackers;
       state.declaredBlockers = declaredBlockers;
     },
+    changePlayers(state, action: PayloadAction<playerChangeArgs>) {
+      state.player = {
+        ...state.player,
+        ...action.payload.player,
+      };
+
+      state.opponentPlayer = {
+        ...state.opponentPlayer,
+        ...action.payload.opponenet,
+      };
+    },
   },
 });
 
 export default gameSlice.reducer;
-export const { changeList, changePriority, changeActive, changeFights } =
-  gameSlice.actions;
+export const {
+  changeList,
+  changePriority,
+  changeActive,
+  changeFights,
+  changePlayers,
+} = gameSlice.actions;

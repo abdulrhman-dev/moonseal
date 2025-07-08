@@ -7,6 +7,7 @@ import {
   updateActivePlayer,
   updateBoard,
   updateFights,
+  updatePlayer,
   updatePriority,
 } from "../socket/handleGame";
 import type { Card } from "./Card";
@@ -101,21 +102,39 @@ class Game {
   passPriority() {
     if (!this.priority) return;
 
-    if (this.getPlayer(this.priority ^ 3).checkNeedPriority()) {
-      this.priorityPassNum++;
-      this.priority = (this.priority ^ 3) as 1 | 2;
-    } else {
-      if (this.stack.cards.length) this.stack.resolveTop();
-      else this.nextPhase();
-    }
+    this.priorityPassNum++;
+    this.priority = (this.priority ^ 3) as 1 | 2;
 
     this.handlePriorityChange();
   }
 
   handlePriorityChange() {
-    if (this.priorityPassNum < 2) return;
+    if (this.priorityPassNum > 2 && !this.stack.cards.length) {
+      this.nextPhase();
+    }
 
-    if (this.stack.cards.length) {
+    console.log(
+      "PRIORITY PASSED, AUTO PASS: ",
+      this.getPlayer(this.priority).autoPassPriority
+    );
+
+    if (
+      this.getPlayer(this.priority).autoPassPriority &&
+      this.priority !== this.activePlayer &&
+      !this.stack.cards.length
+    ) {
+      this.nextPhase();
+    }
+
+    if (
+      !this.getPlayer(this.priority ^ 3).checkNeedPriority() &&
+      this.priorityPassNum < 2 &&
+      this.stack.cards.length
+    ) {
+      this.stack.resolveTop();
+    }
+
+    if (this.priorityPassNum >= 2 && this.stack.cards.length) {
       this.stack.resolveTop();
     }
   }
@@ -228,6 +247,8 @@ class Game {
     this.fights = [];
 
     updateBoard(this);
+    updatePlayer(this, 1);
+    updatePlayer(this, 2);
   }
 
   cleanupDeadCreatures() {
@@ -293,7 +314,8 @@ class Game {
         updateFights(this);
         break;
       case "COMBAT_BLOCK":
-        if (!player.checkCanBlock()) this.declaredBlockers = true;
+        if (!this.getPlayer(this.activePlayer ^ 3).checkCanBlock())
+          this.declaredBlockers = true;
         updateFights(this);
         break;
       case "COMBAT_DAMAGE":
@@ -317,6 +339,14 @@ class Game {
     if (!player) throw new Error(`Player not found for ${playerNum}`);
 
     return player;
+  }
+
+  findCard(cardId: number) {
+    for (const player of this.players) {
+      const card = player.findCard(cardId);
+
+      if (card) return card;
+    }
   }
 }
 

@@ -20,6 +20,7 @@ export default function () {
       green: 1,
       colorless: 1,
     }),
+    keywords: [],
   });
 
   return card;

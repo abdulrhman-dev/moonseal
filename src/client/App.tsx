@@ -46,13 +46,13 @@ function App() {
         addRef={addRef}
       />
       <Battlefield data={game.player.battlefield} player={1} addRef={addRef} />
-      {/* 
+
       <p className={Style.playerLife} style={{ bottom: 0, left: 0 }}>
-        Player 1: {players.player[0].life}
+        Player 1: {game.player.life}
       </p>
       <p className={Style.playerLife} style={{ top: 0, left: 0 }}>
-        Player 2: {players.player[1].life}
-      </p> */}
+        Player 2: {game.opponentPlayer.life}
+      </p>
 
       <Hand cards={game.player.hand} player={1} addRef={addRef} />
       <PhaseButton />

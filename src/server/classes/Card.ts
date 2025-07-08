@@ -1,6 +1,5 @@
 import { card } from "@/css/card.module.css";
 import type {
-  CardResolveArgs,
   CardTypes,
   Keyword,
   TargetData,
@@ -14,6 +13,10 @@ import Mana from "./Mana";
 import type Player from "./Player";
 import { CardCollection } from "./CardCollection";
 
+export type CardResolveServerArgs = {
+  targets: Card[][];
+};
+
 export type CardData = {
   readonly gameId: number;
   type: CardTypes;
@@ -23,6 +26,7 @@ export type CardData = {
   summoningSickness: boolean;
   manaCost: Mana;
   manaGiven?: Mana;
+  keywords: Keyword[];
   readonly defaultPower: number;
   readonly defaultToughness: number;
 };
@@ -60,25 +64,30 @@ export abstract class Card {
     const player = game.getPlayer(this.cardPlayer);
     const currPhase = game.currentPhase;
     const isActive = game.activePlayer === this.cardPlayer;
+    const stackLength = game.stack.cards.length;
 
     if (currPhase === "NONE") return false;
 
     if (this.data.type === "land")
       return (
         (currPhase === "MAIN_PHASE_1" || currPhase === "MAIN_PHASE_2") &&
+        stackLength === 0 &&
         player.landsCasted <= 0 &&
         isActive
       );
 
-    if (!isActive && !fastSpells.includes(this.data.type)) return false;
+    if (stackLength === 0) {
+      if (!isActive && !fastSpells.includes(this.data.type)) return false;
 
-    if (
-      currPhase !== "MAIN_PHASE_1" &&
-      currPhase !== "MAIN_PHASE_2" &&
-      !fastSpells.includes(this.data.type)
-    )
+      if (
+        currPhase !== "MAIN_PHASE_1" &&
+        currPhase !== "MAIN_PHASE_2" &&
+        !fastSpells.includes(this.data.type)
+      )
+        return false;
+    } else if (!fastSpells.includes(this.data.type)) {
       return false;
-    if (!isActive) return false;
+    }
 
     return player.maxManaPool.canFit(this.data.manaCost);
   }
@@ -87,7 +96,7 @@ export abstract class Card {
     return new Mana(this.data.manaGiven);
   }
 
-  abstract resolve(player: Player, args: CardResolveArgs): void;
+  abstract resolve(player: Player, args: CardResolveServerArgs): void;
   abstract cast(): void;
 
   getManaCost() {

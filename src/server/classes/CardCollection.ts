@@ -58,7 +58,7 @@ export class CardCollection {
         tapped: card.tapped,
         text: card.data.text,
         typeLine: card.data.typeLine,
-        canCast: card.canCast(game),
+        canCast: card.cardPlayer === game.priority && card.canCast(game),
       });
     }
 

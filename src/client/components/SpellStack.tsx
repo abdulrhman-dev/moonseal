@@ -22,7 +22,7 @@ export const SpellStack = ({ cards }: SpellStackProps) => {
               top: 0,
               transformOrigin: "bottom",
               transform: `rotate(${
-                -20 - (-20 / (cards.length - 1)) * index
+                -20 - (-20 / cards.length) * (index + 1)
               }deg)`,
             }}
           />

@@ -1,7 +1,7 @@
 import type { CardResolveArgs, CardState } from "./cards";
 import type { Socket, Server } from "socket.io";
 import type { Phases } from "./phases";
-import type { ClientStack, Fight } from "@/features/GameSlice";
+import type { ClientStack, Fight, PlayerMana } from "@/features/GameSlice";
 import type { StackCardTypeProp } from "@backend/classes/Stack";
 
 export type listChangeArgs =
@@ -30,13 +30,23 @@ export type fightChangeArgs = {
   declaredBlockers: boolean;
 };
 
-// TODO: HANDLE LIFE CHANGE
-
+export type playerChangeArgs = {
+  player: {
+    mana: PlayerMana;
+    life: number;
+    ready: boolean;
+  };
+  opponenet: {
+    life: number;
+    ready: boolean;
+  };
+};
 export interface ServerToClientEvents {
   "list:change": (data: listChangeArgs) => void;
   "priority:change": (data: priorityChangeArgs) => void;
   "active-player:change": (data: activePlayerChangeArgs) => void;
   "fight:change": (data: fightChangeArgs) => void;
+  "player:change": (data: playerChangeArgs) => void;
 }
 
 export interface ClientToServerEvents {
@@ -48,11 +58,15 @@ export interface ClientToServerEvents {
   }) => void;
   "set-declared-attackers:action": () => void;
   "set-declared-blockers:action": () => void;
-  "toggle-blocker:action": (date: {
+  "toggle-blocker:action": (data: {
     blockerId: number;
     attackerId: number;
   }) => void;
-  "toggle-attacker:action": (date: { attackerId: number }) => void;
+  "toggle-attacker:action": (data: { attackerId: number }) => void;
+  "turn-skip:action": (data: {
+    autoPassPriority: boolean;
+    autoResolvePriority: boolean;
+  }) => void;
 }
 
 export type ClientSocketEmitArgs = {

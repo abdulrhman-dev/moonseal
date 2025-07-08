@@ -14,6 +14,7 @@ import {
   changeActive,
   changeFights,
   changeList,
+  changePlayers,
   changePriority,
 } from "../GameSlice";
 
@@ -48,6 +49,10 @@ const socketMiddleware: Middleware = (store) => {
 
         socket.socket.on("fight:change", (data) => {
           store.dispatch(changeFights(data));
+        });
+
+        socket.socket.on("player:change", (data) => {
+          store.dispatch(changePlayers(data));
         });
       }
     }

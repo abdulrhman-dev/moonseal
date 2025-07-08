@@ -2,8 +2,6 @@ import type Player from "../classes/Player";
 import Game from "../classes/Game";
 import type { ClientToServerEvents, IO, ServerSocket } from "../types/socket";
 
-type GameNetwork = { io: IO; playerSockets: ServerSocket[] };
-
 export default async function registerHandleGame(
   io: IO,
   playerSockets: ServerSocket[]
@@ -46,13 +44,17 @@ const registerGameListeners = (game: Game) => {
     playerSocket.on("cast-spell:action", ({ id, args, type }) => {
       if (playerSocket.data.playerNum !== game.priority) return;
       const card = game.getPlayer(playerSocket.data.playerNum).findCard(id);
-      const opponentPlayer = game.getPlayer(game.priority ^ 3);
 
       if (!card) throw new Error("Couldn't find the card on stack");
 
       if (card.data.type === "land") {
-        game.getPlayer(playerSocket.data.playerNum).castSpell(card);
+        game.getPlayer(playerSocket.data.playerNum).castSpell(card, args);
         return;
+      }
+
+      if (type.name === "CAST") {
+        const player = game.getPlayer(card.cardPlayer);
+        player.spendMana(card.getManaCost());
       }
 
       game.stack.push({
@@ -82,6 +84,16 @@ const registerGameListeners = (game: Game) => {
       game.toggleBlocker(blockerId, attackerId);
       updateFights(game);
     });
+
+    playerSocket.on(
+      "turn-skip:action",
+      ({ autoResolvePriority, autoPassPriority }) => {
+        const player = game.getPlayer(playerSocket.data.playerNum);
+        player.autoPassPriority = autoPassPriority;
+        player.autoResolvePriority = autoResolvePriority;
+        console.log("AUTO PASS: ", player.autoPassPriority);
+      }
+    );
   }
 };
 
@@ -156,7 +168,6 @@ export function updateBoard(game: Game) {
     updateLists(network.io, playerSocket, game, "hand");
     updateLists(network.io, playerSocket, game, "battlefield");
   }
-
   network.io.to("game").emit("list:change", {
     listName: "stack",
     list: game.stack.toClientStack(),
@@ -199,4 +210,25 @@ export function updateFights(game: Game) {
     declaredAttackers: game.declaredAttackers,
     declaredBlockers: game.declaredBlockers,
   });
+}
+
+export function updatePlayer(game: Game, playerNum: number) {
+  for (const playerSocket of game.network.playerSockets) {
+    if (playerSocket.data.playerNum === playerNum) {
+      const player = game.getPlayer(playerNum);
+      const opponent = game.getPlayer(playerNum ^ 3);
+
+      playerSocket.emit("player:change", {
+        player: {
+          life: player.life,
+          ready: player.ready,
+          mana: player.manaPool.toClientState(),
+        },
+        opponenet: {
+          life: opponent.life,
+          ready: opponent.ready,
+        },
+      });
+    }
+  }
 }

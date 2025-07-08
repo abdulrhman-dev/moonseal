@@ -32,10 +32,14 @@ class Stack {
   }
 
   push(card: StackCard) {
-    if (!card.data.canCast(this.gameRef)) return;
+    console.log("STACK ADD: ", card.type.name, card.data.data.name);
 
-    const player = this.gameRef.getPlayer(card.data.cardPlayer);
-    player.spendMana(card.data.getManaCost());
+    // removing showcase cards if there's any
+    if (this.cards.length) {
+      const stackTop = this.cards[this.cards.length - 1];
+
+      if (stackTop.type.name === "SHOWCASE") this.resolveTop();
+    }
 
     this.cards.push(card);
 
@@ -45,10 +49,12 @@ class Stack {
         .getPlayer(card.data.cardPlayer)
         .battlefield.creatures.remove(card.data.id);
       updatePriority(this.gameRef);
-    }
 
-    if (!this.gameRef.getPlayer(card.data.cardPlayer ^ 3).checkNeedPriority()) {
-      this.resolveTop();
+      if (
+        !this.gameRef.getPlayer(card.data.cardPlayer ^ 3).checkNeedPriority()
+      ) {
+        this.resolveTop();
+      }
     }
 
     updateBoard(this.gameRef);
@@ -73,7 +79,9 @@ class Stack {
   handleCardResolution(stackTop: StackCard) {
     if (stackTop.type.name === "CAST") {
       // TODO: HANDLE ADDING/REMOVING Stack Cards
-      this.gameRef.getPlayer(stackTop.data.cardPlayer).castSpell(stackTop.data);
+      this.gameRef
+        .getPlayer(stackTop.data.cardPlayer)
+        .castSpell(stackTop.data, stackTop.args);
     }
 
     if (stackTop.type.name === "ACTIVITED") return;
@@ -84,6 +92,16 @@ class Stack {
 
     for (const stackCard of this.cards) {
       const card = stackCard.data;
+
+      const targetsAcc: number[] = [];
+
+      if (stackCard.args.targets) {
+        for (const targetLevel of stackCard.args.targets) {
+          for (const target of targetLevel) {
+            targetsAcc.push(target.id);
+          }
+        }
+      }
 
       cards.push({
         data: {
@@ -105,7 +123,12 @@ class Stack {
           typeLine: card.data.typeLine,
           canCast: card.canCast(this.gameRef),
         },
-        type: stackCard.type.name === "CAST" ? "CAST" : "ABILITY",
+        type:
+          stackCard.type.name === "ACTIVITED" ||
+          stackCard.type.name === "TRIGGER"
+            ? "ABILITY"
+            : stackCard.type.name,
+        targets: targetsAcc,
       });
     }
 

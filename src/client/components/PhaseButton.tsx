@@ -1,16 +1,30 @@
 import type { RootState } from "@/features/store";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import Style from "@/css/app.module.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { socketEmit } from "@/features/socket/SocketFactory";
 
 export const PhaseButton = () => {
-  const dispatch = useDispatch();
+  const [turnSkip, setTurnSkip] = useState({
+    autoPassPriority: false,
+    autoResolvePriority: false,
+  });
+
   const game = useSelector((state: RootState) => state.game);
   const targetsRules = useSelector(
     (state: RootState) => state.targeting.targetsRules
   );
+
+  const handleAutoPassCheck = (e: ChangeEvent<HTMLInputElement>) => {
+    const newTurnSkip = {
+      ...turnSkip,
+      autoPassPriority: !turnSkip.autoPassPriority,
+    };
+
+    socketEmit({ name: "turn-skip:action", data: newTurnSkip });
+    setTurnSkip(newTurnSkip);
+  };
 
   const [buttonData, setButtonData] = useState<{
     style: string;
@@ -33,11 +47,6 @@ export const PhaseButton = () => {
     }
 
     socketEmit({ name: "next-phase:action" });
-
-    setButtonData({
-      style: Style.blueButton,
-      buttonText: "Pass",
-    });
   }
 
   useEffect(() => {
@@ -80,20 +89,40 @@ export const PhaseButton = () => {
     game.currentPhase === "COMBAT_BLOCK" &&
     !game.declaredBlockers;
 
-  console.log("DEFENDING: ", defending);
-  if (
-    (game.priority === 1 &&
-      (game.currentPhase === "COMBAT_BLOCK" ? game.declaredBlockers : true)) ||
-    defending
-  ) {
-    return (
-      <button
-        onClick={handleButtonClick}
-        className={Style.phaseButton + " " + buttonData.style}
-      >
-        {buttonData.buttonText}
-      </button>
-    );
-  }
-  return <></>;
+  return (
+    <>
+      {((game.priority === 1 &&
+        (game.currentPhase === "COMBAT_BLOCK"
+          ? game.declaredBlockers
+          : true)) ||
+        defending) && (
+        <button
+          onClick={handleButtonClick}
+          className={Style.phaseButton + " " + buttonData.style}
+          disabled={
+            (game.spellStack.length > 0 &&
+              game.spellStack[game.spellStack.length - 1].type ===
+                "SHOWCASE") ||
+            targetsRules.reduce(
+              (prev, targetRule) => targetRule.amount !== 0 || prev,
+              false
+            )
+          }
+        >
+          {buttonData.buttonText}
+        </button>
+      )}
+
+      <div className={Style.passCheckbox}>
+        <input
+          type="checkbox"
+          id="auto-pass"
+          name="auto-pass"
+          onChange={handleAutoPassCheck}
+          checked={turnSkip.autoPassPriority}
+        />
+        <label>Auto Skip Priority</label>
+      </div>
+    </>
+  );
 };

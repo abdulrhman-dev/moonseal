@@ -1,9 +1,18 @@
 import type { IO, ServerSocket } from "../types/socket";
-import { type Card as CardType, Card } from "./Card";
+import {
+  type CardResolveServerArgs,
+  type Card as CardType,
+  Card,
+} from "./Card";
 import { CardCollection } from "./CardCollection";
 import Mana from "./Mana";
 import Game from "./Game";
-import { updateBoard, updatePlayerList } from "../socket/handleGame";
+import {
+  updateBoard,
+  updatePlayer,
+  updatePlayerList,
+} from "../socket/handleGame";
+import type { CardResolveArgs, CardState } from "@backend/types/cards";
 
 export type Deck = {
   id: string;
@@ -24,11 +33,13 @@ export default class Player {
     creatures: new CardCollection(),
     lands: new CardCollection(),
   };
-  manaPool: Mana = new Mana({});
-  life: number = 0;
+  manaPool: Mana = new Mana({ green: 200 });
+  life: number = 20;
   turn: number = 0;
   landsCasted: number = 0;
   ready: boolean = false;
+  autoPassPriority: boolean = false;
+  autoResolvePriority: boolean = false;
   network: {
     io: IO;
     socket: ServerSocket;
@@ -48,10 +59,13 @@ export default class Player {
   get maxManaPool() {
     const accMana = new Mana();
 
+    accMana.add(this.manaPool);
+
     for (const land of this.battlefield.lands) {
       if (land.tapped) continue;
       accMana.add(land.getManaGiven());
     }
+
     return accMana;
   }
 
@@ -96,6 +110,8 @@ export default class Player {
     this.manaPool.add(mana);
 
     updatePlayerList(this.network.socket, this, "hand");
+
+    updatePlayer(this.gameRef, this.playerNum);
   }
 
   spendMana(mana: Mana) {
@@ -109,9 +125,11 @@ export default class Player {
 
     if (this.manaPool.invalid)
       throw new Error(`Invalid mana pool after spending, ${this.manaPool}`);
+
+    updatePlayer(this.gameRef, this.playerNum);
   }
 
-  castSpell(card: Card) {
+  castSpell(card: Card, args: CardResolveArgs) {
     if (this.hand.search(card.id)) {
       this.hand.remove(card.id);
     }
@@ -119,12 +137,35 @@ export default class Player {
     if (card.data.type === "creature") {
       this.battlefield.creatures.add(card);
     } else if (card.data.type === "land") {
+      // this.landsCasted++;
       this.battlefield.lands.add(card);
     }
 
-    card.resolve(this, {});
+    card.resolve(this, { targets: this.getTargetCards(args.targets) });
 
     updateBoard(this.gameRef);
+  }
+
+  getTargetCards(targets?: CardState[][]): Card[][] {
+    if (!targets) return [];
+    const cardTargets: Card[][] = [];
+    for (const targetData of targets) {
+      const targetLevel = [];
+
+      for (const target of targetData) {
+        const card = this.gameRef.findCard(target.id);
+        if (!card) throw new Error("Can't find Target Card");
+        targetLevel.push(card);
+      }
+
+      cardTargets.push(targetLevel);
+    }
+    console.log(
+      "TARGETS: ",
+      cardTargets.map((cardTarget) => cardTarget.map((target) => target.id))
+    );
+
+    return cardTargets;
   }
 
   removeSummoningSickness() {
@@ -155,6 +196,8 @@ export default class Player {
   }
 
   checkNeedPriority() {
+    if (this.autoPassPriority) return false;
+
     for (const card of this.hand) {
       if (card.canCast(this.gameRef)) {
         return true;

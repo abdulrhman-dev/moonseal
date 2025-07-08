@@ -1,17 +1,8 @@
 // custom hooks
 import useImage from "@/game/hooks/image";
-// import useCanCast from "@/game/hooks/useCanCast";
 
 // redux
 import { useDispatch, useSelector } from "react-redux";
-// import // addToBattleField,
-// // castSpell,
-// // incrementLandUsage,
-// // removeShowcase,
-// // showcaseOnStack,
-// // toggleAttacker,
-// // toggleBlocker,
-// "@/store/PlayersSlice";
 import type { RootState } from "@/features/store";
 
 // types
@@ -26,6 +17,7 @@ import type { AddRefFunction } from "@/App";
 // icons
 import { IoIosUndo } from "react-icons/io";
 import { WiStars } from "react-icons/wi";
+import { TbTargetArrow } from "react-icons/tb";
 
 // logic
 // import { spendMana } from "@/game/logic/manaLogic";
@@ -65,10 +57,12 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   const declaredAttackers = useSelector(
     (state: RootState) => state.game.declaredAttackers
   );
-
   const declaredBlockers = useSelector(
     (state: RootState) => state.game.declaredBlockers
   );
+
+  const stack = useSelector((state: RootState) => state.game.spellStack);
+
   const dispatch = useDispatch();
 
   const { image } = useImage(card.gameId.toString());
@@ -138,11 +132,43 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       }
     }
 
-    if (card.canCast && location === "hand")
-      socketEmit({
-        name: "cast-spell:action",
-        data: { id: card.id, args: {}, type: { name: "CAST" } },
-      });
+    if (card.canCast && location === "hand") {
+      if (card.targetData.length > 0) {
+        socketEmit({
+          name: "cast-spell:action",
+          data: { id: card.id, args: {}, type: { name: "SHOWCASE" } },
+        });
+
+        const chosenTargets = [];
+
+        for (const targetElement of card.targetData) {
+          const targets = await getTargets({
+            targetData: targetElement,
+            cardPlayer,
+          });
+
+          chosenTargets.push(targets);
+        }
+
+        socketEmit({
+          name: "cast-spell:action",
+          data: {
+            id: card.id,
+            args: { targets: chosenTargets },
+            type: { name: "CAST" },
+          },
+        });
+      } else {
+        socketEmit({
+          name: "cast-spell:action",
+          data: {
+            id: card.id,
+            args: {},
+            type: { name: "CAST" },
+          },
+        });
+      }
+    }
   };
 
   return (
@@ -156,6 +182,8 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
             card={card}
           />
         )}
+      */}
+
       {card.enchanters.map((enchanter, index) => (
         <Card
           key={enchanter.id}
@@ -168,7 +196,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
             margin: 0,
           }}
         />
-      ))} */}
+      ))}
       <div
         className={`${Style.card} ${
           location === "hand" ? Style.inhand : Style.inbattlefield
@@ -190,9 +218,15 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
           if (addRef && node) addRef(node, card.id);
         }}
       >
-        {card.tapped && <IoIosUndo className={Style.icon} />}
-        {card.summoningSickness && location === "battlefield" && (
-          <WiStars className={Style.icon} />
+        {stack.find((stackCard) => stackCard.targets.includes(card.id)) ? (
+          <TbTargetArrow className={Style.icon} style={{ color: "white" }} />
+        ) : (
+          <>
+            {card.tapped && <IoIosUndo className={Style.icon} />}
+            {card.summoningSickness && location === "battlefield" && (
+              <WiStars className={Style.icon} />
+            )}
+          </>
         )}
 
         {card.type === "creature" && (

@@ -21,6 +21,7 @@ export default function () {
       green: 1,
     }),
     summoningSickness: false,
+    keywords: [],
   });
 
   return card;

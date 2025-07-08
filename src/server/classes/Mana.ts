@@ -1,3 +1,5 @@
+import type { PlayerMana } from "@/features/GameSlice";
+
 export type ManaParams = {
   white?: number;
   blue?: number;
@@ -118,5 +120,16 @@ export default class Mana {
     }
 
     return this;
+  }
+
+  toClientState(): PlayerMana {
+    return {
+      green: this.green,
+      black: this.black,
+      red: this.red,
+      blue: this.blue,
+      white: this.white,
+      colorless: this.colorless,
+    };
   }
 }
