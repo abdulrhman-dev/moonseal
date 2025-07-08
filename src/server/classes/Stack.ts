@@ -1,8 +1,8 @@
 import type { CardResolveArgs, CardState } from "../types/cards";
-import Game from "./Game";
+import Game, { delay } from "./Game";
 import type { Card } from "./Card";
 import type { TriggerNames } from "../types/triggers";
-import { updateBoard, updatePriority } from "../socket/handleGame";
+import { updateBoard, updateLists, updatePriority } from "../socket/handleGame";
 import type { ClientStack } from "@/features/GameSlice";
 
 export type StackCardTypeProp =
@@ -31,7 +31,7 @@ class Stack {
     this.gameRef = gameRef;
   }
 
-  push(card: StackCard) {
+  async push(card: StackCard) {
     console.log("STACK ADD: ", card.type.name, card.data.data.name);
 
     // removing showcase cards if there's any
@@ -41,17 +41,24 @@ class Stack {
       if (stackTop.type.name === "SHOWCASE") this.resolveTop();
     }
 
+    if (card.type.name === "CAST") {
+      const player = this.gameRef.getPlayer(card.data.cardPlayer);
+      player.hand.remove(card.data.id);
+    }
+
     this.cards.push(card);
 
     if (card.type.name !== "SHOWCASE") {
       this.gameRef.priorityPassNum = 0;
-      updatePriority(this.gameRef);
-
       if (
         !this.gameRef.getPlayer(card.data.cardPlayer ^ 3).checkNeedPriority()
       ) {
+        updateBoard(this.gameRef);
+        await delay(200);
         this.resolveTop();
       }
+
+      updatePriority(this.gameRef);
     }
 
     updateBoard(this.gameRef);

@@ -58,7 +58,11 @@ function App() {
       <PhaseButton />
       <p className={Style.phaseText}>{game.currentPhase}</p>
 
-      <SpellStack cards={game.spellStack.map((spellCard) => spellCard.data)} />
+      {game.spellStack.length && (
+        <SpellStack
+          cards={game.spellStack.map((spellCard) => spellCard.data)}
+        />
+      )}
     </div>
   );
 }

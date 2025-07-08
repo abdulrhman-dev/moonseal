@@ -48,6 +48,7 @@ const socketMiddleware: Middleware = (store) => {
         });
 
         socket.socket.on("fight:change", (data) => {
+          console.log("FIGHTS CHANGED BRO: ", data);
           store.dispatch(changeFights(data));
         });
 

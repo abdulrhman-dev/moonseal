@@ -18,13 +18,12 @@ import type { AddRefFunction } from "@/App";
 import { IoIosUndo } from "react-icons/io";
 import { WiStars } from "react-icons/wi";
 import { TbTargetArrow } from "react-icons/tb";
+import { MdShield } from "react-icons/md";
 
 // logic
-// import { spendMana } from "@/game/logic/manaLogic";
 import { useEffect, useState } from "react";
 import { socketEmit } from "@/features/socket/SocketFactory";
 import { ActivatedAbility } from "./ActivatedAbility";
-// import { ActivatedAbility } from "./ActivatedAbility";
 
 export type CardLocations = "hand" | "battlefield" | "stack";
 
@@ -38,6 +37,7 @@ interface CardProps {
 
 function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   const [showActivated, setShowActivated] = useState(0);
+  const [isBlocking, setIsBlocking] = useState(false);
 
   const currentPhase = useSelector(
     (state: RootState) => state.game.currentPhase
@@ -49,6 +49,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
   const attackers = useSelector((state: RootState) => state.game.fights).map(
     (fight) => fight.attacker
   );
+  const fights = useSelector((state: RootState) => state.game.fights);
 
   const declaredAttackers = useSelector(
     (state: RootState) => state.game.declaredAttackers
@@ -67,6 +68,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
 
   useEffect(() => {
     setShowActivated(0);
+    if (currentPhase === "MAIN_PHASE_2") setIsBlocking(false);
   }, [currentPhase]);
 
   const handleCardClick = async () => {
@@ -89,6 +91,8 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       return;
     }
 
+    if (cardPlayer === 2) return;
+
     if (location === "battlefield") {
       if (currentPhase === "COMBAT_ATTACK" && isActive && !declaredAttackers) {
         const attacking = attackers.includes(card.id);
@@ -104,28 +108,38 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       if (currentPhase === "COMBAT_BLOCK" && !isActive && !declaredBlockers) {
         if (card.tapped) return;
 
-        const targetData: TargetData = {
-          type: "AND",
-          text: "",
-          targetSelects: [
-            {
-              type: "creature",
-              amount: 1,
-              player: 2,
-              location: "battlefield",
-              isAttacker: true,
-            },
-          ],
-        };
+        let foundBlocker = fights.find((fight) =>
+          fight.blockers.includes(card.id)
+        );
+        setIsBlocking(foundBlocker === undefined);
+        if (!foundBlocker) {
+          const targetData: TargetData = {
+            type: "AND",
+            text: "",
+            targetSelects: [
+              {
+                type: "creature",
+                amount: 1,
+                player: 2,
+                location: "battlefield",
+                isAttacker: true,
+              },
+            ],
+          };
 
-        const targets = await getTargets({ targetData, cardPlayer });
+          const targets = await getTargets({ targetData, cardPlayer });
 
-        if (targets.length !== 1) return;
-
-        socketEmit({
-          name: "toggle-blocker:action",
-          data: { blockerId: card.id, attackerId: targets[0].id },
-        });
+          if (targets.length !== 1) return;
+          socketEmit({
+            name: "toggle-blocker:action",
+            data: { blockerId: card.id, attackerId: targets[0].id },
+          });
+        } else {
+          socketEmit({
+            name: "toggle-blocker:action",
+            data: { blockerId: card.id, attackerId: -1 },
+          });
+        }
       }
     }
 
@@ -223,6 +237,9 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
             {card.tapped && <IoIosUndo className={Style.icon} />}
             {card.summoningSickness && location === "battlefield" && (
               <WiStars className={Style.icon} />
+            )}
+            {isBlocking && (
+              <MdShield className={Style.icon} style={{ color: "#FF4F0F" }} />
             )}
           </>
         )}

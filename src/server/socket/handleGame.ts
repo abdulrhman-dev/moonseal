@@ -48,6 +48,7 @@ const registerGameListeners = (game: Game) => {
       if (!card) throw new Error("Couldn't find the card on stack");
 
       if (card.data.type === "land") {
+        game.getPlayer(playerSocket.data.playerNum).landsCasted++;
         game.getPlayer(playerSocket.data.playerNum).castSpell(card, args);
         return;
       }

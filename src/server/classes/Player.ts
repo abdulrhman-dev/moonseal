@@ -36,7 +36,7 @@ export default class Player {
   manaPool: Mana = new Mana({ green: 200 });
   life: number = 20;
   turn: number = 0;
-  landsCasted: number = -5;
+  landsCasted: number = 0;
   ready: boolean = false;
   autoPassPriority: boolean = false;
   autoResolvePriority: boolean = false;
@@ -90,16 +90,18 @@ export default class Player {
 
   getManaFromLands(mana: Mana) {
     const manaCost = new Mana(mana);
-
+    console.log("NEEDED", manaCost);
     for (const land of this.battlefield.lands) {
+      console.log("MANA COST UPDATE: ", manaCost);
       if (manaCost.empty || manaCost.invalid) break;
       if (land.tapped) continue;
 
       const landMana = land.getManaGiven();
+      console.log("LAND MANA: ", landMana);
 
       if (manaCost.shareTypes(landMana)) {
         land.tapCard();
-        manaCost.sub(landMana);
+        manaCost.sub(landMana, true);
         this.addManaPool(landMana);
       }
     }
@@ -124,8 +126,12 @@ export default class Player {
     this.getManaFromLands(neededManaCost);
     this.manaPool.sub(mana);
 
-    if (this.manaPool.invalid)
+    if (this.manaPool.invalid) {
+      console.log(mana);
+      console.log(this.manaPool);
+
       throw new Error(`Invalid mana pool after spending, ${this.manaPool}`);
+    }
 
     updatePlayer(this.gameRef, this.playerNum);
   }

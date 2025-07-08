@@ -50,9 +50,20 @@ export default class Mana {
     return this;
   }
 
-  sub(mana: Mana) {
+  sub(mana: Mana, allowConsume = false) {
     for (const manaType of manaTypes) {
       this[manaType] -= mana[manaType];
+    }
+
+    // When you want to consume invalid colored mana into coloreless
+    // useful when sub from land mana
+    if (allowConsume) {
+      for (const manaType of manaTypes) {
+        if (this[manaType] < 0) {
+          this.colorless += this[manaType];
+          this[manaType] = 0;
+        }
+      }
     }
 
     if (this.colorless < 0) {

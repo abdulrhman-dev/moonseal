@@ -38,7 +38,11 @@ type GameFight = {
   attacker: Card;
   blockers: Card[];
 };
-
+export function delay(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
 class Game {
   players: Player[] = [];
   activePlayer: 0 | 1 | 2 = 0;
@@ -108,9 +112,17 @@ class Game {
     this.handlePriorityChange();
   }
 
-  handlePriorityChange() {
+  async handlePriorityChange() {
     if (this.priorityPassNum > 2 && !this.stack.cards.length) {
       this.nextPhase();
+      return;
+    }
+
+    if (this.priorityPassNum >= 2 && this.stack.cards.length) {
+      updateBoard(this);
+      await delay(200);
+      this.stack.resolveTop();
+      return;
     }
 
     if (
@@ -119,20 +131,21 @@ class Game {
       !this.stack.cards.length
     ) {
       this.nextPhase();
+      return;
     }
+
     if (
       !this.getPlayer(this.priority).checkNeedPriority() &&
       this.priorityPassNum < 2
     ) {
       if (this.stack.cards.length) {
+        updateBoard(this);
+        await delay(200);
         this.stack.resolveTop();
       } else {
         this.nextPhase();
       }
-    }
-
-    if (this.priorityPassNum >= 2 && this.stack.cards.length) {
-      this.stack.resolveTop();
+      return;
     }
   }
 
@@ -201,6 +214,7 @@ class Game {
       fight.blockers = fight.blockers.filter(
         (blocker) => blocker.id !== blockerId
       );
+      return;
     }
 
     const newFight = this.fights.find(
@@ -213,7 +227,9 @@ class Game {
       this.activePlayer ^ 3
     ).battlefield.creatures.search(blockerId);
 
-    if (!blockerCard) throw new Error("Blocker not found on battlefield");
+    if (!blockerCard) {
+      throw new Error("Blocker not found on battlefield");
+    }
 
     newFight.blockers.push(blockerCard);
   }
@@ -319,8 +335,8 @@ class Game {
         break;
       case "COMBAT_DAMAGE":
         this.handleCombat();
-        this.cleanupDeadCreatures();
         this.cleanUpCombat();
+        this.cleanupDeadCreatures();
         updatePriority(this);
         this.nextPhase();
         break;
