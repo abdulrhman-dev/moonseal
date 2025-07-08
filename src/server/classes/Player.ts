@@ -33,10 +33,10 @@ export default class Player {
     creatures: new CardCollection(),
     lands: new CardCollection(),
   };
-  manaPool: Mana = new Mana({ green: 200 });
+  manaPool: Mana = new Mana();
   life: number = 20;
   turn: number = 0;
-  landsCasted: number = 0;
+  landsCasted: number = -5;
   ready: boolean = false;
   autoPassPriority: boolean = false;
   autoResolvePriority: boolean = false;
@@ -115,10 +115,13 @@ export default class Player {
   }
 
   spendMana(mana: Mana) {
+    console.log("MANA COST:", mana);
+
     if (this.manaPool.canFit(mana)) {
       this.manaPool.sub(mana);
       return;
     }
+
     const neededManaCost = new Mana(mana).sub(this.manaPool).normalize();
     this.getManaFromLands(neededManaCost);
     this.manaPool.sub(mana);
@@ -134,11 +137,13 @@ export default class Player {
       this.hand.remove(card.id);
     }
 
-    if (card.data.type === "creature") {
-      this.battlefield.creatures.add(card);
-    } else if (card.data.type === "land") {
-      // this.landsCasted++;
-      this.battlefield.lands.add(card);
+    switch (card.data.type) {
+      case "creature":
+        this.battlefield.creatures.add(card);
+        break;
+      case "land":
+        this.battlefield.lands.add(card);
+        break;
     }
 
     card.resolve(this, { targets: this.getTargetCards(args.targets) });

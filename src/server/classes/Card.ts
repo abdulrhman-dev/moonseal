@@ -33,6 +33,15 @@ export type CardData = {
 
 const fastSpells: CardTypes[] = ["instant"] as const;
 
+export function enchantCard(args: CardResolveServerArgs, enchantment: Card) {
+  const { targets: rawTargets } = args;
+
+  const targets = !rawTargets.length ? [] : rawTargets[0];
+
+  if (targets.length !== 1) return;
+
+  targets[0].attachEnchantment(enchantment);
+}
 export abstract class Card {
   static idCounter: number = 0;
   id: number;
@@ -59,6 +68,9 @@ export abstract class Card {
     this.power = this.data.defaultPower;
     this.toughness = this.data.defaultToughness;
   }
+
+  abstract resolve(player: Player, args: CardResolveServerArgs): void;
+  abstract cast(): void;
 
   canCast(game: Game) {
     const player = game.getPlayer(this.cardPlayer);
@@ -96,9 +108,6 @@ export abstract class Card {
     return new Mana(this.data.manaGiven);
   }
 
-  abstract resolve(player: Player, args: CardResolveServerArgs): void;
-  abstract cast(): void;
-
   getManaCost() {
     return this.data.manaCost;
   }
@@ -117,6 +126,9 @@ export abstract class Card {
   }
 
   attachEnchantment(enchantment: Card) {
+    enchantment.enchant(this);
     this.enchanters.add(enchantment);
   }
+
+  enchant(card: Card) {}
 }

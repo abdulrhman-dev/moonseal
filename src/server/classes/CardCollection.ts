@@ -45,7 +45,7 @@ export class CardCollection {
         id: card.id,
         type: card.data.type,
         name: card.data.name,
-        enchanters: [],
+        enchanters: card.enchanters.toCardState(game),
         targets: [],
         targetData: card.targetData,
         summoningSickness: card.data.summoningSickness,
