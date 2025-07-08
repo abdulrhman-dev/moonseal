@@ -2,7 +2,6 @@ import Mana from "../classes/Mana";
 import { Card, type CardResolveServerArgs } from "../classes/Card";
 import type Game from "../classes/Game";
 import type Player from "../classes/Player";
-import { updateBoard } from "../socket/handleGame";
 
 class CardCreator extends Card {
   cast() {}
@@ -20,7 +19,6 @@ class CardCreator extends Card {
     attacker.toughness -= blocker.power;
     blocker.toughness -= attacker.power;
 
-    updateBoard(player.gameRef);
     player.gameRef.cleanupDeadCreatures();
   }
 

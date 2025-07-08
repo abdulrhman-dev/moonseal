@@ -240,10 +240,12 @@ class Game {
 
       attacker.power = attacker.data.defaultPower;
     }
+  }
 
+  cleanUpCombat() {
     this.fights = [];
-
     updateBoard(this);
+    updateFights(this);
     updatePlayer(this, 1);
     updatePlayer(this, 2);
   }
@@ -318,11 +320,13 @@ class Game {
       case "COMBAT_DAMAGE":
         this.handleCombat();
         this.cleanupDeadCreatures();
+        this.cleanUpCombat();
         updatePriority(this);
         this.nextPhase();
         break;
       case "CLEANUP":
         this.healCreatures();
+        this.clearFlags();
         this.nextPhase();
         break;
     }
