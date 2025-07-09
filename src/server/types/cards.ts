@@ -59,6 +59,7 @@ export type ActivatedData = {
     mana: Mana;
     sacrfice: TargetData[];
     tap: boolean;
+    sacrificeSelf?: boolean;
   };
   targets: TargetData[];
   text: string;

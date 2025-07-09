@@ -1,13 +1,9 @@
-import { card } from "@/css/card.module.css";
 import type {
   ActivatedData,
   ActivatedDataClient,
   CardTypes,
   Keyword,
   TargetData,
-  // Mana,
-  // ActivatedData,
-  // CardResolveData,
 } from "../types/cards";
 import type Game from "./Game";
 
@@ -153,6 +149,18 @@ export abstract class Card {
     if (ability.cost.tap) this.tapCard();
 
     this.activatedActions[actionNumber](player, args);
+
+    if (ability.cost.sacrificeSelf) {
+      if (this.data.type === "creature") {
+        player.battlefield.creatures.remove(this.id);
+        player.graveyard.add(this);
+      }
+
+      if (this.data.type === "land") {
+        player.battlefield.lands.remove(this.id);
+        player.graveyard.add(this);
+      }
+    }
   }
 
   attachEnchantment(enchantment: Card) {

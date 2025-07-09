@@ -17,13 +17,11 @@ import type { Deck } from "./classes/Player";
 
 export const decks: Deck[] = [
   [
-    { id: "212713", name: "Adventurous Impulse", amount: 7 },
-    { id: "215615", name: "Garruk's Gorehorn", amount: 7 },
-    { id: "559542", name: "Forest", amount: 1 },
+    { id: "624464", name: "Sakura-Tribe Elder", amount: 7 },
+    { id: "559542", name: "Forest", amount: 4 },
   ],
   [
-    { id: "212713", name: "Adventurous Impulse", amount: 7 },
-    { id: "215615", name: "Garruk's Gorehorn", amount: 7 },
-    { id: "559542", name: "Forest", amount: 1 },
+    { id: "624464", name: "Sakura-Tribe Elder", amount: 7 },
+    { id: "559542", name: "Forest", amount: 4 },
   ],
 ];
