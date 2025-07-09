@@ -34,7 +34,7 @@ export default class Player {
     creatures: new CardCollection(),
     lands: new CardCollection(),
   };
-  manaPool: Mana = new Mana({ green: 200 });
+  manaPool: Mana = new Mana({});
   life: number = 20;
   turn: number = 0;
   landsCasted: number = 0;
@@ -76,11 +76,11 @@ export default class Player {
         `../cards/card_${deckCard.id}_${deckCard.name}`
       );
 
-      const cardCreator = cardImport.default as () => CardType;
+      const cardCreator = cardImport.default as (game: Game) => CardType;
       let count = deckCard.amount;
 
       while (count--) {
-        const card = cardCreator();
+        const card = cardCreator(this.gameRef);
         card.cardPlayer = this.playerNum;
         this.library.add(card);
       }

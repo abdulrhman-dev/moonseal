@@ -26,20 +26,23 @@ class CardCreator extends Card {
   }
 }
 
-export default function () {
-  const card = new CardCreator({
-    gameId: 535861,
-    name: "Wild Growth",
-    type: "enchantment",
-    typeLine: "Enchantment — Aura",
-    text: "Enchant land\nWhenever enchanted land is tapped for mana, its controller adds an additional {G}.",
-    defaultPower: 0,
-    defaultToughness: 0,
-    manaCost: new Mana({ green: 1 }),
-    manaGiven: new Mana({}),
-    summoningSickness: false,
-    keywords: ["Enchant"],
-  });
+export default function (game: Game) {
+  const card = new CardCreator(
+    {
+      gameId: 535861,
+      name: "Wild Growth",
+      type: "enchantment",
+      typeLine: "Enchantment — Aura",
+      text: "Enchant land\nWhenever enchanted land is tapped for mana, its controller adds an additional {G}.",
+      defaultPower: 0,
+      defaultToughness: 0,
+      manaCost: new Mana({ green: 1 }),
+      manaGiven: new Mana({}),
+      summoningSickness: false,
+      keywords: ["Enchant"],
+    },
+    game
+  );
 
   card.addTargetSelector({
     text: "",

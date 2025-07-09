@@ -2,21 +2,21 @@ import Mana from "../classes/Mana";
 import { Card, type CardResolveServerArgs } from "../classes/Card";
 import type Game from "../classes/Game";
 import type Player from "../classes/Player";
+import { updateBoard } from "../socket/handleGame";
 
 class CardCreator extends Card {
   cast() {}
 
   resolve(player: Player, args: CardResolveServerArgs): void {
     const { targets: rawTargets } = args;
-
-    const targets = !rawTargets.length ? [] : rawTargets[0];
+    const targets = !rawTargets ? [] : rawTargets[0];
 
     if (targets.length !== 1) return;
 
     targets[0].tempModifiedPower += 3;
-    targets[0].tempModifiedPower += 3;
+    targets[0].tempModifiedToughness += 3;
 
-    player.gameRef.cleanupDeadCreatures();
+    targets[0].tempKeywords.push("Trample");
   }
 
   canCast(game: Game): boolean {
@@ -32,17 +32,17 @@ class CardCreator extends Card {
 export default function (game: Game) {
   const card = new CardCreator(
     {
-      gameId: 559550,
-      name: "Giant Growth",
+      gameId: 93195,
+      name: "Awaken the Bear",
       type: "instant",
       typeLine: "Instant",
-      text: "Target creature gets +3/+3 until end of turn.",
+      text: "Target creature gets +3/+3 and gains trample until end of turn.",
       summoningSickness: false,
       defaultPower: 0,
       defaultToughness: 0,
       manaCost: new Mana({
         green: 1,
-        colorless: 0,
+        colorless: 2,
       }),
       keywords: [],
     },
@@ -50,17 +50,16 @@ export default function (game: Game) {
   );
 
   card.addTargetSelector({
-    type: "AND",
-    text: "",
     targetSelects: [
       {
-        type: "creature",
         amount: 1,
-        location: "battlefield",
         player: 0,
+        type: "creature",
+        location: "battlefield",
       },
     ],
+    type: "AND",
+    text: "",
   });
-
   return card;
 }

@@ -1,6 +1,7 @@
 import Mana from "../classes/Mana";
 import { Card, type CardResolveServerArgs } from "../classes/Card";
 import type Player from "../classes/Player";
+import type Game from "@backend/classes/Game";
 
 class CardCreator extends Card {
   cast() {}
@@ -8,22 +9,25 @@ class CardCreator extends Card {
   resolve(player: Player, args: CardResolveServerArgs): void {}
 }
 
-export default function () {
-  const card = new CardCreator({
-    gameId: 56311,
-    name: "Elder of Laurels",
-    type: "creature",
-    typeLine: "Creature — Human Advisor",
-    text: "{3}{G}: Target creature gets +X/+X until end of turn, where X is the number of creatures you control.",
-    summoningSickness: true,
-    defaultPower: 2,
-    defaultToughness: 3,
-    manaCost: new Mana({
-      green: 1,
-      colorless: 2,
-    }),
-    keywords: [],
-  });
+export default function (game: Game) {
+  const card = new CardCreator(
+    {
+      gameId: 56311,
+      name: "Elder of Laurels",
+      type: "creature",
+      typeLine: "Creature — Human Advisor",
+      text: "{3}{G}: Target creature gets +X/+X until end of turn, where X is the number of creatures you control.",
+      summoningSickness: true,
+      defaultPower: 2,
+      defaultToughness: 3,
+      manaCost: new Mana({
+        green: 1,
+        colorless: 2,
+      }),
+      keywords: [],
+    },
+    game
+  );
 
   card.addActivitedAbility(
     {
@@ -58,8 +62,8 @@ export default function () {
       const x = player.battlefield.creatures.collection.length;
       const target = chosen[0];
 
-      target.power = target.power + x;
-      target.toughness = target.toughness + x;
+      target.tempModifiedPower += x;
+      target.tempModifiedPower += x;
     }
   );
 

@@ -51,12 +51,19 @@ export abstract class Card {
 
   data: CardData;
 
-  keywords: Keyword[] = [];
   targetData: TargetData[] = [];
   enchanters: CardCollection = new CardCollection();
 
   power: number = 0;
   toughness: number = 0;
+
+  tempModifiedPower: number = 0;
+  tempModifiedToughness: number = 0;
+
+  modifiedPower: number = 0;
+  modifiedToughness: number = 0;
+
+  damage: number = 0;
 
   tapped: boolean = false;
   cardPlayer: 0 | 1 | 2 = 0;
@@ -64,12 +71,16 @@ export abstract class Card {
   activatedAbilities: ActivatedData[] = [];
   activatedActions: ActivatedAction[] = [];
 
-  constructor(data: CardData) {
+  tempKeywords: Keyword[] = [];
+  gameRef: Game;
+
+  constructor(data: CardData, game: Game) {
     this.id = Card.idCounter++;
     this.data = data;
 
     this.power = this.data.defaultPower;
     this.toughness = this.data.defaultToughness;
+    this.gameRef = game;
   }
 
   abstract resolve(player: Player, args: CardResolveServerArgs): void;
@@ -104,7 +115,7 @@ export abstract class Card {
       return false;
     }
 
-    return player.maxManaPool.canFit(this.data.manaCost);
+    return player.maxManaPool.canFit(this.getManaCost());
   }
 
   getManaGiven() {
@@ -178,5 +189,29 @@ export abstract class Card {
         player.maxManaPool.canFit(new Mana(activatedAbiliity.cost.mana)) &&
         !this.tapped,
     }));
+  }
+
+  get keywords() {
+    return Array.from(new Set([...this.data.keywords, ...this.tempKeywords]));
+  }
+
+  get totalPower() {
+    return this.power + this.modifiedPower + this.tempModifiedPower;
+  }
+
+  get totalToughness() {
+    return (
+      this.toughness +
+      this.modifiedToughness +
+      this.tempModifiedToughness -
+      this.damage
+    );
+  }
+
+  cleanup() {
+    this.tempKeywords = [];
+    this.damage = 0;
+    this.tempModifiedPower = 0;
+    this.tempModifiedToughness = 0;
   }
 }

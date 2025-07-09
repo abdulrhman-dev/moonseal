@@ -1,28 +1,32 @@
 import Mana from "../classes/Mana";
 import { Card } from "../classes/Card";
 import type Player from "@backend/classes/Player";
+import type Game from "@backend/classes/Game";
 class CardCreator extends Card {
   cast() {}
 
   resolve(): void {}
 }
 
-export default function () {
-  const card = new CardCreator({
-    gameId: 624464,
-    name: "Sakura-Tribe Elder",
-    type: "creature",
-    typeLine: "Creature — Snake Shaman",
-    text: "Sacrifice this creature: Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
-    summoningSickness: true,
-    defaultPower: 1,
-    defaultToughness: 1,
-    manaCost: new Mana({
-      green: 1,
-      colorless: 1,
-    }),
-    keywords: [],
-  });
+export default function (game: Game) {
+  const card = new CardCreator(
+    {
+      gameId: 624464,
+      name: "Sakura-Tribe Elder",
+      type: "creature",
+      typeLine: "Creature — Snake Shaman",
+      text: "Sacrifice this creature: Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
+      summoningSickness: true,
+      defaultPower: 1,
+      defaultToughness: 1,
+      manaCost: new Mana({
+        green: 1,
+        colorless: 1,
+      }),
+      keywords: [],
+    },
+    game
+  );
 
   card.addActivitedAbility(
     {

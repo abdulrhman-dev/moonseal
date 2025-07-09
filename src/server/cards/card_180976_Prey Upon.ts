@@ -16,8 +16,8 @@ class CardCreator extends Card {
     const attacker = targets[0];
     const blocker = targets[1];
 
-    attacker.toughness -= blocker.power;
-    blocker.toughness -= attacker.power;
+    attacker.damage += blocker.totalPower;
+    blocker.damage += attacker.totalPower;
 
     player.gameRef.cleanupDeadCreatures();
   }
@@ -32,22 +32,25 @@ class CardCreator extends Card {
   }
 }
 
-export default function () {
-  const card = new CardCreator({
-    gameId: 180976,
-    name: "Prey Upon",
-    type: "sorcery",
-    typeLine: "Sorcery",
-    text: "Target creature you control fights target creature you don't control. (Each deals damage equal to its power to the other.)",
-    summoningSickness: false,
-    defaultPower: 0,
-    defaultToughness: 0,
-    manaCost: new Mana({
-      green: 1,
-      colorless: 0,
-    }),
-    keywords: ["Fight"],
-  });
+export default function (game: Game) {
+  const card = new CardCreator(
+    {
+      gameId: 180976,
+      name: "Prey Upon",
+      type: "sorcery",
+      typeLine: "Sorcery",
+      text: "Target creature you control fights target creature you don't control. (Each deals damage equal to its power to the other.)",
+      summoningSickness: false,
+      defaultPower: 0,
+      defaultToughness: 0,
+      manaCost: new Mana({
+        green: 1,
+        colorless: 0,
+      }),
+      keywords: ["Fight"],
+    },
+    game
+  );
 
   card.addTargetSelector({
     type: "AND",

@@ -10,22 +10,25 @@ class CardCreator extends Card {
   resolve(player: Player, args: CardResolveServerArgs): void {}
 }
 
-export default function () {
-  const card = new CardCreator({
-    gameId: 507123,
-    name: "Elvish Mystic",
-    type: "creature",
-    typeLine: "Creature — Elf Druid",
-    text: "{T}: Add {G}.",
-    summoningSickness: false,
-    defaultPower: 1,
-    defaultToughness: 1,
-    manaCost: new Mana({
-      green: 1,
-      colorless: 0,
-    }),
-    keywords: ["Fight"],
-  });
+export default function (game: Game) {
+  const card = new CardCreator(
+    {
+      gameId: 507123,
+      name: "Elvish Mystic",
+      type: "creature",
+      typeLine: "Creature — Elf Druid",
+      text: "{T}: Add {G}.",
+      summoningSickness: false,
+      defaultPower: 1,
+      defaultToughness: 1,
+      manaCost: new Mana({
+        green: 1,
+        colorless: 0,
+      }),
+      keywords: ["Fight"],
+    },
+    game
+  );
 
   card.addActivitedAbility(
     {

@@ -17,11 +17,29 @@ import type { Deck } from "./classes/Player";
 
 export const decks: Deck[] = [
   [
-    { id: "624464", name: "Sakura-Tribe Elder", amount: 7 },
-    { id: "559542", name: "Forest", amount: 4 },
+    {
+      id: "507098",
+      name: "Molimo, Maro-Sorcerer",
+      amount: 1,
+    },
+    {
+      id: "93195",
+      name: "Awaken the Bear",
+      amount: 1,
+    },
+    { id: "559542", name: "Forest", amount: 5 },
   ],
   [
-    { id: "624464", name: "Sakura-Tribe Elder", amount: 7 },
-    { id: "559542", name: "Forest", amount: 4 },
+    {
+      id: "507098",
+      name: "Molimo, Maro-Sorcerer",
+      amount: 1,
+    },
+    {
+      id: "93195",
+      name: "Awaken the Bear",
+      amount: 1,
+    },
+    { id: "559542", name: "Forest", amount: 5 },
   ],
 ];

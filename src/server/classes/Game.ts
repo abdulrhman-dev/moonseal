@@ -239,34 +239,38 @@ class Game {
       card: blockerCard,
       damage: 0,
     });
-    console.log("ADDING");
   }
 
   handleCombat() {
     if (this.flags.preventDamage) return;
 
-    console.log(
-      this.fights.map((fight) =>
-        fight.blockers.map((blocker) => blocker.damage)
-      )
-    );
+    const defendingPlayer = this.getPlayer(this.activePlayer ^ 3);
 
     for (const fight of this.fights) {
       const attacker = fight.attacker;
 
       if (!fight.blockers.length) {
-        this.getPlayer(this.activePlayer ^ 3).life -= attacker.power;
+        defendingPlayer.life -= attacker.totalPower;
         continue;
       }
 
-      for (const blocker of fight.blockers) {
-        blocker.card.toughness -= blocker.damage;
-        attacker.toughness -= blocker.card.power;
+      let lethalCount = 0;
+      let totalDamage = attacker.totalPower;
 
-        attacker.power -= blocker.damage;
+      for (const blocker of fight.blockers) {
+        blocker.card.damage += blocker.damage;
+        attacker.damage += blocker.card.totalPower;
+
+        if (blocker.card.totalToughness <= 0) lethalCount++;
+
+        totalDamage -= blocker.damage;
       }
 
-      attacker.power = attacker.data.defaultPower;
+      if (attacker.keywords.includes("Trample")) {
+        if (lethalCount === fight.blockers.length) {
+          defendingPlayer.life -= totalDamage;
+        }
+      }
     }
   }
 
@@ -284,7 +288,7 @@ class Game {
 
       for (const creature of player.battlefield.creatures) {
         // Handle lethal damage
-        if (creature.toughness <= 0) {
+        if (creature.totalToughness <= 0) {
           deadCreatures.push(creature.id);
         }
       }
@@ -299,8 +303,7 @@ class Game {
   healCreatures() {
     for (const player of this.players) {
       for (const creature of player.battlefield.creatures) {
-        creature.power = creature.data.defaultPower;
-        creature.toughness = creature.data.defaultToughness;
+        creature.cleanup();
       }
     }
 
@@ -310,7 +313,7 @@ class Game {
   getClientFights(): Fight[] {
     return this.fights.map((fight) => ({
       attacker: fight.attacker.id,
-      maxDamage: fight.attacker.power,
+      maxDamage: fight.attacker.totalPower,
       blockers: fight.blockers.map((blocker) => ({
         id: blocker.card.id,
         damage: blocker.damage,
@@ -320,21 +323,17 @@ class Game {
 
   initialDamgageDistribution() {
     for (const fight of this.fights) {
-      let damage = fight.attacker.power;
+      let damage = fight.attacker.totalPower;
 
       for (const blocker of fight.blockers) {
-        if (blocker.card.toughness <= damage) {
-          blocker.damage = blocker.card.toughness;
+        if (blocker.card.totalToughness <= damage) {
+          blocker.damage = blocker.card.totalToughness;
           damage -= blocker.damage;
         } else {
           if (damage < 0) damage = 0;
           blocker.damage = damage;
           damage = 0;
         }
-      }
-
-      if (damage > 0 && fight.blockers.length > 0) {
-        fight.blockers[0].damage += damage;
       }
     }
   }
