@@ -9,7 +9,8 @@ import {
   type ServerSocket,
   type ServerToClientEvents,
 } from "./types/socket";
-import registerHandleGame, { listeners } from "./socket/handleGame";
+import registerHandleGame from "./socket/handleGame";
+import { gameListeners } from "./socket/gameListeners";
 
 const app = express();
 
@@ -36,7 +37,7 @@ function getPlayerNum() {
 }
 
 function unRegisterEvents() {
-  for (const listener of listeners) {
+  for (const listener of gameListeners) {
     for (const playerSocket of playerSockets) {
       playerSocket.removeAllListeners(listener);
     }

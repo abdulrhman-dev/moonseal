@@ -75,10 +75,12 @@ const targetingSlice = createSlice({
       );
     },
     clearTargets(state) {
-      state = {
-        ...state,
-        ...initialState,
-      };
+      state.targets = [];
+      state.targetsRules = [];
+      state.selectedRules = [];
+      state.text = "";
+      state.type = "AND";
+      state.mode = "manual";
     },
   },
 });

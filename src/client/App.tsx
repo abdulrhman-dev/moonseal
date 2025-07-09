@@ -33,7 +33,7 @@ function App() {
       {game.fights.map((fight) =>
         fight.blockers.map((blocker) => (
           <TargetLine
-            sourceId={blocker}
+            sourceId={blocker.id}
             destId={fight.attacker}
             cardsElements={cardsElements}
           />

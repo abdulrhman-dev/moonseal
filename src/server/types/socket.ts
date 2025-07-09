@@ -29,6 +29,7 @@ export type fightChangeArgs = {
   fights: Fight[];
   declaredAttackers: boolean;
   declaredBlockers: boolean;
+  declaredDamageAssign: boolean;
 };
 
 export type playerChangeArgs = {
@@ -72,6 +73,7 @@ export interface ClientToServerEvents {
   "mulligan:action": () => void;
   "set-ready:action": () => void;
   "send-targets:action": (targets: Target[]) => void;
+  "assign-damage:action": (fights: Fight[]) => void;
 }
 
 export type ClientSocketEmitArgs = {

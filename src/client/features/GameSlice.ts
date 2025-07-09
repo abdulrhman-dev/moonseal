@@ -45,7 +45,11 @@ export type OpponentPlayer = {
 
 export type Fight = {
   attacker: number;
-  blockers: number[];
+  maxDamage: number;
+  blockers: {
+    id: number;
+    damage: number;
+  }[];
 };
 
 export type GameState = {
@@ -57,6 +61,7 @@ export type GameState = {
   fights: Fight[];
   declaredAttackers: boolean;
   declaredBlockers: boolean;
+  declaredAssignDamage: boolean;
   isActive: boolean;
 };
 
@@ -105,6 +110,7 @@ const initialState: GameState = {
   fights: [],
   declaredAttackers: false,
   declaredBlockers: false,
+  declaredAssignDamage: false,
 };
 
 const gameSlice = createSlice({
@@ -132,15 +138,20 @@ const gameSlice = createSlice({
     },
     changeActive(state, action: PayloadAction<activePlayerChangeArgs>) {
       const { activePlayer } = action.payload;
-      console.log(activePlayer);
       state.isActive = activePlayer;
     },
     changeFights(state, action: PayloadAction<fightChangeArgs>) {
-      const { declaredAttackers, declaredBlockers, fights } = action.payload;
+      const {
+        declaredAttackers,
+        declaredBlockers,
+        declaredDamageAssign,
+        fights,
+      } = action.payload;
 
       state.fights = fights;
       state.declaredAttackers = declaredAttackers;
       state.declaredBlockers = declaredBlockers;
+      state.declaredAssignDamage = declaredDamageAssign;
     },
     changePlayers(state, action: PayloadAction<playerChangeArgs>) {
       state.player = {
@@ -153,6 +164,21 @@ const gameSlice = createSlice({
         ...action.payload.opponenet,
       };
     },
+    assignDamage(state, action: PayloadAction<{ amount: number; id: number }>) {
+      const { amount, id } = action.payload;
+
+      const fight = state.fights.find((fight) =>
+        fight.blockers.map((blocker) => blocker.id).includes(id)
+      );
+
+      if (!fight) return;
+
+      const blocker = fight.blockers.find((blocker) => blocker.id === id);
+
+      if (!blocker) return;
+
+      blocker.damage = amount;
+    },
   },
 });
 
@@ -163,4 +189,5 @@ export const {
   changeActive,
   changeFights,
   changePlayers,
+  assignDamage,
 } = gameSlice.actions;

@@ -46,7 +46,41 @@ export const PhaseButton = () => {
       return;
     }
 
+    if (game.currentPhase === "COMBAT_DAMAGE" && !game.declaredAssignDamage) {
+      console.log(game.fights);
+      socketEmit({ name: "assign-damage:action", data: game.fights });
+      return;
+    }
+
     socketEmit({ name: "next-phase:action" });
+  }
+
+  function isDisabled() {
+    const targetOnShowcase =
+      game.spellStack.length > 0 &&
+      game.spellStack[game.spellStack.length - 1].type === "SHOWCASE";
+
+    if (targetOnShowcase) return true;
+
+    const targetsFullfuiled = targetsRules.reduce(
+      (prev, targetRule) => targetRule.amount !== 0 || prev,
+      false
+    );
+
+    if (targetsFullfuiled) return true;
+
+    if (game.currentPhase === "COMBAT_DAMAGE") {
+      for (const fight of game.fights) {
+        const totalDamage = fight.blockers.reduce(
+          (prev, blocker) => prev + blocker.damage,
+          0
+        );
+
+        if (totalDamage > fight.maxDamage) return true;
+      }
+    }
+
+    return false;
   }
 
   useEffect(() => {
@@ -62,6 +96,14 @@ export const PhaseButton = () => {
       setButtonData({
         style: Style.blueButton,
         buttonText: "Declare Blockers",
+      });
+      return;
+    }
+
+    if (game.currentPhase === "COMBAT_DAMAGE" && !game.declaredAssignDamage) {
+      setButtonData({
+        style: Style.redButton,
+        buttonText: "Assign Damage",
       });
       return;
     }
@@ -82,6 +124,7 @@ export const PhaseButton = () => {
     game.currentPhase,
     game.declaredAttackers,
     game.declaredBlockers,
+    game.declaredAssignDamage,
   ]);
 
   const defending =
@@ -99,15 +142,7 @@ export const PhaseButton = () => {
         <button
           onClick={handleButtonClick}
           className={Style.phaseButton + " " + buttonData.style}
-          disabled={
-            (game.spellStack.length > 0 &&
-              game.spellStack[game.spellStack.length - 1].type ===
-                "SHOWCASE") ||
-            targetsRules.reduce(
-              (prev, targetRule) => targetRule.amount !== 0 || prev,
-              false
-            )
-          }
+          disabled={isDisabled()}
         >
           {buttonData.buttonText}
         </button>

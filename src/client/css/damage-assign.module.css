@@ -1,0 +1,22 @@
+.damageContainer{
+    position: absolute;
+    z-index: 100;
+    width: var(--card-width);
+    height: var(--card-height);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.damageContainer input{
+    width: 65px;
+    height: 40px;
+    font-size: 1.8rem;
+    text-align: center;
+}
+.damageContainer .invalid {
+  background-color: ivory;
+  border: none;
+  outline: 2px solid red;
+  border-radius: 5px;
+}

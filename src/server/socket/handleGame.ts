@@ -1,9 +1,10 @@
 import type Player from "../classes/Player";
-import Game from "../classes/Game";
+import Game, { type GameFight } from "../classes/Game";
 import type { ClientToServerEvents, IO, ServerSocket } from "../types/socket";
 import type { InitilizeTargetingArgs, Target } from "@/features/TargetingSlice";
-import { text } from "stream/consumers";
 import type { TargetData } from "@backend/types/cards";
+import type { Card } from "@backend/classes/Card";
+import { registerGameListeners } from "./gameListeners";
 
 export default async function registerHandleGame(
   io: IO,
@@ -22,9 +23,9 @@ export default async function registerHandleGame(
     playerSocket.join("game");
     updateLists(io, playerSocket, game, "hand");
   }
-  handleGameMulligan(playerSockets, game);
-  // game.startGame();
-  // registerGameListeners(game);
+  // handleGameMulligan(playerSockets, game);
+  game.startGame();
+  registerGameListeners(game);
 }
 
 export const getTargets = (
@@ -124,82 +125,6 @@ async function handleDiscardCards(
 
   return false;
 }
-
-export const listeners: (keyof ClientToServerEvents)[] = [
-  "cast-spell:action",
-  "next-phase:action",
-  "set-declared-attackers:action",
-  "set-declared-blockers:action",
-  "toggle-attacker:action",
-  "toggle-blocker:action",
-  "turn-skip:action",
-];
-
-const registerGameListeners = (game: Game) => {
-  const playerSockets = game.network.playerSockets;
-
-  for (const playerSocket of playerSockets) {
-    playerSocket.on("next-phase:action", () => {
-      game.passPriority();
-      updatePriority(game);
-    });
-
-    playerSocket.on("cast-spell:action", ({ id, args, type }) => {
-      if (playerSocket.data.playerNum !== game.priority) return;
-      const card = game.getPlayer(playerSocket.data.playerNum).findCard(id);
-
-      if (!card) throw new Error("Couldn't find the card on stack");
-
-      if (card.data.type === "land") {
-        game.getPlayer(playerSocket.data.playerNum).landsCasted++;
-        game.getPlayer(playerSocket.data.playerNum).castSpell(card, args);
-        return;
-      }
-
-      if (type.name === "CAST") {
-        const player = game.getPlayer(card.cardPlayer);
-        player.spendMana(card.getManaCost());
-      }
-
-      game.stack.push({
-        args,
-        type,
-        data: card,
-      });
-    });
-
-    playerSocket.on("set-declared-attackers:action", () => {
-      console.log("RECEIVED");
-      game.declaredAttackers = true;
-      updateFights(game);
-    });
-
-    playerSocket.on("set-declared-blockers:action", () => {
-      game.declaredBlockers = true;
-      updateFights(game);
-    });
-
-    playerSocket.on("toggle-attacker:action", ({ attackerId }) => {
-      game.toggleAttacker(attackerId);
-      updateFights(game);
-    });
-
-    playerSocket.on("toggle-blocker:action", ({ blockerId, attackerId }) => {
-      game.toggleBlocker(blockerId, attackerId);
-      updateFights(game);
-    });
-
-    playerSocket.on(
-      "turn-skip:action",
-      ({ autoResolvePriority, autoPassPriority }) => {
-        const player = game.getPlayer(playerSocket.data.playerNum);
-        player.autoPassPriority = autoPassPriority;
-        player.autoResolvePriority = autoResolvePriority;
-        console.log("AUTO PASS: ", player.autoPassPriority);
-      }
-    );
-  }
-};
 
 type listNames = "hand" | "exile" | "graveyard" | "battlefield";
 
@@ -313,6 +238,7 @@ export function updateFights(game: Game) {
     fights: game.getClientFights(),
     declaredAttackers: game.declaredAttackers,
     declaredBlockers: game.declaredBlockers,
+    declaredDamageAssign: game.declaredAssignDamage,
   });
 }
 

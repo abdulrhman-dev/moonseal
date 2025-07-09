@@ -24,6 +24,7 @@ import { MdShield } from "react-icons/md";
 import { useEffect, useState } from "react";
 import { socketEmit } from "@/features/socket/SocketFactory";
 import { ActivatedAbility } from "./ActivatedAbility";
+import { DamageAssignment } from "./DamageAssigment";
 
 export type CardLocations = "hand" | "battlefield" | "stack";
 
@@ -108,8 +109,10 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
       if (currentPhase === "COMBAT_BLOCK" && !isActive && !declaredBlockers) {
         if (card.tapped) return;
 
-        let foundBlocker = fights.find((fight) =>
-          fight.blockers.includes(card.id)
+        let foundBlocker = fights.find(
+          (fight) =>
+            fight.blockers.find((blocker) => blocker.id === card.id) !==
+            undefined
         );
         setIsBlocking(foundBlocker === undefined);
         if (!foundBlocker) {
@@ -185,6 +188,7 @@ function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
 
   return (
     <div className={Style.cardContainer} style={{ ...style }}>
+      <DamageAssignment card={card} />
       {!card.summoningSickness &&
         showActivated === 2 &&
         priority === 1 &&

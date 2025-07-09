@@ -52,7 +52,6 @@ function useGetTargets() {
                   : ((cardPlayer ^ 3) as 1 | 2),
             }
       ) as TargetSelectGroup;
-
       dispatch(
         initilizeTargets({
           data: { ...targetData, targetSelects },

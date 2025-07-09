@@ -35,9 +35,9 @@ export const PhasesArray = [
   "NONE",
 ] as const;
 
-type GameFight = {
+export type GameFight = {
   attacker: Card;
-  blockers: Card[];
+  blockers: { card: Card; damage: number }[];
 };
 export function delay(ms: number) {
   return new Promise((resolve) => {
@@ -54,6 +54,7 @@ class Game {
   stack: Stack;
   declaredAttackers: boolean = false;
   declaredBlockers: boolean = false;
+  declaredAssignDamage: boolean = false;
   flags: {
     preventDamage: boolean;
   } = { ...flagDefault };
@@ -165,6 +166,7 @@ class Game {
 
       this.declaredAttackers = false;
       this.declaredBlockers = false;
+      this.declaredAssignDamage = false;
 
       updateActivePlayer(this);
       updateFights(this);
@@ -208,13 +210,14 @@ class Game {
 
   toggleBlocker(blockerId: number, targetId: number) {
     const fight = this.fights.find((fight) =>
-      fight.blockers.map((blocker) => blocker.id).includes(blockerId)
+      fight.blockers.map((blocker) => blocker.card.id).includes(blockerId)
     );
 
     if (fight) {
       fight.blockers = fight.blockers.filter(
-        (blocker) => blocker.id !== blockerId
+        (blocker) => blocker.card.id !== blockerId
       );
+      console.log("REMOVING");
       return;
     }
 
@@ -232,11 +235,21 @@ class Game {
       throw new Error("Blocker not found on battlefield");
     }
 
-    newFight.blockers.push(blockerCard);
+    newFight.blockers.push({
+      card: blockerCard,
+      damage: 0,
+    });
+    console.log("ADDING");
   }
 
   handleCombat() {
     if (this.flags.preventDamage) return;
+
+    console.log(
+      this.fights.map((fight) =>
+        fight.blockers.map((blocker) => blocker.damage)
+      )
+    );
 
     for (const fight of this.fights) {
       const attacker = fight.attacker;
@@ -247,12 +260,10 @@ class Game {
       }
 
       for (const blocker of fight.blockers) {
-        const blockerToughness = blocker.toughness;
+        blocker.card.toughness -= blocker.damage;
+        attacker.toughness -= blocker.card.power;
 
-        blocker.toughness -= attacker.power;
-        attacker.toughness -= blocker.power;
-
-        attacker.power = Math.max(attacker.power - blockerToughness, 0);
+        attacker.power -= blocker.damage;
       }
 
       attacker.power = attacker.data.defaultPower;
@@ -261,8 +272,8 @@ class Game {
 
   cleanUpCombat() {
     this.fights = [];
-    updateBoard(this);
     updateFights(this);
+    this.cleanupDeadCreatures();
     updatePlayer(this, 1);
     updatePlayer(this, 2);
   }
@@ -299,8 +310,33 @@ class Game {
   getClientFights(): Fight[] {
     return this.fights.map((fight) => ({
       attacker: fight.attacker.id,
-      blockers: fight.blockers.map((blocker) => blocker.id),
+      maxDamage: fight.attacker.power,
+      blockers: fight.blockers.map((blocker) => ({
+        id: blocker.card.id,
+        damage: blocker.damage,
+      })),
     }));
+  }
+
+  initialDamgageDistribution() {
+    for (const fight of this.fights) {
+      let damage = fight.attacker.power;
+
+      for (const blocker of fight.blockers) {
+        if (blocker.card.toughness <= damage) {
+          blocker.damage = blocker.card.toughness;
+          damage -= blocker.damage;
+        } else {
+          if (damage < 0) damage = 0;
+          blocker.damage = damage;
+          damage = 0;
+        }
+      }
+
+      if (damage > 0 && fight.blockers.length > 0) {
+        fight.blockers[0].damage += damage;
+      }
+    }
   }
 
   async handlePhaseChange() {
@@ -335,50 +371,60 @@ class Game {
         updateFights(this);
         break;
       case "COMBAT_DAMAGE":
-        this.handleCombat();
-        this.cleanUpCombat();
-        this.cleanupDeadCreatures();
-        updatePriority(this);
-        this.nextPhase();
+        if (this.fights.length === 0) this.nextPhase();
+        else {
+          this.initialDamgageDistribution();
+          updateFights(this);
+        }
         break;
       case "CLEANUP":
         this.healCreatures();
         this.clearFlags();
-        if (player.hand.collection.length > 7) {
-          const targets = await getTargets(player.network.socket, {
-            data: {
-              targetSelects: [
-                {
-                  amount: player.hand.collection.length - 7,
-                  location: "hand",
-                  type: "all",
-                  player: 1,
-                },
-              ],
-              text: "",
-              type: "AND",
-            },
-            mode: "auto",
-          });
-
-          for (const target of targets) {
-            const card = player.hand.search(target.data.id);
-            if (!card) {
-              throw new Error(
-                `Target not found on server ${target.data.name} - ${target.data.id}`
-              );
-            }
-
-            player.hand.remove(card.id);
-            player.library.add(card);
-          }
-
-          player.library.shuffle();
-          updatePlayer(this, player.playerNum);
-          this.nextPhase();
-        } else this.nextPhase();
+        await this.handleCleanupDiscardCard(player);
         break;
     }
+  }
+
+  handleCombatDamagePhase() {
+    this.handleCombat();
+    this.cleanUpCombat();
+    updatePriority(this);
+  }
+
+  async handleCleanupDiscardCard(player: Player) {
+    if (player.hand.collection.length > 7) {
+      const targets = await getTargets(player.network.socket, {
+        data: {
+          targetSelects: [
+            {
+              amount: player.hand.collection.length - 7,
+              location: "hand",
+              type: "all",
+              player: 1,
+            },
+          ],
+          text: "",
+          type: "AND",
+        },
+        mode: "auto",
+      });
+
+      for (const target of targets) {
+        const card = player.hand.search(target.data.id);
+        if (!card) {
+          throw new Error(
+            `Target not found on server ${target.data.name} - ${target.data.id}`
+          );
+        }
+
+        player.hand.remove(card.id);
+        player.library.add(card);
+      }
+
+      player.library.shuffle();
+      updatePlayer(this, player.playerNum);
+      this.nextPhase();
+    } else this.nextPhase();
   }
 
   getPlayer(playerNum: number) {
