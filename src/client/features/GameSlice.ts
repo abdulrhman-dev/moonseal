@@ -58,6 +58,7 @@ export type GameState = {
   priority: 0 | 1 | 2;
   currentPhase: Phases;
   spellStack: ClientStack[];
+  lookup: CardState[];
   fights: Fight[];
   declaredAttackers: boolean;
   declaredBlockers: boolean;
@@ -105,6 +106,7 @@ const initialState: GameState = {
   currentPhase: "NONE",
   isActive: false,
 
+  lookup: [],
   spellStack: [],
 
   fights: [],
@@ -120,6 +122,11 @@ const gameSlice = createSlice({
     changeList(state, action: PayloadAction<listChangeArgs>) {
       if (action.payload.listName === "stack") {
         state.spellStack = action.payload.list;
+        return;
+      }
+
+      if (action.payload.listName === "lookup") {
+        state.lookup = action.payload.list;
         return;
       }
 

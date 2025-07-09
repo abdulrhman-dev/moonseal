@@ -26,6 +26,7 @@ export default class Player {
   graveyard: CardCollection = new CardCollection();
   exile: CardCollection = new CardCollection();
   hand: CardCollection = new CardCollection();
+  lookup: CardCollection = new CardCollection();
   battlefield: {
     creatures: CardCollection;
     lands: CardCollection;

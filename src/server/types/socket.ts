@@ -8,7 +8,7 @@ import type { InitilizeTargetingArgs, Target } from "@/features/TargetingSlice";
 export type listChangeArgs =
   | {
       type: "player" | "opposing";
-      listName: "hand" | "exile" | "graveyard";
+      listName: "hand" | "exile" | "graveyard" | "lookup";
       list: CardState[];
     }
   | {

@@ -126,7 +126,7 @@ async function handleDiscardCards(
   return false;
 }
 
-type listNames = "hand" | "exile" | "graveyard" | "battlefield";
+type listNames = "hand" | "exile" | "graveyard" | "battlefield" | "lookup";
 
 export function updateLists(
   io: IO,

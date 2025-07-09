@@ -18,6 +18,21 @@
     bottom: 60px;
 }
 
+.cancelButton{
+    position: absolute;
+    right: 40px;
+    width: 150px;
+    height: 50px;
+    font-size: 1.3rem;
+    border-radius: 25px;
+    border:2px solid rgb(0, 0, 0);
+    cursor: pointer;
+    bottom: 60px;
+    background-color: red;
+    color:white;
+    z-index: 20;
+}
+
 .passCheckbox{
     position: absolute;
     bottom: 30px;

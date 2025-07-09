@@ -26,7 +26,7 @@ import { socketEmit } from "@/features/socket/SocketFactory";
 import { ActivatedAbility } from "./ActivatedAbility";
 import { DamageAssignment } from "./DamageAssigment";
 
-export type CardLocations = "hand" | "battlefield" | "stack";
+export type CardLocations = "hand" | "battlefield" | "stack" | "lookup";
 
 interface CardProps {
   card: CardState;

@@ -8,7 +8,11 @@ export class CardCollection {
     return this.collection.find((card) => card.id === id);
   }
 
-  add(card: Card) {
+  add(card: Card, bottom = false) {
+    if (bottom) {
+      this.collection.unshift(card);
+      return;
+    }
     this.collection.push(card);
   }
 

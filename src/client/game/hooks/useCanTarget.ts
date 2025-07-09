@@ -47,8 +47,11 @@ function useCanTarget(
       const selectedRule = selectedRules.findIndex(
         (selectRule) => selectRule === true
       );
-
-      setCanTarget(selectedRule === -1 || selectedRule === target);
+      console.log("HELLO BRO", target);
+      setCanTarget(
+        (target !== -1 && selectedRule === -1) ||
+          (selectedRule !== -1 && selectedRule === target)
+      );
     }
   }, [targetsRules, selectedRules, targetingType]);
 

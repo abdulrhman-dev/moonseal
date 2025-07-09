@@ -10,11 +10,16 @@ import { PhaseButton } from "./components/PhaseButton";
 import { TargetLine } from "./components/TargetLine";
 import { SpellStack } from "./components/SpellStack";
 import { Mulligan } from "./modals/Mulligan";
+import { Lookup } from "./components/Lookup";
+import { clearTargets } from "./features/TargetingSlice";
+import { socketEmit } from "./features/socket/SocketFactory";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
 function App() {
   const game = useSelector((state: RootState) => state.game);
+  const targeting = useSelector((state: RootState) => state.targeting);
+
   const dispatch = useDispatch<AppDispatch>();
   const cardsElements = useRef<Map<number, HTMLElement>>(new Map());
 
@@ -22,14 +27,31 @@ function App() {
     cardsElements.current.set(cardId, node);
   }
   let initlizedSocket = useRef(false);
+
   useEffect(() => {
     if (!initlizedSocket.current) {
       dispatch(initSocket());
     }
     initlizedSocket.current = true;
   }, []);
+
+  function handleCancel() {
+    socketEmit({
+      name: "send-targets:action",
+      data: targeting.targets,
+    });
+    dispatch(clearTargets());
+  }
+
   return (
     <div className={Style.container}>
+      <p className={Style.playerLife} style={{ bottom: 0, left: 0 }}>
+        Player 1: {game.player.life}
+      </p>
+      <p className={Style.playerLife} style={{ top: 0, left: 0 }}>
+        Player 2: {game.opponentPlayer.life}
+      </p>
+
       {game.fights.map((fight) =>
         fight.blockers.map((blocker) => (
           <TargetLine
@@ -48,14 +70,8 @@ function App() {
       />
       <Battlefield data={game.player.battlefield} player={1} addRef={addRef} />
 
-      <p className={Style.playerLife} style={{ bottom: 0, left: 0 }}>
-        Player 1: {game.player.life}
-      </p>
-      <p className={Style.playerLife} style={{ top: 0, left: 0 }}>
-        Player 2: {game.opponentPlayer.life}
-      </p>
-
       <Hand cards={game.player.hand} player={1} addRef={addRef} />
+
       <PhaseButton />
       <p className={Style.phaseText}>{game.currentPhase}</p>
 
@@ -65,7 +81,15 @@ function App() {
         />
       )}
 
+      {game.lookup.length && <Lookup cards={game.lookup} />}
+
       {!game.player.ready && <Mulligan />}
+
+      {targeting.canCancel && (
+        <button className={Style.cancelButton} onClick={handleCancel}>
+          Cancel
+        </button>
+      )}
     </div>
   );
 }

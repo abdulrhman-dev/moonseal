@@ -22,11 +22,13 @@ export type TargetingState = {
   text: string;
   type: "AND" | "OR";
   mode: "manual" | "auto";
+  canCancel: boolean;
 };
 
 export type InitilizeTargetingArgs = {
   data: TargetData;
   mode: "auto" | "manual";
+  canCancel?: boolean;
 };
 
 const initialState: TargetingState = {
@@ -36,6 +38,7 @@ const initialState: TargetingState = {
   text: "",
   type: "AND",
   mode: "manual",
+  canCancel: false,
 };
 
 const targetingSlice = createSlice({
@@ -48,6 +51,9 @@ const targetingSlice = createSlice({
       state.text = action.payload.data.text;
       state.type = action.payload.data.type;
       state.mode = action.payload.mode;
+      state.canCancel = action.payload.canCancel
+        ? action.payload.canCancel
+        : state.canCancel;
     },
     addTarget(state, action: PayloadAction<Target>) {
       const targetIndex = state.targetsRules.findIndex(
@@ -81,6 +87,7 @@ const targetingSlice = createSlice({
       state.text = "";
       state.type = "AND";
       state.mode = "manual";
+      state.canCancel = false;
     },
   },
 });
