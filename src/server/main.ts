@@ -44,6 +44,8 @@ function unRegisterEvents() {
   }
 }
 
+let choosedDecks = 0;
+
 io.on("connect", async (socket: ServerSocket) => {
   if (!connectionLimit) return;
 
@@ -57,12 +59,18 @@ io.on("connect", async (socket: ServerSocket) => {
     console.log("SOCKET DISCONNECTED", socket.id);
     unRegisterEvents();
     connectionLimit++;
+    choosedDecks = 0;
     playerSockets = playerSockets.filter(
       (playerSocket) => playerSocket.id !== socket.id
     );
   });
 
-  if (connectionLimit === 0) {
-    registerHandleGame(io, playerSockets);
-  }
+  socket.on("choose-deck:action", (deckNumber) => {
+    socket.data.deckNumber = deckNumber;
+    socket.removeAllListeners("choose-deck:action");
+    choosedDecks++;
+    if (connectionLimit === 0 && choosedDecks >= 2) {
+      registerHandleGame(io, playerSockets);
+    }
+  });
 });

@@ -74,6 +74,7 @@ export interface ClientToServerEvents {
   "set-ready:action": () => void;
   "send-targets:action": (targets: Target[]) => void;
   "assign-damage:action": (fights: Fight[]) => void;
+  "choose-deck:action": (deck: number) => void;
 }
 
 export type ClientSocketEmitArgs = {
@@ -93,6 +94,7 @@ interface InterServerEvents {
 
 interface SocketData {
   playerNum: number;
+  deckNumber: number;
 }
 
 export type ServerSocket = Socket<

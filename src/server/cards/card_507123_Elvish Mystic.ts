@@ -18,7 +18,7 @@ export default function (game: Game) {
       type: "creature",
       typeLine: "Creature — Elf Druid",
       text: "{T}: Add {G}.",
-      summoningSickness: false,
+      summoningSickness: true,
       defaultPower: 1,
       defaultToughness: 1,
       manaCost: new Mana({

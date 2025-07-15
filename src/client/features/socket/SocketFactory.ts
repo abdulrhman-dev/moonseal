@@ -11,7 +11,7 @@ export interface SocketInterface {
 
 class SocketConnection implements SocketInterface {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
-  socketEndpoint = "http://localhost:3000/";
+  socketEndpoint = "http://192.168.1.12:3000/";
 
   constructor() {
     this.socket = io(this.socketEndpoint);

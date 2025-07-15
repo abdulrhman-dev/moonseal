@@ -26,19 +26,28 @@ export const registerGameListeners = (game: Game) => {
 
     playerSocket.on("cast-spell:action", ({ id, args, type }) => {
       if (playerSocket.data.playerNum !== game.priority) return;
+      const stackCard = game.stack.cards.find((card) => card.data.id === id);
+      if (stackCard && stackCard.type.name !== "SHOWCASE") return;
+
       const card = game.getPlayer(playerSocket.data.playerNum).findCard(id);
 
       if (!card) throw new Error("Couldn't find the card on stack");
+      const player = game.getPlayer(card.cardPlayer);
 
       if (card.data.type === "land") {
-        game.getPlayer(playerSocket.data.playerNum).landsCasted++;
+        player.landsCasted++;
         game.getPlayer(playerSocket.data.playerNum).castSpell(card, args);
         return;
       }
 
+      // pay costs
+
       if (type.name === "CAST") {
-        const player = game.getPlayer(card.cardPlayer);
         player.spendMana(card.getManaCost());
+      }
+
+      if (type.name === "ACTIVITED") {
+        card.payActivited(type.activitedNum, player);
       }
 
       game.stack.push({

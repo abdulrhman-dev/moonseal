@@ -23,9 +23,9 @@ export default async function registerHandleGame(
     playerSocket.join("game");
     updateLists(io, playerSocket, game, "hand");
   }
-  // handleGameMulligan(playerSockets, game);
-  game.startGame();
-  registerGameListeners(game);
+  handleGameMulligan(playerSockets, game);
+  // game.startGame();
+  // registerGameListeners(game);
 }
 
 export const getTargets = (
@@ -51,6 +51,8 @@ const handleGameMulligan = (playerSockets: ServerSocket[], game: Game) => {
         player.hand.remove(card.id);
       }
 
+      player.library.shuffle();
+
       for (let i = 0; i < 7; ++i) player.drawCard();
 
       mulliganCount++;
@@ -64,9 +66,10 @@ const handleGameMulligan = (playerSockets: ServerSocket[], game: Game) => {
     });
 
     playerSocket.on("set-ready:action", async () => {
+      console.log("READY ACTIVITED");
       const player = game.getPlayer(playerSocket.data.playerNum);
-      handleDiscardCards(playerSocket, player, mulliganCount);
       playerSocket.removeAllListeners("set-ready:action");
+      handleDiscardCards(playerSocket, player, mulliganCount);
     });
   }
 };
@@ -94,15 +97,25 @@ async function handleDiscardCards(
       data: discardHandRule,
       mode: "auto",
     });
+    console.log("===========================================");
+    console.log(
+      "HAND: ",
+      player.hand.collection.map((card) => card.id)
+    );
+    console.log(
+      "TARGETS: ",
+      targets.map((target) => target.data.id)
+    );
 
     for (const target of targets) {
+      console.log("ENTRY:", target.data.id, "LENGTH:", targets.length);
       const card = player.hand.search(target.data.id);
       if (!card) {
         throw new Error(
           `Target not found on server ${target.data.name} - ${target.data.id}`
         );
       }
-
+      console.log("ACTION:", card.id);
       player.hand.remove(card.id);
       player.library.add(card);
     }

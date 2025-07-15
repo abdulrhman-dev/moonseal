@@ -71,7 +71,7 @@ export default function (game: Game) {
       defaultPower: 0,
       defaultToughness: 0,
       manaCost: new Mana({
-        green: 0,
+        green: 1,
         colorless: 0,
       }),
       keywords: [],

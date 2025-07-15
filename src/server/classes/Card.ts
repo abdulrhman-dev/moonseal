@@ -147,19 +147,14 @@ export abstract class Card {
     this.activatedActions.push(activitedAction);
   }
 
-  activateAbility(
-    actionNumber: number,
-    player: Player,
-    args: CardResolveServerArgs
-  ) {
+  payActivited(actionNumber: number, player: Player) {
     if (actionNumber >= this.activatedActions.length) return;
+
     const ability = this.activatedAbilities[actionNumber];
 
     player.spendMana(new Mana(ability.cost.mana));
 
     if (ability.cost.tap) this.tapCard();
-
-    this.activatedActions[actionNumber](player, args);
 
     if (ability.cost.sacrificeSelf) {
       if (this.data.type === "creature") {
@@ -172,6 +167,16 @@ export abstract class Card {
         player.graveyard.add(this);
       }
     }
+  }
+
+  activateAbility(
+    actionNumber: number,
+    player: Player,
+    args: CardResolveServerArgs
+  ) {
+    if (actionNumber >= this.activatedActions.length) return;
+
+    this.activatedActions[actionNumber](player, args);
   }
 
   attachEnchantment(enchantment: Card) {

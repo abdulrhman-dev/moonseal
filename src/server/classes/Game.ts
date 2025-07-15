@@ -83,7 +83,10 @@ class Game {
 
   async initlizeDecks() {
     for (const player of this.players) {
-      await player.initializeLibrary(decks[player.playerNum - 1]);
+      console.log("PLAYER DECK CHOSEN:", player.network.socket.data.deckNumber);
+      await player.initializeLibrary(
+        decks[player.network.socket.data.deckNumber - 1]
+      );
     }
   }
 
@@ -96,8 +99,8 @@ class Game {
   startGame() {
     this.currentPhase = "BEGINNING_UNTAP";
 
-    this.activePlayer = 1;
-    this.priority = 1;
+    this.activePlayer = (Math.floor(Math.random() * 2) + 1) as 1 | 2;
+    this.priority = this.activePlayer;
     this.getPlayer(this.activePlayer).turn++;
 
     updateActivePlayer(this);
@@ -122,7 +125,7 @@ class Game {
 
     if (this.priorityPassNum >= 2 && this.stack.cards.length) {
       updateBoard(this);
-      await delay(200);
+      await delay(600);
       this.stack.resolveTop();
       return;
     }
@@ -142,7 +145,7 @@ class Game {
     ) {
       if (this.stack.cards.length) {
         updateBoard(this);
-        await delay(200);
+        await delay(600);
         this.stack.resolveTop();
       } else {
         this.nextPhase();

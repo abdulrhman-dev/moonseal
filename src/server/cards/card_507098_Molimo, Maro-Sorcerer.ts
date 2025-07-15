@@ -18,7 +18,9 @@ class CardCreator extends Card {
   get totalToughness() {
     const x = this.gameRef.getPlayer(this.cardPlayer).battlefield.lands
       .collection.length;
-    return x + this.modifiedToughness + this.tempModifiedToughness;
+    return (
+      x + this.modifiedToughness + this.tempModifiedToughness - this.damage
+    );
   }
 }
 

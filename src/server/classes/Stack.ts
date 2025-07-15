@@ -54,7 +54,7 @@ class Stack {
         !this.gameRef.getPlayer(card.data.cardPlayer ^ 3).checkNeedPriority()
       ) {
         updateBoard(this.gameRef);
-        await delay(200);
+        await delay(600);
         this.resolveTop();
       }
 

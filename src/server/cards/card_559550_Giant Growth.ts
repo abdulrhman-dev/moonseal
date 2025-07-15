@@ -14,7 +14,7 @@ class CardCreator extends Card {
     if (targets.length !== 1) return;
 
     targets[0].tempModifiedPower += 3;
-    targets[0].tempModifiedPower += 3;
+    targets[0].tempModifiedToughness += 3;
 
     player.gameRef.cleanupDeadCreatures();
   }

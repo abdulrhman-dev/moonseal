@@ -22,8 +22,10 @@ function useCanTarget(
     (fight) => fight.attacker
   );
   useEffect(() => {
-    if (!cardPlayer) return;
-    if (targetsRules.length === 0) return;
+    if (targetsRules.length === 0 || !cardPlayer) {
+      setCanTarget(false);
+      return;
+    }
 
     if (targets.find((target) => target.data.id === card.id)) {
       setCanTarget(false);

@@ -63,7 +63,7 @@ export default function (game: Game) {
       const target = chosen[0];
 
       target.tempModifiedPower += x;
-      target.tempModifiedPower += x;
+      target.tempModifiedToughness += x;
     }
   );
 

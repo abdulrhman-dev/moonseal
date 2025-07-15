@@ -45,6 +45,31 @@ function App() {
 
   return (
     <div className={Style.container}>
+      {game.currentPhase === "NONE" && (
+        <div className={Style.deckContainer}>
+          <button
+            onClick={() => socketEmit({ name: "choose-deck:action", data: 1 })}
+          >
+            1
+          </button>
+          <button
+            onClick={() => socketEmit({ name: "choose-deck:action", data: 2 })}
+          >
+            2
+          </button>
+          <button
+            onClick={() => socketEmit({ name: "choose-deck:action", data: 3 })}
+          >
+            3
+          </button>
+          <button
+            onClick={() => socketEmit({ name: "choose-deck:action", data: 4 })}
+          >
+            4
+          </button>
+        </div>
+      )}
+
       <p className={Style.playerLife} style={{ bottom: 0, left: 0 }}>
         Player 1: {game.player.life}
       </p>

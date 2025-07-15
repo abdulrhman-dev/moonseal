@@ -18,7 +18,7 @@ class CardCreator extends Card {
       );
     return new Mana({
       green: 2,
-      colorless: Math.max(10 - totalCreaturesPower),
+      colorless: Math.max(10 - totalCreaturesPower, 0),
     });
   }
 }
