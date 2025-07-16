@@ -1,6 +1,5 @@
 import Style from "@/css/damage-assign.module.css";
 import type { CardState } from "@backend/types/cards";
-import type { CardLocations } from "./Card";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/features/store";
 import type { ChangeEvent } from "react";

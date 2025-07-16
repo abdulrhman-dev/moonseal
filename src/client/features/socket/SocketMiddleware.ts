@@ -1,8 +1,4 @@
-import {
-  isAsyncThunkAction,
-  isFulfilled,
-  type Middleware,
-} from "@reduxjs/toolkit";
+import { type Middleware } from "@reduxjs/toolkit";
 import {
   connectionEstablished,
   connectionLost,

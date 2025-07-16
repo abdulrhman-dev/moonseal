@@ -1,3 +1,4 @@
+import type { CardLocations } from "@/components/Card";
 import type { RootState } from "@/features/store";
 import {
   clearTargets,
@@ -35,12 +36,15 @@ function useGetTargets() {
 
   const getTargets = useCallback(
     ({
-      cardPlayer,
+      card,
+      location,
       targetData,
     }: {
-      cardPlayer: 1 | 2;
+      card: CardState;
+      location: CardLocations;
       targetData: TargetData;
     }) => {
+      const cardPlayer = card.cardPlayer;
       const targetSelects = targetData.targetSelects.map((targetRule) =>
         targetRule.player === 0
           ? targetRule
@@ -56,6 +60,8 @@ function useGetTargets() {
         initilizeTargets({
           data: { ...targetData, targetSelects },
           mode: "manual",
+          askingCard: card,
+          askingCardLocation: location,
         })
       );
 

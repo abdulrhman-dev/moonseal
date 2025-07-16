@@ -1,33 +1,32 @@
 import type { CardState } from "@backend/types/cards";
-import React from "react";
 import Card from "./Card";
-import Style from "@/css/stack.module.css";
 
 type SpellStackProps = {
   cards: CardState[];
 };
-
 export const SpellStack = ({ cards }: SpellStackProps) => {
   return (
-    <div className={Style.spellContainer}>
-      <div className={Style.spellStack}>
-        {cards.map((card, index) => (
+    <group position={[-5.23, 1, 3]} rotation={[Math.PI / 20, 0, 0]}>
+      {cards.map((card, index) => (
+        <group
+          key={card.id + 500}
+          rotation={[
+            0,
+            0,
+            Math.PI / 9 + (-Math.PI / 9 / cards.length) * (index + 1),
+          ]}
+        >
           <Card
-            key={card.id * 2}
             card={card}
-            cardPlayer={0}
             location="stack"
-            style={{
-              position: "absolute",
-              top: 0,
-              transformOrigin: "bottom",
-              transform: `rotate(${
-                -20 - (-20 / cards.length) * (index + 1)
-              }deg)`,
+            transformation={{
+              angle: 0,
+              xPos: -(0.2 * (cards.length - index - 1)),
+              zPos: 0.02 * index,
             }}
           />
-        ))}
-      </div>
-    </div>
+        </group>
+      ))}
+    </group>
   );
 };

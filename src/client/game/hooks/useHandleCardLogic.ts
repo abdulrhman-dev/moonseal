@@ -22,6 +22,7 @@ function useHandleCardLogic(card: CardState, location: CardLocations) {
   );
   const isActive = useSelector((state: RootState) => state.game.isActive);
 
+  const priority = useSelector((state: RootState) => state.game.priority);
   const targeting = useSelector((state: RootState) => state.targeting);
 
   const fights = useSelector((state: RootState) => state.game.fights);
@@ -103,7 +104,7 @@ function useHandleCardLogic(card: CardState, location: CardLocations) {
           ],
         };
 
-        const targets = await getTargets({ targetData, cardPlayer });
+        const targets = await getTargets({ targetData, card, location });
 
         if (targets.length !== 1) return;
         socketEmit({
@@ -122,6 +123,8 @@ function useHandleCardLogic(card: CardState, location: CardLocations) {
   const handleHandClick = async () => {
     if (!cardPlayer) return;
 
+    console.log("HELLO WORLDO");
+
     if (card.targetData.length > 0) {
       socketEmit({
         name: "cast-spell:action",
@@ -133,7 +136,8 @@ function useHandleCardLogic(card: CardState, location: CardLocations) {
       for (const targetElement of card.targetData) {
         const targets = await getTargets({
           targetData: targetElement,
-          cardPlayer,
+          card,
+          location,
         });
 
         chosenTargets.push(targets);
@@ -160,6 +164,7 @@ function useHandleCardLogic(card: CardState, location: CardLocations) {
   };
 
   const handleCardCast = async () => {
+    console.log("HELLO!!");
     if (!cardPlayer) return;
 
     handleTargeting();
@@ -174,6 +179,9 @@ function useHandleCardLogic(card: CardState, location: CardLocations) {
       await handleHandClick();
     }
 
+    if (currentPhase === "COMBAT_ATTACK" && isActive && !declaredAttackers)
+      return;
+
     if (showActivated === 2) setShowActivated(0);
     else setShowActivated(showActivated + 1);
   };
@@ -181,9 +189,10 @@ function useHandleCardLogic(card: CardState, location: CardLocations) {
   return {
     flags: {
       isBlocking,
-      showActivated,
+      showActivated: showActivated === 2,
       canTarget,
       isAttacking: attackers.includes(card.id),
+      hasPriority: priority === 1,
     },
     handleCardCast,
   };

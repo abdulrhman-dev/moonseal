@@ -22,6 +22,8 @@ export type TargetingState = {
   text: string;
   type: "AND" | "OR";
   mode: "manual" | "auto";
+  askingCard: CardState | null;
+  askingCardLocation: CardLocations | null;
   canCancel: boolean;
 };
 
@@ -29,6 +31,8 @@ export type InitilizeTargetingArgs = {
   data: TargetData;
   mode: "auto" | "manual";
   canCancel?: boolean;
+  askingCard?: CardState | null;
+  askingCardLocation?: CardLocations | null;
 };
 
 const initialState: TargetingState = {
@@ -39,6 +43,8 @@ const initialState: TargetingState = {
   type: "AND",
   mode: "manual",
   canCancel: false,
+  askingCard: null,
+  askingCardLocation: null,
 };
 
 const targetingSlice = createSlice({
@@ -54,6 +60,12 @@ const targetingSlice = createSlice({
       state.canCancel = action.payload.canCancel
         ? action.payload.canCancel
         : state.canCancel;
+      state.askingCard = action.payload.askingCard
+        ? action.payload.askingCard
+        : null;
+      state.askingCardLocation = state.askingCardLocation
+        ? state.askingCardLocation
+        : null;
     },
     addTarget(state, action: PayloadAction<Target>) {
       const targetIndex = state.targetsRules.findIndex(
@@ -88,6 +100,8 @@ const targetingSlice = createSlice({
       state.type = "AND";
       state.mode = "manual";
       state.canCancel = false;
+      state.askingCard = null;
+      state.askingCardLocation = null;
     },
   },
 });

@@ -2,47 +2,48 @@ import Style from "@/css/battlefield.module.css";
 import Card from "./Card";
 
 import type { CardState } from "@backend/types/cards";
-import type { AddRefFunction } from "@/App";
+import { CardsContainer } from "./CardsContainer";
 
 type BattlefieldProps = {
   data: { creatures: CardState[]; lands: CardState[] };
-  player: 1 | 2;
-  addRef: AddRefFunction;
 };
 
-export const Battlefield = ({ data, player, addRef }: BattlefieldProps) => {
+export const Battlefield = ({ data }: BattlefieldProps) => {
+  let nextZ = 0;
+
   return (
-    <div className={Style.battlefield}>
-      <div className={Style.creatures}>
-        {data.creatures.map((card) => (
-          <Card
-            key={card.id}
-            cardPlayer={player}
-            card={card}
-            location="battlefield"
-            addRef={addRef}
-          />
-        ))}
-      </div>
-      <div className={Style.lands}>
-        <div className={Style.cardStack}>
-          {data.lands.map((card, index) => (
+    <group position={[-1.2, 0, -1.9]}>
+      <CardsContainer
+        list={data.creatures}
+        location="battlefield"
+        transformation={{
+          xPos: -3,
+          yPos: 0,
+          zPos: 0,
+        }}
+      />
+
+      <group position={[10, 0, 0]}>
+        {data.lands.map((card, index) => {
+          let currZ = nextZ;
+
+          nextZ += 0.015;
+          nextZ += card.enchanters.length * 0.01;
+
+          return (
             <Card
-              key={card.id}
-              cardPlayer={player}
-              style={{
-                position: "absolute",
-                top: 0,
-                left: 30 * (data.lands.length - index - 1),
-                margin: 0,
-              }}
               card={card}
               location="battlefield"
-              addRef={addRef}
+              transformation={{
+                angle: 0,
+                xPos: 0.5 * (data.lands.length - index - 1),
+                zPos: currZ,
+              }}
+              key={card.id}
             />
-          ))}
-        </div>
-      </div>
-    </div>
+          );
+        })}
+      </group>
+    </group>
   );
 };

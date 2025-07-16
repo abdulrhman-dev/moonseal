@@ -29,5 +29,5 @@
     },
     "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },
-  "include": ["src"]
+  "include": ["src", "archive/App copy.tsx", "archive/TargetLine.tsx", "archive/SpellStack.tsx", "archive/Lookup.tsx"]
 }

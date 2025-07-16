@@ -6,6 +6,8 @@
     position: relative;
 }
 
+
+
 .phaseButton{
     position: absolute;
     right: 40px;
@@ -86,4 +88,17 @@
 
 .deckContainer button{
     width: 50px;
+}
+
+.uiLayerContainer{
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.uiLayerContainer > *{
+    pointer-events: auto;
 }

@@ -1,31 +1,18 @@
-import { useDispatch, useSelector } from "react-redux";
-import { type AppDispatch, type RootState } from "./features/store";
+import { useDispatch } from "react-redux";
+import { type AppDispatch } from "./features/store";
 import { useEffect, useRef } from "react";
 
 import Style from "./css/app.module.css";
-import { Hand } from "./components/Hand";
 import { initSocket } from "./features/SocketSlice";
-import { Battlefield } from "./components/Battlefield";
-import { PhaseButton } from "./components/PhaseButton";
-import { TargetLine } from "./components/TargetLine";
-import { SpellStack } from "./components/SpellStack";
-import { Mulligan } from "./modals/Mulligan";
-import { Lookup } from "./components/Lookup";
-import { clearTargets } from "./features/TargetingSlice";
-import { socketEmit } from "./features/socket/SocketFactory";
+import GameLayer from "./layers/GameLayer";
+import UILayer from "./layers/UILayer";
+import CardObjectsProvider from "./game/providers/CardObjectsProvider";
 
 export type AddRefFunction = (node: HTMLElement, cardId: number) => void;
 
 function App() {
-  const game = useSelector((state: RootState) => state.game);
-  const targeting = useSelector((state: RootState) => state.targeting);
-
   const dispatch = useDispatch<AppDispatch>();
-  const cardsElements = useRef<Map<number, HTMLElement>>(new Map());
 
-  function addRef(node: HTMLElement, cardId: number) {
-    cardsElements.current.set(cardId, node);
-  }
   let initlizedSocket = useRef(false);
 
   useEffect(() => {
@@ -35,86 +22,12 @@ function App() {
     initlizedSocket.current = true;
   }, []);
 
-  function handleCancel() {
-    socketEmit({
-      name: "send-targets:action",
-      data: targeting.targets,
-    });
-    dispatch(clearTargets());
-  }
-
   return (
     <div className={Style.container}>
-      {game.currentPhase === "NONE" && (
-        <div className={Style.deckContainer}>
-          <button
-            onClick={() => socketEmit({ name: "choose-deck:action", data: 1 })}
-          >
-            1
-          </button>
-          <button
-            onClick={() => socketEmit({ name: "choose-deck:action", data: 2 })}
-          >
-            2
-          </button>
-          <button
-            onClick={() => socketEmit({ name: "choose-deck:action", data: 3 })}
-          >
-            3
-          </button>
-          <button
-            onClick={() => socketEmit({ name: "choose-deck:action", data: 4 })}
-          >
-            4
-          </button>
-        </div>
-      )}
-
-      <p className={Style.playerLife} style={{ bottom: 0, left: 0 }}>
-        Player 1: {game.player.life}
-      </p>
-      <p className={Style.playerLife} style={{ top: 0, left: 0 }}>
-        Player 2: {game.opponentPlayer.life}
-      </p>
-
-      {game.fights.map((fight) =>
-        fight.blockers.map((blocker) => (
-          <TargetLine
-            sourceId={blocker.id}
-            destId={fight.attacker}
-            cardsElements={cardsElements}
-          />
-        ))
-      )}
-      <Hand cards={game.opponentPlayer.hand} player={2} addRef={addRef} />
-
-      <Battlefield
-        data={game.opponentPlayer.battlefield}
-        player={2}
-        addRef={addRef}
-      />
-      <Battlefield data={game.player.battlefield} player={1} addRef={addRef} />
-
-      <Hand cards={game.player.hand} player={1} addRef={addRef} />
-
-      <PhaseButton />
-      <p className={Style.phaseText}>{game.currentPhase}</p>
-
-      {game.spellStack.length && (
-        <SpellStack
-          cards={game.spellStack.map((spellCard) => spellCard.data)}
-        />
-      )}
-
-      {game.lookup.length && <Lookup cards={game.lookup} />}
-
-      {!game.player.ready && <Mulligan />}
-
-      {targeting.canCancel && (
-        <button className={Style.cancelButton} onClick={handleCancel}>
-          Cancel
-        </button>
-      )}
+      <CardObjectsProvider>
+        <GameLayer />
+      </CardObjectsProvider>
+      <UILayer />
     </div>
   );
 }

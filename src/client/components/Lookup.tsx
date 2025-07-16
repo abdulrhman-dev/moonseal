@@ -1,28 +1,34 @@
 import type { CardState } from "@backend/types/cards";
-
-import Style from "@/css/loookup.module.css";
 import Card from "./Card";
+import { CardsContainer } from "./CardsContainer";
 
 type LookupProps = {
   cards: CardState[];
 };
 
-export const Lookup = ({ cards }: LookupProps) => {
+const Lookup = ({ cards }: LookupProps) => {
   return (
-    <div className={Style.lookupContainer}>
-      <div className={Style.lookCardContainer}>
-        {cards.map((card) => (
-          <Card
-            card={card}
-            cardPlayer={1}
-            location="lookup"
-            style={{
-              transform: "scale(1.5)",
-              opacity: "1",
-            }}
-          />
-        ))}
-      </div>
-    </div>
+    <group position={[0, 0, 3.2]} rotation={[Math.PI / 20, 0, 0]} scale={0.8}>
+      <CardsContainer
+        list={cards}
+        location="lookup"
+        cardSpacing={0.5}
+        transformation={{
+          xPos: 0,
+          yPos: 0.5,
+          zPos: 0,
+        }}
+      />
+      <mesh
+        position={[0, 0, -2]}
+        receiveShadow
+        onPointerOver={(e) => e.stopPropagation()}
+      >
+        <planeGeometry args={[40, 40, 20]} />
+        <meshStandardMaterial color={"black"} transparent opacity={0.5} />
+      </mesh>
+    </group>
   );
 };
+
+export default Lookup;

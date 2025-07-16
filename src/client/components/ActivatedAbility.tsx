@@ -35,7 +35,8 @@ export const ActivatedAbility = ({
       for (const targetElement of activatedAbility.targets) {
         const targets = await getTargets({
           targetData: targetElement,
-          cardPlayer: card.cardPlayer,
+          card,
+          location: "battlefield",
         });
 
         chosenTargets.push(targets);

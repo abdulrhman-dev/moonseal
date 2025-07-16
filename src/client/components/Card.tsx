@@ -1,141 +1,250 @@
-// custom hooks
-import useImage from "@/game/hooks/image";
-
-// redux
-import { useSelector } from "react-redux";
-import type { RootState } from "@/features/store";
-
-// types
-import { type CardState } from "@backend/types/cards";
-
-import Style from "@/css/card.module.css";
-import type { AddRefFunction } from "@/App";
-
-// icons
-import { IoIosUndo } from "react-icons/io";
-import { WiStars } from "react-icons/wi";
-import { TbTargetArrow } from "react-icons/tb";
-import { MdShield } from "react-icons/md";
-
-// logic
-import { ActivatedAbility } from "./ActivatedAbility";
-import { DamageAssignment } from "./DamageAssigment";
+import { use, useEffect, useRef, useState } from "react";
+import { useGLTF, useTexture, Text, useFont, Html } from "@react-three/drei";
+import { Texture, Mesh, Object3D, TextureLoader } from "three";
+import CardTransformHandler from "./CardTransformHandler";
+import { useCardBorder } from "@/game/hooks/useCardBorder";
+import { CARD_HAND_RADUIS } from "@/game/constants";
+import type { CardState } from "@backend/types/cards";
 import useHandleCardLogic from "@/game/hooks/useHandleCardLogic";
+import { DamageAssignment } from "./DamageAssigment";
+import { ActivatedAbility } from "./ActivatedAbility";
+import { HtmlProvider } from "./HtmlProvider";
+import { CardObjectsContext } from "@/game/providers/CardObjectsProvider";
+import { canCast } from "@/css/card.module.css";
 
 export type CardLocations = "hand" | "battlefield" | "stack" | "lookup";
 
-interface CardProps {
+type CardProps = {
   card: CardState;
   location: CardLocations;
-  style?: React.CSSProperties | undefined;
-  cardPlayer: 0 | 1 | 2;
-  addRef?: AddRefFunction;
-}
+  transformation: {
+    angle: number;
+    xPos: number;
+    zPos: number;
+  };
+};
 
-function Card({ card, location, style, cardPlayer, addRef }: CardProps) {
-  const stack = useSelector((state: RootState) => state.game.spellStack);
-  const priority = useSelector((state: RootState) => state.game.priority);
+function Card({ card, location, transformation }: CardProps) {
+  const { angle, xPos, zPos } = transformation;
+  const sparkleTexture = useTexture("/icons/sparkles.svg");
+  const { nodes, materials } = useGLTF("/models/Card.glb");
+  const cardObjects = use(CardObjectsContext);
 
-  const { image } = useImage(card.gameId.toString());
+  const [texture, setTexture] = useState<Texture | null>(null);
+
+  useEffect(() => {
+    const loader = new TextureLoader();
+    loader.load(`/cards/${card.gameId}.jpeg`, (tex) => {
+      tex.flipY = false;
+      setTexture(tex);
+    });
+  }, []);
+
+  const cardRef = useRef<Object3D | null>(null);
 
   const { flags, handleCardCast } = useHandleCardLogic(card, location);
-  const { showActivated, canTarget, isAttacking, isBlocking } = flags;
+  const { canTarget, isAttacking, showActivated, hasPriority } = flags;
 
+  const [showingBorder, setShowingBorder] = useState(false);
+  const borderColor = useRef("white");
+  const { borderMaterial } = useCardBorder(borderColor.current);
+
+  useEffect(() => {
+    if (canTarget) {
+      setShowingBorder(true);
+      borderColor.current = "green";
+    } else if (isAttacking) {
+      setShowingBorder(true);
+      borderColor.current = "red";
+    } else if (card.canCast && location === "hand") {
+      setShowingBorder(true);
+      borderColor.current = "blue";
+    } else setShowingBorder(false);
+  }, [canTarget, isAttacking, card.canCast, location]);
+
+  if (!texture) {
+    return <></>;
+  }
   return (
-    <div className={Style.cardContainer} style={{ ...style }}>
-      <DamageAssignment card={card} />
+    <CardTransformHandler
+      cardRef={cardRef}
+      canDrag={location === "hand" && card.canCast && !canTarget}
+      onDragEnd={handleCardCast}
+      xPos={CARD_HAND_RADUIS * Math.sin(angle) + xPos}
+      zPos={zPos}
+      cardYPos={-(CARD_HAND_RADUIS * (1 - Math.cos(angle)))}
+      zRotation={angle}
+      defaultHoverable={location === "hand" && card.cardPlayer === 1}
+    >
+      <group
+        ref={(object) => {
+          cardRef.current = object;
 
-      {!card.summoningSickness &&
-        showActivated === 2 &&
-        priority === 1 &&
-        card.activatedAbilities.length > 0 && (
-          <ActivatedAbility
-            activatedAbilities={card.activatedAbilities}
-            card={card}
-          />
-        )}
-
-      {card.enchanters.map((enchanter, index) => (
-        <Card
-          key={enchanter.id}
-          card={enchanter}
-          location={location}
-          cardPlayer={cardPlayer}
-          style={{
-            position: "absolute",
-            left: 15 * (card.enchanters.length - index),
-            margin: 0,
-          }}
-        />
-      ))}
-
-      <div
-        className={`${Style.card} ${
-          location === "hand" ? Style.inhand : Style.inbattlefield
-        } ${card.canCast && location === "hand" ? Style.canCast : ""} ${
-          card.tapped ? Style.tapped : ""
-        } ${isAttacking ? Style.attacking : ""} ${
-          canTarget ? Style.targetable : ""
-        } ${
-          (card.tapped || card.summoningSickness) && location === "battlefield"
-            ? Style.effect
-            : ""
-        } ${location === "stack" ? Style.instack : ""}  `}
-        style={{
-          backgroundImage: `url(${image})`,
-          transformOrigin: cardPlayer === 1 ? "bottom" : "top",
+          if (object) cardObjects.addObject(object, card.id);
         }}
-        onClick={handleCardCast}
-        ref={(node) => {
-          if (addRef && node) addRef(node, card.id);
+        position={[
+          0,
+          -(CARD_HAND_RADUIS * (1 - Math.cos(angle))),
+          zPos + card.enchanters.length * 0.01,
+        ]}
+        dispose={null}
+        rotation={[0, 0, -angle + (card.tapped ? -Math.PI / 6 : 0)]}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (canTarget || location !== "hand") handleCardCast();
         }}
       >
-        {stack.find((stackCard) => stackCard.targets.includes(card.id)) ? (
-          <TbTargetArrow className={Style.icon} style={{ color: "white" }} />
-        ) : (
-          <>
-            {card.tapped && <IoIosUndo className={Style.icon} />}
-            {card.summoningSickness && location === "battlefield" && (
-              <WiStars className={Style.icon} />
+        <HtmlProvider>
+          <DamageAssignment card={card} />
+        </HtmlProvider>
+
+        <HtmlProvider>
+          {showActivated &&
+            hasPriority &&
+            card.activatedAbilities.length > 0 && (
+              <ActivatedAbility
+                activatedAbilities={card.activatedAbilities}
+                card={card}
+              />
             )}
-            {isBlocking && (
-              <MdShield className={Style.icon} style={{ color: "#FF4F0F" }} />
+        </HtmlProvider>
+        <group>
+          {card.enchanters.map((enchanter, index) => (
+            <Card
+              key={enchanter.id}
+              card={enchanter}
+              location={location}
+              transformation={{
+                xPos: 0.25 * (index + 1),
+                angle: 0,
+                zPos: -0.01 * (index + 1),
+              }}
+            />
+          ))}
+        </group>
+
+        <group scale={[1, 1.4, 0.01]}>
+          <mesh
+            castShadow
+            receiveShadow
+            geometry={(nodes.Cube001 as Mesh).geometry}
+            material={materials["Base Card"]}
+          />
+          {showingBorder && (
+            <mesh
+              scale={1.02}
+              castShadow
+              receiveShadow
+              geometry={(nodes.Cube001 as Mesh).geometry}
+              material={borderMaterial}
+            />
+          )}
+
+          <mesh
+            castShadow
+            receiveShadow
+            geometry={(nodes.Cube001_1 as Mesh).geometry}
+            material={materials["Card Face"]}
+          >
+            <meshStandardMaterial
+              {...materials["Card Face"]}
+              map={texture}
+              color={
+                location === "battlefield" &&
+                (card.tapped || card.summoningSickness)
+                  ? "grey"
+                  : "white"
+              }
+            />
+          </mesh>
+        </group>
+        {location === "battlefield" && (
+          <>
+            {card.tapped && (
+              <group position={[0, 0, 0.011]}>
+                <Text
+                  font="/fonts/mana.ttf"
+                  anchorX={"center"}
+                  anchorY={"middle"}
+                  fontSize={1.52}
+                  position-x={0}
+                  position-y={0}
+                  color={"white"}
+                >
+                  {"\uE61a"}
+                </Text>
+              </group>
+            )}
+
+            {card.summoningSickness && (
+              <mesh position={[0, 0, 0.011]}>
+                <planeGeometry args={[1, 1]} />
+                <meshBasicMaterial
+                  map={sparkleTexture}
+                  color="white"
+                  transparent
+                />
+              </mesh>
             )}
           </>
         )}
-
         {card.type === "creature" && (
-          <div className={Style.cardPlate}>
-            <p>
-              <span
-                className={
-                  card.power > card.defaultPower
-                    ? Style.cardBuff
-                    : card.power < card.defaultPower
-                    ? Style.cardDebuff
-                    : ""
-                }
-              >
-                {card.power}
-              </span>
+          <group position={[0.64, -1.075, 0.011]}>
+            <Text
+              font="/fonts/Zain-Regular.ttf"
+              anchorX={"center"}
+              anchorY={"top"}
+              fontSize={0.14}
+              position-x={0}
+              position-y={0}
+              color={
+                card.power > card.defaultPower
+                  ? "green"
+                  : card.power < card.defaultPower
+                  ? "red"
+                  : "#1e1e1f"
+              }
+            >
+              {card.power}
+            </Text>
+            <Text
+              font="/fonts/Zain-Regular.ttf"
+              anchorX={"center"}
+              anchorY={"top"}
+              fontSize={0.14}
+              position-x={0.07}
+              position-y={0}
+              color={"#1e1e1f"}
+            >
               /
-              <span
-                className={
-                  card.toughness > card.defaultToughness
-                    ? Style.cardBuff
-                    : card.toughness < card.defaultToughness
-                    ? Style.cardDebuff
-                    : ""
-                }
-              >
-                {card.toughness}
-              </span>
-            </p>
-          </div>
+            </Text>
+            <Text
+              font="/fonts/Zain-Regular.ttf"
+              anchorX={"center"}
+              anchorY={"top"}
+              fontSize={0.14}
+              position-x={0.147}
+              position-y={0}
+              color={
+                card.toughness > card.defaultToughness
+                  ? "green"
+                  : card.toughness < card.defaultToughness
+                  ? "red"
+                  : "#1e1e1f"
+              }
+            >
+              {card.toughness}
+            </Text>
+          </group>
         )}
-      </div>
-    </div>
+      </group>
+    </CardTransformHandler>
   );
 }
+
+useGLTF.preload("/models/Card.glb");
+useFont.preload("/fonts/Zain-Regular.ttf");
+useFont.preload("/fonts/Mana.ttf");
+useTexture.preload("/icons/sparkles.svg");
 
 export default Card;

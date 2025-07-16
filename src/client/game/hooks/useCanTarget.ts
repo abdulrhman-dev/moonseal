@@ -49,7 +49,17 @@ function useCanTarget(
       const selectedRule = selectedRules.findIndex(
         (selectRule) => selectRule === true
       );
-      console.log("HELLO BRO", target);
+      if (location === "lookup") {
+        console.log("---------------LOOK UP---------------");
+        console.log("HELLO BRO", target);
+        console.log(
+          "CAN TARGET:",
+          (target !== -1 && selectedRule === -1) ||
+            (selectedRule !== -1 && selectedRule === target)
+        );
+        console.log("---------------LOOK UP---------------");
+      }
+
       setCanTarget(
         (target !== -1 && selectedRule === -1) ||
           (selectedRule !== -1 && selectedRule === target)

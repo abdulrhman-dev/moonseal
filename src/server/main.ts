@@ -73,4 +73,9 @@ io.on("connect", async (socket: ServerSocket) => {
       registerHandleGame(io, playerSockets);
     }
   });
+
+  socket.data.deckNumber = 4;
+  if (connectionLimit == 0) {
+    registerHandleGame(io, playerSockets);
+  }
 });

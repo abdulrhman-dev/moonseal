@@ -23,9 +23,9 @@ export default async function registerHandleGame(
     playerSocket.join("game");
     updateLists(io, playerSocket, game, "hand");
   }
-  handleGameMulligan(playerSockets, game);
-  // game.startGame();
-  // registerGameListeners(game);
+  // handleGameMulligan(playerSockets, game);
+  game.startGame();
+  registerGameListeners(game);
 }
 
 export const getTargets = (

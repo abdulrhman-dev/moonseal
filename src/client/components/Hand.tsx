@@ -1,28 +1,38 @@
 import type { CardState } from "@backend/types/cards";
 import Card from "./Card";
 
-import Style from "@/css/hand.module.css";
-
-import type { AddRefFunction } from "@/App";
-
 type HandProps = {
   cards: CardState[];
-  player: 1 | 2;
-  addRef: AddRefFunction;
 };
 
-export const Hand = ({ cards, player, addRef }: HandProps) => {
+function Hand({ cards }: HandProps) {
+  const cardSpacing = 1 / cards.length;
+  const firstPos = 0.5 - ((cards.length - 1) * cardSpacing) / 2;
+
   return (
-    <div className={Style.hand}>
-      {cards.map((card) => (
-        <Card
-          key={card.id}
-          cardPlayer={player}
-          card={card}
-          location="hand"
-          addRef={addRef}
-        />
-      ))}
-    </div>
+    <group>
+      {cards.map((card, index) => {
+        const shift = firstPos + index * cardSpacing;
+        const range = Math.min(
+          Math.PI / (-2.4 * cards.length + 24.8),
+          Math.PI / 6
+        );
+
+        return (
+          <Card
+            key={card.id}
+            card={card}
+            location="hand"
+            transformation={{
+              angle: range * (shift * 2 - 1),
+              zPos: index * 0.01,
+              xPos: 0,
+            }}
+          />
+        );
+      })}
+    </group>
   );
-};
+}
+
+export default Hand;
