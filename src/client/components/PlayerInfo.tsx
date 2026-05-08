@@ -36,34 +36,34 @@ export const PlayerInfo = ({
 
   return (
     <div
-      className={`pointer-events-none fixed ${alignment} ${position} flex items-center gap-1.5 rounded-full border border-white/10 bg-slate-950/55 px-3 py-2 text-slate-100 shadow-2xl shadow-slate-950/30 backdrop-blur-xl`}
+      className={`pointer-events-none fixed ${alignment} ${position} flex items-center gap-1.5 rounded-full border border-indigo-200/20 bg-indigo-950/52 px-3 py-2 text-indigo-50 shadow-[0_16px_34px_rgba(10,9,29,0.45)] backdrop-blur-xl`}
     >
-      <div className="flex items-center gap-1.5 rounded-full bg-rose-500/10 px-2.5 py-1.5 text-xs font-semibold text-rose-100 ring-1 ring-rose-400/15">
-        <Heart className="size-3.5 text-rose-300" fill="currentColor" />
+      <div className="flex items-center gap-1.5 rounded-full bg-indigo-400/12 px-2.5 py-1.5 text-xs font-semibold text-indigo-50 ring-1 ring-indigo-200/22">
+        <Heart className="size-3.5 text-indigo-200" fill="currentColor" />
         {player.life}
       </div>
-      <div className="flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-2.5 py-1.5 text-xs font-semibold text-indigo-100 ring-1 ring-indigo-400/15">
-        <Wand2 className="size-3.5 text-indigo-300" />
+      <div className="flex items-center gap-1.5 rounded-full bg-indigo-500/14 px-2.5 py-1.5 text-xs font-semibold text-indigo-50 ring-1 ring-indigo-200/22">
+        <Wand2 className="size-3.5 text-indigo-100" />
         {player.hand.length}
       </div>
-      <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-100 ring-1 ring-emerald-400/15">
-        <Sword className="size-3.5 text-emerald-300" />
+      <div className="flex items-center gap-1.5 rounded-full bg-violet-400/12 px-2.5 py-1.5 text-xs font-semibold text-violet-50 ring-1 ring-violet-200/22">
+        <Sword className="size-3.5 text-violet-200" />
         {player.battlefield.creatures.length}
       </div>
-      <div className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1.5 text-xs font-semibold text-amber-100 ring-1 ring-amber-400/15">
-        <Leaf className="size-3.5 text-amber-300" />
+      <div className="flex items-center gap-1.5 rounded-full bg-blue-400/12 px-2.5 py-1.5 text-xs font-semibold text-blue-50 ring-1 ring-blue-200/22">
+        <Leaf className="size-3.5 text-blue-200" />
         {player.battlefield.lands.length}
       </div>
-      <div className="flex items-center gap-1.5 rounded-full bg-purple-500/10 px-2.5 py-1.5 text-xs font-semibold text-purple-100 ring-1 ring-purple-400/15">
-        <Skull className="size-3.5 text-purple-300" />
+      <div className="flex items-center gap-1.5 rounded-full bg-fuchsia-400/12 px-2.5 py-1.5 text-xs font-semibold text-fuchsia-50 ring-1 ring-fuchsia-200/22">
+        <Skull className="size-3.5 text-fuchsia-200" />
         {player.graveyard.length}
       </div>
-      <div className="flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-2.5 py-1.5 text-xs font-semibold text-yellow-100 ring-1 ring-yellow-400/15">
-        <Flame className="size-3.5 text-yellow-300" />
+      <div className="flex items-center gap-1.5 rounded-full bg-purple-400/12 px-2.5 py-1.5 text-xs font-semibold text-purple-50 ring-1 ring-purple-200/22">
+        <Flame className="size-3.5 text-purple-200" />
         {player.exile.length}
       </div>
-      <div className="flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-slate-100 ring-1 ring-white/10">
-        <Droplets className="size-3.5 text-sky-300" />
+      <div className="flex items-center gap-1.5 rounded-full bg-indigo-100/10 px-2.5 py-1.5 text-xs font-semibold text-indigo-50 ring-1 ring-indigo-100/18">
+        <Droplets className="size-3.5 text-indigo-200" />
         {manaTotal}
       </div>
     </div>

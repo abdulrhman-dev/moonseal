@@ -68,7 +68,7 @@ export const ActivatedAbility = ({
   };
 
   return (
-    <div className="pointer-events-auto flex max-w-60 flex-wrap gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-2xl shadow-slate-950/35 backdrop-blur-xl">
+    <div className="pointer-events-auto flex max-w-60 flex-wrap gap-2 rounded-2xl border border-indigo-300/25 bg-indigo-950/58 p-2 shadow-[0_12px_30px_rgba(12,10,35,0.52)] backdrop-blur-xl">
       {activatedAbilities.map((activatedAbility, index) => (
         <Button
           key={index}
@@ -76,7 +76,7 @@ export const ActivatedAbility = ({
           disabled={!activatedAbility.canActivate || isChoosingTargets}
           variant="outline"
           size="sm"
-          className="h-8 rounded-full border-white/10 bg-white/5 px-3 text-[0.68rem] text-slate-100 hover:border-primary hover:bg-primary hover:text-primary-foreground"
+          className="h-8 rounded-full border-indigo-300/30 bg-indigo-500/10 px-3 text-[0.68rem] text-indigo-50 hover:border-indigo-200/70 hover:bg-indigo-400/25 hover:text-indigo-50"
         >
           {activatedAbility.text}
         </Button>

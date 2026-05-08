@@ -39,4 +39,21 @@ export const socketEmit = (args: ClientSocketEmitArgs) => {
   else socketConnection.socket.emit(args.name);
 };
 
+// Room-specific emit functions
+export const emitCreateRoom = (username: string) => {
+  socketEmit({ name: "room:create", data: { username } });
+};
+
+export const emitJoinRoom = (code: string, username: string) => {
+  socketEmit({ name: "room:join", data: { code, username } });
+};
+
+export const emitLeaveRoom = () => {
+  socketEmit({ name: "room:leave" });
+};
+
+export const emitStartGame = () => {
+  socketEmit({ name: "room:start-game" });
+};
+
 export default SocketFactory;

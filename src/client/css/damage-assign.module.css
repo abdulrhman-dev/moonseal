@@ -1,23 +1,24 @@
-.damageContainer{
-    position: absolute;
-    z-index: 100;
-    width: var(--card-width);
-    height: var(--card-height);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transform: translate(-50%, -50%);
+.damageContainer {
+  position: absolute;
+  z-index: 100;
+  width: var(--card-width);
+  height: var(--card-height);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translate(-50%, -50%);
 }
 
-.damageContainer input{
-    width: 65px;
-    height: 40px;
-    font-size: 1.8rem;
-    text-align: center;
+.damageContainer input {
+  width: 65px;
+  height: 40px;
+  font-size: 1.8rem;
+  text-align: center;
 }
+
 .damageContainer .invalid {
-  background-color: ivory;
+  background-color: rgba(247, 243, 255, 0.94);
   border: none;
-  outline: 2px solid red;
-  border-radius: 5px;
+  outline: 2px solid #ff8cb8;
+  border-radius: 999px;
 }

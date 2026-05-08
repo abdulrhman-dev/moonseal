@@ -1,34 +1,35 @@
-.battlefield{
-        height: 30vh;
-    width: 100vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    outline: 0.5px black solid;
+.battlefield {
+  height: 30vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1px solid rgba(180, 166, 255, 0.28);
+  border-bottom: 1px solid rgba(180, 166, 255, 0.18);
+  background: linear-gradient(180deg, rgba(24, 23, 54, 0.4), rgba(16, 15, 36, 0.64));
 }
 
-
-.lands{
-    width: 25%;
-    height: 100%;
-    background-color: rgb(208, 249, 255);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.lands {
+  width: 25%;
+  height: 100%;
+  background: linear-gradient(160deg, rgba(73, 63, 147, 0.35), rgba(39, 34, 86, 0.38));
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-right: 1px solid rgba(182, 169, 255, 0.2);
 }
 
-.creatures{
-    width: 75%;
-    height: 100%;
-    display: flex;
-    justify-content: right;
-    align-items: center;
-    padding-right: 5%;
+.creatures {
+  width: 75%;
+  height: 100%;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  padding-right: 5%;
 }
 
-.cardStack{
-    width: var(--card-width);
-    height: var(--card-height);
-    position: relative;
-
+.cardStack {
+  width: var(--card-width);
+  height: var(--card-height);
+  position: relative;
 }

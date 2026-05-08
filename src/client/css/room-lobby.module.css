@@ -1,0 +1,194 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 86% 12%, rgba(121, 96, 252, 0.18), transparent 45%),
+    radial-gradient(circle at 14% 82%, rgba(160, 142, 255, 0.18), transparent 40%),
+    linear-gradient(148deg, rgba(16, 17, 36, 0.9) 0%, rgba(11, 12, 27, 0.9) 100%);
+  padding: 20px;
+}
+
+.lobby {
+  background: linear-gradient(170deg, rgba(48, 40, 95, 0.78), rgba(24, 24, 54, 0.84));
+  border: 1px solid rgba(162, 145, 255, 0.34);
+  border-radius: 18px;
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  backdrop-filter: blur(18px);
+  box-shadow:
+    0 22px 42px rgba(8, 9, 23, 0.58),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: rise 340ms ease-out;
+}
+
+.lobby h1 {
+  color: #fff;
+  font-size: 2.1em;
+  text-align: center;
+  margin: 0 0 30px 0;
+  text-shadow: 0 8px 24px rgba(63, 39, 163, 0.45);
+}
+
+.lobby h2 {
+  color: #f6f4ff;
+  font-size: 1.2em;
+  margin: 0 0 15px 0;
+}
+
+.roomCode {
+  background: linear-gradient(145deg, rgba(121, 99, 255, 0.2), rgba(73, 58, 154, 0.34));
+  border: 1px solid rgba(176, 162, 255, 0.4);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.label {
+  color: rgba(236, 230, 255, 0.65);
+  font-size: 0.85em;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.code {
+  font-size: 2.4em;
+  font-weight: bold;
+  color: #f8f5ff;
+  letter-spacing: 8px;
+  font-family: monospace;
+  text-shadow: 0 8px 22px rgba(103, 78, 245, 0.42);
+}
+
+.players {
+  margin-bottom: 30px;
+}
+
+.playerList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.playerItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: linear-gradient(145deg, rgba(114, 91, 240, 0.2), rgba(57, 44, 125, 0.45));
+  border: 1px solid rgba(152, 134, 245, 0.33);
+  border-radius: 10px;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.playerItem:hover {
+  border-color: rgba(204, 193, 255, 0.62);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(37, 28, 86, 0.4);
+}
+
+.playerItem.waiting {
+  background: linear-gradient(145deg, rgba(87, 75, 163, 0.2), rgba(43, 35, 89, 0.45));
+  border-color: rgba(129, 113, 215, 0.4);
+}
+
+.playerName {
+  color: #f7f5ff;
+  font-weight: 500;
+}
+
+.leaderBadge {
+  background: linear-gradient(135deg, #baa8ff 0%, #8f73ff 100%);
+  color: #1a143b;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+.waitingMessage {
+  background: linear-gradient(145deg, rgba(94, 76, 185, 0.22), rgba(44, 36, 93, 0.5));
+  border: 1px solid rgba(139, 119, 224, 0.4);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.waitingMessage p {
+  color: rgba(236, 230, 255, 0.74);
+  margin: 0;
+  font-size: 0.95em;
+}
+
+.shareCode {
+  margin-top: 12px !important;
+  color: #c5b6ff !important;
+  font-size: 0.85em !important;
+}
+
+.shareCode strong {
+  color: #f8f6ff;
+  font-family: monospace;
+  letter-spacing: 2px;
+}
+
+.startButton {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #8a6bff 0%, #6f53f4 100%);
+  color: #f7f5ff;
+  font-size: 1.05em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  box-shadow: 0 10px 22px rgba(83, 55, 223, 0.42);
+  margin-bottom: 15px;
+}
+
+.startButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(95, 66, 246, 0.52);
+  filter: brightness(1.04);
+}
+
+.startButton:active {
+  transform: translateY(0);
+}
+
+.leaveButton {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid rgba(203, 194, 255, 0.42);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(91, 73, 183, 0.55), rgba(46, 38, 96, 0.82));
+  color: #fff;
+  font-size: 0.95em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.leaveButton:hover {
+  transform: translateY(-1px);
+  border-color: rgba(228, 221, 255, 0.65);
+  box-shadow: 0 12px 24px rgba(39, 30, 92, 0.55);
+}
+
+@keyframes rise {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

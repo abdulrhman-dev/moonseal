@@ -5,6 +5,7 @@ import {
 } from "@reduxjs/toolkit";
 import PlayersSlice from "./GameSlice";
 import TargetingSlice from "./TargetingSlice";
+import RoomSlice from "./RoomSlice";
 import socketMiddleware from "./socket/SocketMiddleware";
 import setupListeners from "./listeners/setup";
 
@@ -19,6 +20,7 @@ export const store = configureStore({
   reducer: {
     game: PlayersSlice,
     targeting: TargetingSlice,
+    room: RoomSlice,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()

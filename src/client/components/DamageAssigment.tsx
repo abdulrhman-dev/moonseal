@@ -44,9 +44,9 @@ export const DamageAssignment = ({ card }: DamageAssignmentProps) => {
   const invalid = totalDamage > fight.maxDamage;
 
   return (
-    <div className="pointer-events-auto flex h-(--card-height) w-(--card-width) items-center justify-center rounded-2xl border border-white/10 bg-slate-950/55 shadow-2xl shadow-slate-950/40 backdrop-blur-xl">
+    <div className="pointer-events-auto flex h-(--card-height) w-(--card-width) items-center justify-center rounded-2xl border border-indigo-300/25 bg-indigo-950/55 shadow-[0_18px_34px_rgba(12,10,35,0.52)] backdrop-blur-xl">
       <Input
-        className="h-11 w-20 rounded-full border-white/15 bg-background/95 text-center text-lg font-semibold tabular-nums shadow-inner shadow-white/5"
+        className="h-11 w-20 rounded-full border-indigo-200/30 bg-indigo-50/92 text-center text-lg font-semibold text-indigo-950 tabular-nums shadow-inner shadow-indigo-200/35"
         type="number"
         min="0"
         value={damage}

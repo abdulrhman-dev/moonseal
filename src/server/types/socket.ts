@@ -43,6 +43,19 @@ export type playerChangeArgs = {
     ready: boolean;
   };
 };
+// Room-related types
+export type Player = {
+  id: string;
+  username: string;
+  isLeader: boolean;
+};
+
+export type RoomData = {
+  code: string;
+  players: Player[];
+  createdAt: number;
+};
+
 export interface ServerToClientEvents {
   "list:change": (data: listChangeArgs) => void;
   "priority:change": (data: priorityChangeArgs) => void;
@@ -50,6 +63,22 @@ export interface ServerToClientEvents {
   "fight:change": (data: fightChangeArgs) => void;
   "player:change": (data: playerChangeArgs) => void;
   "targeting:change": (data: InitilizeTargetingArgs) => void;
+
+  // Room events
+  "room:created": (data: {
+    code: string;
+    playerNum: number;
+    players: Player[];
+  }) => void;
+  "room:joined": (data: {
+    players: Player[];
+    playerNum: number;
+    code: string;
+  }) => void;
+  "room:player-joined": (data: { players: Player[] }) => void;
+  "room:player-left": (data: { players: Player[] }) => void;
+  "room:game-started": () => void;
+  "room:error": (data: { message: string }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -75,6 +104,12 @@ export interface ClientToServerEvents {
   "send-targets:action": (targets: Target[]) => void;
   "assign-damage:action": (fights: Fight[]) => void;
   "choose-deck:action": (deck: number) => void;
+
+  // Room events
+  "room:create": (data: { username: string }) => void;
+  "room:join": (data: { code: string; username: string }) => void;
+  "room:leave": () => void;
+  "room:start-game": () => void;
 }
 
 export type ClientSocketEmitArgs = {
@@ -95,6 +130,8 @@ interface InterServerEvents {
 interface SocketData {
   playerNum: number;
   deckNumber: number;
+  username?: string;
+  roomCode?: string;
 }
 
 export type ServerSocket = Socket<

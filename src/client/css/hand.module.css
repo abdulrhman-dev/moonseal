@@ -1,8 +1,8 @@
-.hand{
-    height: 20vh;
-    width: 100vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.hand {
+  height: 20vh;
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(0deg, rgba(19, 18, 43, 0.42), rgba(19, 18, 43, 0));
 }
-

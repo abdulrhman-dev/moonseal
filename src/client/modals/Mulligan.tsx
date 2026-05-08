@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+﻿import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -26,10 +26,10 @@ export const Mulligan = () => {
   }
 
   return (
-    <Card className="pointer-events-auto fixed bottom-6 left-6 w-85 border-white/10 bg-slate-950/70 text-slate-50 shadow-2xl shadow-slate-950/40 backdrop-blur-xl">
+    <Card className="pointer-events-auto fixed bottom-6 left-6 w-85 border-indigo-200/25 bg-indigo-950/66 text-indigo-50 shadow-[0_18px_36px_rgba(8,8,26,0.45)] backdrop-blur-xl" dir="rtl">
       <CardHeader className="space-y-1">
         <CardTitle className="text-lg">إعادة السحب</CardTitle>
-        <CardDescription className="text-slate-300">
+        <CardDescription className="text-indigo-200/85">
           اختر بين سحب يد جديدة أو تثبيت اليد الافتتاحية.
         </CardDescription>
       </CardHeader>

@@ -1,17 +1,20 @@
-.activatedContainer{
-    position: absolute;
-    background-color: rgba(34, 34, 34, 0.24);
-    width: 200px;
-    height: 50px;
-    z-index: 2;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.activatedContainer {
+  position: absolute;
+  background: linear-gradient(150deg, rgba(73, 57, 155, 0.56), rgba(33, 29, 78, 0.72));
+  border: 1px solid rgba(174, 157, 255, 0.34);
+  border-radius: 14px;
+  width: 220px;
+  height: 56px;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(14px);
 }
 
-.activatedContainer button{
-    font-size: 0.6rem;
+.activatedContainer button {
+  font-size: 0.6rem;
 }

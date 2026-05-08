@@ -1,4 +1,4 @@
-import type { RootState } from "@/features/store";
+﻿import type { RootState } from "@/features/store";
 import { useSelector } from "react-redux";
 
 import { Button } from "@/components/ui/button";
@@ -16,8 +16,8 @@ export const PhaseButton = () => {
     buttonText: string;
   }>(
     game.isActive
-      ? { variant: "default", buttonText: "Next" }
-      : { variant: "secondary", buttonText: "Pass" },
+      ? { variant: "default", buttonText: "التالي" }
+      : { variant: "secondary", buttonText: "تمرير" },
   );
 
   async function handleButtonClick() {
@@ -100,7 +100,7 @@ export const PhaseButton = () => {
     } else {
       setButtonData({
         variant: "secondary",
-        buttonText: "مرر",
+        buttonText: "تمرير",
       });
     }
   }, [
@@ -125,12 +125,12 @@ export const PhaseButton = () => {
 
   const isNextButton = buttonData.buttonText === "التالي";
   const nextButtonClasses =
-    "pointer-events-auto h-14 min-w-44 rounded-full border border-indigo-400/60 bg-indigo-600 px-6 text-base font-semibold text-white shadow-[0_0_28px_rgba(79,70,229,0.55)] shadow-indigo-950/30 ring-1 ring-indigo-400/60 transition-transform hover:-translate-y-0.5 hover:bg-indigo-500 hover:shadow-[0_0_38px_rgba(79,70,229,0.75)]";
+    "pointer-events-auto h-14 min-w-44 rounded-full border border-indigo-200/45 bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-500 px-6 text-base font-semibold text-indigo-50 shadow-[0_0_30px_rgba(114,93,255,0.52)] ring-1 ring-indigo-200/55 transition-transform hover:-translate-y-0.5 hover:brightness-110";
   const otherButtonClasses =
-    "pointer-events-auto h-14 min-w-44 rounded-full border border-white/10 bg-slate-900/70 px-6 text-base font-semibold text-slate-100 shadow-xl shadow-slate-950/30 backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-slate-900";
+    "pointer-events-auto h-14 min-w-44 rounded-full border border-indigo-200/20 bg-indigo-950/70 px-6 text-base font-semibold text-indigo-50 shadow-[0_14px_28px_rgba(9,8,24,0.45)] backdrop-blur transition-transform hover:-translate-y-0.5 hover:border-indigo-200/45 hover:bg-indigo-900/72";
 
   return (
-    <div className="pointer-events-none fixed left-6 bottom-6 flex flex-col items-start gap-3">
+    <div className="pointer-events-none fixed left-6 bottom-6 flex flex-col items-start gap-3" dir="rtl">
       {canClick && (
         <Button
           onClick={handleButtonClick}
