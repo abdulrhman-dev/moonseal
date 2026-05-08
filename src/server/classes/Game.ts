@@ -178,6 +178,8 @@ class Game {
     this.priority = this.activePlayer;
     this.currentPhase = PhasesArray[nextIndex];
 
+    // TODO: Should add update here
+    // updatePriority()
     this.handlePhaseChange();
   }
 

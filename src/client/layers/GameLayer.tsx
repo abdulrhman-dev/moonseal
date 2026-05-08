@@ -5,6 +5,7 @@ import {
   GizmoViewport,
   OrbitControls,
   useEnvironment,
+  Stats,
 } from "@react-three/drei";
 import Hand from "@/components/Hand";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,6 +29,7 @@ const GameLayer = () => {
       }}
       gl={{ toneMapping: ACESFilmicToneMapping }}
     >
+      <Stats />
       {/* <GizmoHelper alignment="bottom-left" margin={[80, 80]}>
         <GizmoViewport />
       </GizmoHelper>

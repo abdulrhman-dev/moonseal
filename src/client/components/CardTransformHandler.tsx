@@ -1,5 +1,11 @@
 import { type ThreeEvent, useFrame, useThree } from "@react-three/fiber";
-import React, { type RefObject, useEffect, useRef, useState } from "react";
+import React, {
+  type RefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { Object3D, Vector3 } from "three";
 import { getMouseWorldPosition, getPointerNDC } from "@/game/util/threeUtil";
 
@@ -175,50 +181,58 @@ const CardTransformHandler = ({
   });
 
   /* Pointer Events */
+  const handlePointerDown = useCallback(
+    (e: ThreeEvent<PointerEvent>) => {
+      if (!cardRef.current || !canDrag) return;
 
-  function handlePointerDown(e: ThreeEvent<PointerEvent>) {
-    if (!cardRef.current || !canDrag) return;
+      const newPos = getMouseWorldPosition(getPointerNDC(e), camera);
+      cardRef.current.parent?.worldToLocal(newPos);
 
-    const newPos = getMouseWorldPosition(getPointerNDC(e), camera);
-    cardRef.current.parent?.worldToLocal(newPos);
+      const startPos = new Vector3();
+      cardRef.current.getWorldPosition(startPos);
 
-    const startPos = new Vector3();
-    cardRef.current.getWorldPosition(startPos);
+      setDraggingData({
+        dragging: true,
+        originalPosition: startPos,
+        shiftVector: newPos.sub(cardRef.current.position),
+      });
 
-    setDraggingData({
-      dragging: true,
-      originalPosition: startPos,
-      shiftVector: newPos.sub(cardRef.current.position),
-    });
+      checkDragging.current = true;
+      e.stopPropagation();
+    },
+    [canDrag, camera, getMouseWorldPosition, getPointerNDC, setDraggingData]
+  );
 
-    checkDragging.current = true;
-    e.stopPropagation();
-  }
+  const handlePointerleave = useCallback(
+    (e: ThreeEvent<PointerEvent>) => {
+      e.stopPropagation();
+      if (checkDragging.current) return;
 
-  function handlePointerleave(e: ThreeEvent<PointerEvent>) {
-    e.stopPropagation();
-    if (checkDragging.current) return;
+      if (hoverTimeout.current !== null) {
+        clearTimeout(hoverTimeout.current);
+      }
 
-    if (hoverTimeout.current !== null) {
-      clearTimeout(hoverTimeout.current);
-    }
+      hoverTimeout.current = setTimeout(() => {
+        setHovering(false);
+      }, 20);
+    },
+    [setHovering]
+  );
 
-    hoverTimeout.current = setTimeout(() => {
-      setHovering(false);
-    }, 20);
-  }
+  const handlePointerEnter = useCallback(
+    (e: ThreeEvent<PointerEvent>) => {
+      if (!hoverable.current) return;
 
-  function handlePointerEnter(e: ThreeEvent<PointerEvent>) {
-    if (!hoverable.current) return;
-
-    e.stopPropagation();
-    if (hoverTimeout.current !== null) {
-      clearTimeout(hoverTimeout.current);
-    }
-    hoverTimeout.current = setTimeout(() => {
-      setHovering(true);
-    }, 20);
-  }
+      e.stopPropagation();
+      if (hoverTimeout.current !== null) {
+        clearTimeout(hoverTimeout.current);
+      }
+      hoverTimeout.current = setTimeout(() => {
+        setHovering(true);
+      }, 20);
+    },
+    [setHovering]
+  );
 
   return (
     <group

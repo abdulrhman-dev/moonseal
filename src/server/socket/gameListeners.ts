@@ -41,7 +41,6 @@ export const registerGameListeners = (game: Game) => {
       }
 
       // pay costs
-
       if (type.name === "CAST") {
         player.spendMana(card.getManaCost());
       }

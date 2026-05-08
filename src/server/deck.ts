@@ -90,7 +90,9 @@ export const decks: Deck[] = [
     { id: "212713", name: "Adventurous Impulse", amount: 2 },
   ],
   [
-    { id: "1439", name: "Grizzly Bears", amount: 3 },
-    { id: "559550", name: "Giant Growth", amount: 1 },
+    { id: "212713", name: "Adventurous Impulse", amount: 2 },
+    { id: "559542", name: "Forest", amount: 4 },
+    { id: "56311", name: "Elder of Laurels", amount: 2 },
+    { id: "535861", name: "Wild Growth", amount: 1 },
   ],
 ];

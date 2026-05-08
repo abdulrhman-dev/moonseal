@@ -2,12 +2,13 @@ import Style from "@/css/damage-assign.module.css";
 import type { CardState } from "@backend/types/cards";
 import { useDispatch, useSelector } from "react-redux";
 import type { RootState } from "@/features/store";
-import type { ChangeEvent } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { assignDamage } from "@/features/GameSlice";
 type DamageAssignmentProps = {
   card: CardState;
 };
 export const DamageAssignment = ({ card }: DamageAssignmentProps) => {
+  const [damage, setDamage] = useState<number | "">(0);
   const dipatch = useDispatch();
 
   const fight = useSelector((state: RootState) => state.game.fights).find(
@@ -28,9 +29,9 @@ export const DamageAssignment = ({ card }: DamageAssignmentProps) => {
 
   function handleDamageAssign(e: ChangeEvent<HTMLInputElement>) {
     const value = parseInt(e.target.value);
-    if (isNaN(value)) return;
-
-    dipatch(assignDamage({ amount: value, id: card.id }));
+    let valueAssigned = isNaN(value) ? 0 : value;
+    setDamage(value);
+    dipatch(assignDamage({ amount: valueAssigned, id: card.id }));
   }
 
   const totalDamage = fight.blockers.reduce(
@@ -44,7 +45,7 @@ export const DamageAssignment = ({ card }: DamageAssignmentProps) => {
         className={totalDamage > fight.maxDamage ? Style.invalid : ""}
         type="number"
         min="0"
-        value={blocker.damage}
+        value={damage}
         onChange={handleDamageAssign}
       />
     </div>

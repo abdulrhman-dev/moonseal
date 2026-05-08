@@ -130,15 +130,14 @@ function Card({ card, location, transformation }: CardProps) {
             geometry={(nodes.Cube001 as Mesh).geometry}
             material={materials["Base Card"]}
           />
-          {showingBorder && (
-            <mesh
-              scale={1.02}
-              castShadow
-              receiveShadow
-              geometry={(nodes.Cube001 as Mesh).geometry}
-              material={borderMaterial}
-            />
-          )}
+          <mesh
+            scale={1.02}
+            castShadow
+            receiveShadow
+            geometry={(nodes.Cube001 as Mesh).geometry}
+            material={borderMaterial}
+            visible={showingBorder}
+          />
 
           <mesh
             castShadow
@@ -158,36 +157,54 @@ function Card({ card, location, transformation }: CardProps) {
             />
           </mesh>
         </group>
-        {location === "battlefield" && (
-          <>
-            {card.tapped && (
-              <group position={[0, 0, 0.011]}>
-                <Text
-                  font="/fonts/mana.ttf"
-                  anchorX={"center"}
-                  anchorY={"middle"}
-                  fontSize={1.52}
-                  position-x={0}
-                  position-y={0}
-                  color={"white"}
-                >
-                  {"\uE61a"}
-                </Text>
-              </group>
-            )}
 
-            {card.summoningSickness && (
-              <mesh position={[0, 0, 0.011]}>
-                <planeGeometry args={[1, 1]} />
-                <meshBasicMaterial
-                  map={sparkleTexture}
-                  color="white"
-                  transparent
-                />
-              </mesh>
-            )}
-          </>
-        )}
+        <group position={[0, 0, 0.011]}>
+          <Text
+            font="/fonts/mana.ttf"
+            anchorX={"center"}
+            anchorY={"middle"}
+            fontSize={1.52}
+            position-x={0}
+            position-y={0}
+            color={"white"}
+            visible={card.tapped && location === "battlefield"}
+          >
+            {"\uE61a"}
+          </Text>
+        </group>
+        <group position={[0, 0, 0.011]}>
+          {/* <Text
+            font="/fonts/Zain-Regular.ttf"
+            anchorX={"right"}
+            anchorY={"top"}
+            fontSize={0.1}
+            position-x={0}
+            position-y={0}
+            color={"white"}
+            lineHeight={1}
+          >
+            {"صورة بعدين      كله تمام"}
+            {"\n"}
+            {"صورة بعدين      كله تمام\n"}
+            {"صورة بعدين      كله تمام\n"}
+            {"صورة بعدين      كله تمام\n"}
+          </Text> */}
+          {/* <mesh position={[5.115 * -0.1, -0.1 - 0.1 / 2, 0]}>
+            <planeGeometry args={[0.09, 0.09]} />
+            <meshBasicMaterial map={sparkleTexture} color="white" transparent />
+          </mesh>
+          <mesh position={[5.115 * -0.1, -0.1 * 3 + -0.1 / 2, 0]}>
+            <planeGeometry args={[0.09, 0.09]} />
+            <meshBasicMaterial map={sparkleTexture} color="white" transparent />
+          </mesh> */}
+        </group>
+        <mesh
+          position={[0, 0, 0.011]}
+          visible={card.summoningSickness && location === "battlefield"}
+        >
+          <planeGeometry args={[1, 1]} />
+          <meshBasicMaterial map={sparkleTexture} color="white" transparent />
+        </mesh>
         {card.type === "creature" && (
           <group position={[0.64, -1.075, 0.011]}>
             <Text
