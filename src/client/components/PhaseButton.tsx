@@ -1,9 +1,11 @@
 import type { RootState } from "@/features/store";
 import { useSelector } from "react-redux";
 
-import Style from "@/css/app.module.css";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { socketEmit } from "@/features/socket/SocketFactory";
+import { useEffect, useState } from "react";
 
 export const PhaseButton = () => {
   const [turnSkip, setTurnSkip] = useState({
@@ -13,27 +15,27 @@ export const PhaseButton = () => {
 
   const game = useSelector((state: RootState) => state.game);
   const targetsRules = useSelector(
-    (state: RootState) => state.targeting.targetsRules
+    (state: RootState) => state.targeting.targetsRules,
   );
 
-  const handleAutoPassCheck = (e: ChangeEvent<HTMLInputElement>) => {
+  const [buttonData, setButtonData] = useState<{
+    variant: "default" | "secondary";
+    buttonText: string;
+  }>(
+    game.isActive
+      ? { variant: "default", buttonText: "Next" }
+      : { variant: "secondary", buttonText: "Pass" },
+  );
+
+  const handleAutoPassCheck = (checked: boolean) => {
     const newTurnSkip = {
       ...turnSkip,
-      autoPassPriority: !turnSkip.autoPassPriority,
+      autoPassPriority: checked,
     };
 
     socketEmit({ name: "turn-skip:action", data: newTurnSkip });
     setTurnSkip(newTurnSkip);
   };
-
-  const [buttonData, setButtonData] = useState<{
-    style: string;
-    buttonText: string;
-  }>(
-    game.isActive
-      ? { style: Style.redButton, buttonText: "Next" }
-      : { style: Style.blueButton, buttonText: "Pass" }
-  );
 
   async function handleButtonClick() {
     if (game.currentPhase === "COMBAT_ATTACK" && !game.declaredAttackers) {
@@ -47,7 +49,6 @@ export const PhaseButton = () => {
     }
 
     if (game.currentPhase === "COMBAT_DAMAGE" && !game.declaredAssignDamage) {
-      console.log(game.fights);
       socketEmit({ name: "assign-damage:action", data: game.fights });
       return;
     }
@@ -64,7 +65,7 @@ export const PhaseButton = () => {
 
     const targetsFullfuiled = targetsRules.reduce(
       (prev, targetRule) => targetRule.amount !== 0 || prev,
-      false
+      false,
     );
 
     if (targetsFullfuiled) return true;
@@ -73,7 +74,7 @@ export const PhaseButton = () => {
       for (const fight of game.fights) {
         const totalDamage = fight.blockers.reduce(
           (prev, blocker) => prev + blocker.damage,
-          0
+          0,
         );
 
         if (totalDamage > fight.maxDamage) return true;
@@ -86,7 +87,7 @@ export const PhaseButton = () => {
   useEffect(() => {
     if (game.currentPhase === "COMBAT_ATTACK" && !game.declaredAttackers) {
       setButtonData({
-        style: Style.redButton,
+        variant: "default",
         buttonText: "Declare Attackers",
       });
       return;
@@ -94,7 +95,7 @@ export const PhaseButton = () => {
 
     if (game.currentPhase === "COMBAT_BLOCK" && !game.declaredBlockers) {
       setButtonData({
-        style: Style.blueButton,
+        variant: "secondary",
         buttonText: "Declare Blockers",
       });
       return;
@@ -102,7 +103,7 @@ export const PhaseButton = () => {
 
     if (game.currentPhase === "COMBAT_DAMAGE" && !game.declaredAssignDamage) {
       setButtonData({
-        style: Style.redButton,
+        variant: "default",
         buttonText: "Assign Damage",
       });
       return;
@@ -110,12 +111,12 @@ export const PhaseButton = () => {
 
     if (game.isActive) {
       setButtonData({
-        style: Style.redButton,
+        variant: "default",
         buttonText: "Next",
       });
     } else {
       setButtonData({
-        style: Style.blueButton,
+        variant: "secondary",
         buttonText: "Pass",
       });
     }
@@ -125,6 +126,7 @@ export const PhaseButton = () => {
     game.declaredAttackers,
     game.declaredBlockers,
     game.declaredAssignDamage,
+    game.isActive,
   ]);
 
   const defending =
@@ -133,31 +135,34 @@ export const PhaseButton = () => {
     !game.declaredBlockers;
 
   return (
-    <>
+    <div className="bg-red-500 w-50 h-50 bottom-5 right-6 ">
       {((game.priority === 1 &&
         (game.currentPhase === "COMBAT_BLOCK"
           ? game.declaredBlockers
           : true)) ||
         defending) && (
-        <button
+        <Button
           onClick={handleButtonClick}
-          className={Style.phaseButton + " " + buttonData.style}
+          variant={buttonData.variant}
+          size="lg"
           disabled={isDisabled()}
+          className="h-14 min-w-44 rounded-full border border-white/10 bg-primary px-6 text-base font-semibold shadow-xl shadow-indigo-950/20 backdrop-blur transition-transform hover:-translate-y-0.5"
         >
           {buttonData.buttonText}
-        </button>
+        </Button>
       )}
 
-      <div className={Style.passCheckbox}>
-        <input
-          type="checkbox"
+      <div className="pointer-events-auto fixed flex items-center gap-3 rounded-full border border-white/10 bg-slate-950/60 px-4 py-2 text-sm text-slate-100 shadow-xl shadow-slate-950/30 backdrop-blur-xl">
+        <Checkbox
           id="auto-pass"
-          name="auto-pass"
-          onChange={handleAutoPassCheck}
           checked={turnSkip.autoPassPriority}
+          onCheckedChange={(checked) => handleAutoPassCheck(checked === true)}
+          className="border-white/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
         />
-        <label>Auto Skip Priority</label>
+        <Label htmlFor="auto-pass" className="cursor-pointer text-sm">
+          Auto Skip Priority
+        </Label>
       </div>
-    </>
+    </div>
   );
 };

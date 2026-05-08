@@ -1,4 +1,4 @@
-import Style from "@/css/activated.module.css";
+import { Button } from "@/components/ui/button";
 import type { ActivatedDataClient, CardState } from "@backend/types/cards";
 
 import useGetTargets from "@/game/hooks/useGetTargets";
@@ -23,7 +23,6 @@ export const ActivatedAbility = ({
     if (!activatedAbility.canActivate || !card.cardPlayer) return;
 
     if (activatedAbility.targets.length > 0) {
-      console.log("BRO PLEASE", isChoosingTargets);
       setIsChoosingTargets(true);
       socketEmit({
         name: "cast-spell:action",
@@ -69,15 +68,18 @@ export const ActivatedAbility = ({
   };
 
   return (
-    <div className={Style.activatedContainer}>
+    <div className="pointer-events-auto flex max-w-60 flex-wrap gap-2 rounded-2xl border border-white/10 bg-slate-950/70 p-2 shadow-2xl shadow-slate-950/35 backdrop-blur-xl">
       {activatedAbilities.map((activatedAbility, index) => (
-        <button
+        <Button
           key={index}
           onClick={() => activateAbility(index)}
           disabled={!activatedAbility.canActivate || isChoosingTargets}
+          variant="outline"
+          size="sm"
+          className="h-8 rounded-full border-white/10 bg-white/5 px-3 text-[0.68rem] text-slate-100 hover:border-primary hover:bg-primary hover:text-primary-foreground"
         >
           {activatedAbility.text}
-        </button>
+        </Button>
       ))}
     </div>
   );

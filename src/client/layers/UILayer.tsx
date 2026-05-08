@@ -1,5 +1,6 @@
 import { PhaseButton } from "@/components/PhaseButton";
-import Style from "@/css/app.module.css";
+import { PlayerInfo } from "@/components/PlayerInfo";
+import { Button } from "@/components/ui/button";
 import { socketEmit } from "@/features/socket/SocketFactory";
 import type { RootState } from "@/features/store";
 import { clearTargets } from "@/features/TargetingSlice";
@@ -11,6 +12,8 @@ const UILayer = () => {
   const targeting = useSelector((state: RootState) => state.targeting);
   const dispatch = useDispatch();
 
+  const gameStarted = game.player.ready;
+
   function handleCancel() {
     socketEmit({
       name: "send-targets:action",
@@ -18,46 +21,59 @@ const UILayer = () => {
     });
     dispatch(clearTargets());
   }
+
   return (
-    <div className={Style.uiLayerContainer}>
-      {game.currentPhase === "NONE" && (
-        <div className={Style.deckContainer}>
-          <button
-            onClick={() => socketEmit({ name: "choose-deck:action", data: 1 })}
-          >
-            1
-          </button>
-          <button
-            onClick={() => socketEmit({ name: "choose-deck:action", data: 2 })}
-          >
-            2
-          </button>
-          <button
-            onClick={() => socketEmit({ name: "choose-deck:action", data: 3 })}
-          >
-            3
-          </button>
-          <button
-            onClick={() => socketEmit({ name: "choose-deck:action", data: 4 })}
-          >
-            4
-          </button>
+    <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
+      {/* Deck Selection - Only before game starts */}
+      {game.currentPhase === "NONE" && !gameStarted && (
+        <div className="pointer-events-auto fixed top-6 right-6 flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 p-2 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
+          {[1, 2, 3, 4].map((deckNum) => (
+            <Button
+              key={deckNum}
+              size="icon-sm"
+              variant="secondary"
+              className="h-9 w-9 rounded-full bg-white/5 text-sm font-semibold text-slate-100 hover:bg-primary hover:text-primary-foreground"
+              onClick={() =>
+                socketEmit({ name: "choose-deck:action", data: deckNum })
+              }
+            >
+              {deckNum}
+            </Button>
+          ))}
         </div>
       )}
 
-      {!game.player.ready && <Mulligan />}
-      <p className={Style.playerLife} style={{ bottom: 0, left: 0 }}>
-        Player 1: {game.player.life}
-      </p>
-      <p className={Style.playerLife} style={{ top: 0, left: 0 }}>
-        Player 2: {game.opponentPlayer.life}
-      </p>
+      {/* Mulligan Modal - Only before game starts */}
+      {!gameStarted && <Mulligan />}
+
+      {/* Player Info - Only after game starts */}
+      <PlayerInfo
+        player={game.player}
+        isOpponent={false}
+        gameStarted={gameStarted}
+      />
+      <PlayerInfo
+        player={game.opponentPlayer}
+        isOpponent={true}
+        gameStarted={gameStarted}
+      />
+
+      {/* Phase Button and Auto-Skip */}
       <PhaseButton />
-      <p className={Style.phaseText}>{game.currentPhase}</p>
+
+      {/* Phase Display - Always visible */}
+      <div className="pointer-events-none fixed right-6 bottom-23 rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm font-medium uppercase tracking-[0.2em] text-slate-200 shadow-lg shadow-slate-950/30 backdrop-blur-xl">
+        {game.currentPhase}
+      </div>
+
+      {/* Cancel Targeting Button */}
       {targeting.canCancel && (
-        <button className={Style.cancelButton} onClick={handleCancel}>
+        <Button
+          className="pointer-events-auto fixed right-6 bottom-28 h-11 rounded-full bg-destructive px-5 text-sm font-semibold text-destructive-foreground shadow-xl shadow-red-950/20 hover:bg-destructive/90"
+          onClick={handleCancel}
+        >
           Cancel
-        </button>
+        </Button>
       )}
     </div>
   );
