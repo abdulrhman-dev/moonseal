@@ -17,8 +17,10 @@ import "dotenv/config";
 const app = express();
 const server = http.createServer(app);
 
-server.listen(process.env.PORT, () => {
-  console.log(`CONNECTED ON PORT ${process.env.PORT}`);
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log(`CONNECTED ON PORT ${PORT}`);
 });
 
 ViteExpress.bind(app, server);
