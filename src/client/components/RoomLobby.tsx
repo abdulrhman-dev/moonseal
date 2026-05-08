@@ -30,8 +30,6 @@ export default function RoomLobby({
   return (
     <div className={styles.container} dir="rtl">
       <div className={styles.lobby}>
-        <h1>ردهة الغرفة</h1>
-
         <div className={styles.roomCode}>
           <p className={styles.label}>رمز الغرفة</p>
           <div className={styles.code}>{room.roomCode}</div>

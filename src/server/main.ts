@@ -12,17 +12,13 @@ import registerHandleGame from "./socket/handleGame";
 import { gameListeners } from "./socket/gameListeners";
 import { registerRoomHandlers } from "./socket/roomHandlers";
 import { RoomManager } from "./classes/RoomManager";
+import "dotenv/config";
 
 const app = express();
-
-app.get("/hello", (_, res) => {
-  res.send("Hello Vite + React + TypeScript!");
-});
-
 const server = http.createServer(app);
 
-server.listen(3000, () => {
-  console.log("CONNECTED ON PORT 3000");
+server.listen(process.env.PORT, () => {
+  console.log(`CONNECTED ON PORT ${process.env.PORT}`);
 });
 
 ViteExpress.bind(app, server);
