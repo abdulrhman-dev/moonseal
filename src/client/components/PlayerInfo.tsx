@@ -1,14 +1,12 @@
 import { type OpponentPlayer, type Player } from "@/features/GameSlice";
 import {
-  Heart,
-  Wand2,
-  Sword,
-  Skull,
-  Flame,
-  Leaf,
-  Crown,
   Droplets,
-  Circle,
+  Flame,
+  Heart,
+  Leaf,
+  Skull,
+  Sword,
+  Wand2,
 } from "lucide-react";
 
 type PlayerInfoProps = {
@@ -25,80 +23,48 @@ export const PlayerInfo = ({
   if (!gameStarted) return null;
 
   const alignment = isOpponent ? "left-6" : "right-6";
-  const position = isOpponent ? "top-6" : "bottom-6";
+  const position = isOpponent ? "top-6" : "bottom-20";
+  const mana = "mana" in player ? player.mana : null;
+  const manaTotal = mana
+    ? mana.white +
+      mana.blue +
+      mana.black +
+      mana.red +
+      mana.green +
+      mana.colorless
+    : 0;
 
   return (
     <div
-      className={`pointer-events-none fixed ${alignment} ${position} flex flex-col gap-3 rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-100 shadow-2xl shadow-slate-950/40 backdrop-blur-xl`}
+      className={`pointer-events-none fixed ${alignment} ${position} flex items-center gap-1.5 rounded-full border border-white/10 bg-slate-950/55 px-3 py-2 text-slate-100 shadow-2xl shadow-slate-950/30 backdrop-blur-xl`}
     >
-      {/* Life Total */}
-      <div className="flex items-center gap-3">
-        <div className="flex size-9 items-center justify-center rounded-full bg-rose-500/20 ring-1 ring-rose-400/50">
-          <Heart className="size-5 text-rose-400" fill="currentColor" />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-xs text-slate-400">Life Total</span>
-          <span className="text-lg font-bold text-rose-300">{player.life}</span>
-        </div>
+      <div className="flex items-center gap-1.5 rounded-full bg-rose-500/10 px-2.5 py-1.5 text-xs font-semibold text-rose-100 ring-1 ring-rose-400/15">
+        <Heart className="size-3.5 text-rose-300" fill="currentColor" />
+        {player.life}
       </div>
-
-      {/* Cards in Hand */}
-      <div className="flex items-center gap-3">
-        <div className="flex size-9 items-center justify-center rounded-full bg-indigo-500/20 ring-1 ring-indigo-400/50">
-          <Wand2 className="size-5 text-indigo-400" />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-xs text-slate-400">Hand</span>
-          <span className="font-semibold text-indigo-300">
-            {player.hand.length} cards
-          </span>
-        </div>
+      <div className="flex items-center gap-1.5 rounded-full bg-indigo-500/10 px-2.5 py-1.5 text-xs font-semibold text-indigo-100 ring-1 ring-indigo-400/15">
+        <Wand2 className="size-3.5 text-indigo-300" />
+        {player.hand.length}
       </div>
-
-      {/* Mana Pool */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Crown className="size-4 text-slate-400" />
-          <span className="text-xs text-slate-400">Mana</span>
-        </div>
+      <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1.5 text-xs font-semibold text-emerald-100 ring-1 ring-emerald-400/15">
+        <Sword className="size-3.5 text-emerald-300" />
+        {player.battlefield.creatures.length}
       </div>
-
-      {/* Battlefield Stats */}
-      <div className="space-y-1.5 border-t border-white/10 pt-2">
-        <div className="flex items-center gap-3">
-          <div className="flex size-7 items-center justify-center rounded-full bg-green-500/20 ring-1 ring-green-400/40">
-            <Sword className="size-4 text-green-400" />
-          </div>
-          <span className="text-slate-300">
-            {player.battlefield.creatures.length} creatures
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex size-7 items-center justify-center rounded-full bg-amber-500/20 ring-1 ring-amber-400/40">
-            <Leaf className="size-4 text-amber-400" />
-          </div>
-          <span className="text-slate-300">
-            {player.battlefield.lands.length} lands
-          </span>
-        </div>
+      <div className="flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-1.5 text-xs font-semibold text-amber-100 ring-1 ring-amber-400/15">
+        <Leaf className="size-3.5 text-amber-300" />
+        {player.battlefield.lands.length}
       </div>
-
-      {/* Graveyard & Exile */}
-      <div className="space-y-1.5 border-t border-white/10 pt-2">
-        <div className="flex items-center gap-3">
-          <div className="flex size-7 items-center justify-center rounded-full bg-purple-500/20 ring-1 ring-purple-400/40">
-            <Skull className="size-4 text-purple-400" />
-          </div>
-          <span className="text-slate-300">
-            {player.graveyard.length} graveyard
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex size-7 items-center justify-center rounded-full bg-yellow-500/20 ring-1 ring-yellow-400/40">
-            <Flame className="size-4 text-yellow-400" />
-          </div>
-          <span className="text-slate-300">{player.exile.length} exiled</span>
-        </div>
+      <div className="flex items-center gap-1.5 rounded-full bg-purple-500/10 px-2.5 py-1.5 text-xs font-semibold text-purple-100 ring-1 ring-purple-400/15">
+        <Skull className="size-3.5 text-purple-300" />
+        {player.graveyard.length}
+      </div>
+      <div className="flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-2.5 py-1.5 text-xs font-semibold text-yellow-100 ring-1 ring-yellow-400/15">
+        <Flame className="size-3.5 text-yellow-300" />
+        {player.exile.length}
+      </div>
+      <div className="flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-slate-100 ring-1 ring-white/10">
+        <Droplets className="size-3.5 text-sky-300" />
+        {manaTotal}
       </div>
     </div>
   );

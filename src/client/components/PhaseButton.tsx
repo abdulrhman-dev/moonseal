@@ -2,17 +2,10 @@ import type { RootState } from "@/features/store";
 import { useSelector } from "react-redux";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { socketEmit } from "@/features/socket/SocketFactory";
 import { useEffect, useState } from "react";
 
 export const PhaseButton = () => {
-  const [turnSkip, setTurnSkip] = useState({
-    autoPassPriority: false,
-    autoResolvePriority: false,
-  });
-
   const game = useSelector((state: RootState) => state.game);
   const targetsRules = useSelector(
     (state: RootState) => state.targeting.targetsRules,
@@ -26,16 +19,6 @@ export const PhaseButton = () => {
       ? { variant: "default", buttonText: "Next" }
       : { variant: "secondary", buttonText: "Pass" },
   );
-
-  const handleAutoPassCheck = (checked: boolean) => {
-    const newTurnSkip = {
-      ...turnSkip,
-      autoPassPriority: checked,
-    };
-
-    socketEmit({ name: "turn-skip:action", data: newTurnSkip });
-    setTurnSkip(newTurnSkip);
-  };
 
   async function handleButtonClick() {
     if (game.currentPhase === "COMBAT_ATTACK" && !game.declaredAttackers) {
@@ -88,7 +71,7 @@ export const PhaseButton = () => {
     if (game.currentPhase === "COMBAT_ATTACK" && !game.declaredAttackers) {
       setButtonData({
         variant: "default",
-        buttonText: "Declare Attackers",
+        buttonText: "إعلان المهاجمين",
       });
       return;
     }
@@ -96,7 +79,7 @@ export const PhaseButton = () => {
     if (game.currentPhase === "COMBAT_BLOCK" && !game.declaredBlockers) {
       setButtonData({
         variant: "secondary",
-        buttonText: "Declare Blockers",
+        buttonText: "إعلان الحواجز",
       });
       return;
     }
@@ -104,7 +87,7 @@ export const PhaseButton = () => {
     if (game.currentPhase === "COMBAT_DAMAGE" && !game.declaredAssignDamage) {
       setButtonData({
         variant: "default",
-        buttonText: "Assign Damage",
+        buttonText: "توزيع الضرر",
       });
       return;
     }
@@ -112,12 +95,12 @@ export const PhaseButton = () => {
     if (game.isActive) {
       setButtonData({
         variant: "default",
-        buttonText: "Next",
+        buttonText: "التالي",
       });
     } else {
       setButtonData({
         variant: "secondary",
-        buttonText: "Pass",
+        buttonText: "مرر",
       });
     }
   }, [
@@ -134,35 +117,31 @@ export const PhaseButton = () => {
     game.currentPhase === "COMBAT_BLOCK" &&
     !game.declaredBlockers;
 
+  const canClick =
+    ((game.priority === 1 &&
+      (game.currentPhase === "COMBAT_BLOCK" ? game.declaredBlockers : true)) ||
+      defending) &&
+    !isDisabled();
+
+  const isNextButton = buttonData.buttonText === "التالي";
+  const nextButtonClasses =
+    "pointer-events-auto h-14 min-w-44 rounded-full border border-indigo-400/60 bg-indigo-600 px-6 text-base font-semibold text-white shadow-[0_0_28px_rgba(79,70,229,0.55)] shadow-indigo-950/30 ring-1 ring-indigo-400/60 transition-transform hover:-translate-y-0.5 hover:bg-indigo-500 hover:shadow-[0_0_38px_rgba(79,70,229,0.75)]";
+  const otherButtonClasses =
+    "pointer-events-auto h-14 min-w-44 rounded-full border border-white/10 bg-slate-900/70 px-6 text-base font-semibold text-slate-100 shadow-xl shadow-slate-950/30 backdrop-blur transition-transform hover:-translate-y-0.5 hover:bg-slate-900";
+
   return (
-    <div className="bg-red-500 w-50 h-50 bottom-5 right-6 ">
-      {((game.priority === 1 &&
-        (game.currentPhase === "COMBAT_BLOCK"
-          ? game.declaredBlockers
-          : true)) ||
-        defending) && (
+    <div className="pointer-events-none fixed left-6 bottom-6 flex flex-col items-start gap-3">
+      {canClick && (
         <Button
           onClick={handleButtonClick}
-          variant={buttonData.variant}
+          variant={isNextButton ? "default" : buttonData.variant}
           size="lg"
-          disabled={isDisabled()}
-          className="h-14 min-w-44 rounded-full border border-white/10 bg-primary px-6 text-base font-semibold shadow-xl shadow-indigo-950/20 backdrop-blur transition-transform hover:-translate-y-0.5"
+          disabled={!canClick}
+          className={isNextButton ? nextButtonClasses : otherButtonClasses}
         >
           {buttonData.buttonText}
         </Button>
       )}
-
-      <div className="pointer-events-auto fixed flex items-center gap-3 rounded-full border border-white/10 bg-slate-950/60 px-4 py-2 text-sm text-slate-100 shadow-xl shadow-slate-950/30 backdrop-blur-xl">
-        <Checkbox
-          id="auto-pass"
-          checked={turnSkip.autoPassPriority}
-          onCheckedChange={(checked) => handleAutoPassCheck(checked === true)}
-          className="border-white/20 data-[state=checked]:border-primary data-[state=checked]:bg-primary"
-        />
-        <Label htmlFor="auto-pass" className="cursor-pointer text-sm">
-          Auto Skip Priority
-        </Label>
-      </div>
     </div>
   );
 };
