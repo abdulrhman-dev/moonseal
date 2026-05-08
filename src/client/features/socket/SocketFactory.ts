@@ -11,7 +11,7 @@ export interface SocketInterface {
 
 class SocketConnection implements SocketInterface {
   socket: Socket<ServerToClientEvents, ClientToServerEvents>;
-  socketEndpoint = import.meta.env.VITE_SOCKET_SERVER;
+  socketEndpoint = window.location.origin;
 
   constructor() {
     this.socket = io(this.socketEndpoint);
