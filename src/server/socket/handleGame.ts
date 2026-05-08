@@ -8,7 +8,7 @@ import { registerGameListeners } from "./gameListeners";
 
 export default async function registerHandleGame(
   io: IO,
-  playerSockets: ServerSocket[]
+  playerSockets: ServerSocket[],
 ) {
   console.log("STARTED GAME");
   const game = new Game(io, playerSockets);
@@ -23,14 +23,14 @@ export default async function registerHandleGame(
     playerSocket.join("game");
     updateLists(io, playerSocket, game, "hand");
   }
-  // handleGameMulligan(playerSockets, game);
-  game.startGame();
-  registerGameListeners(game);
+  handleGameMulligan(playerSockets, game);
+  // game.startGame();
+  // registerGameListeners(game);
 }
 
 export const getTargets = (
   socket: ServerSocket,
-  data: InitilizeTargetingArgs
+  data: InitilizeTargetingArgs,
 ): Promise<Target[]> => {
   return new Promise((resolve) => {
     socket.emit("targeting:change", data);
@@ -77,7 +77,7 @@ const handleGameMulligan = (playerSockets: ServerSocket[], game: Game) => {
 async function handleDiscardCards(
   playerSocket: ServerSocket,
   player: Player,
-  mulliganCount: number
+  mulliganCount: number,
 ) {
   if (mulliganCount > 0) {
     const discardHandRule: TargetData = {
@@ -100,11 +100,11 @@ async function handleDiscardCards(
     console.log("===========================================");
     console.log(
       "HAND: ",
-      player.hand.collection.map((card) => card.id)
+      player.hand.collection.map((card) => card.id),
     );
     console.log(
       "TARGETS: ",
-      targets.map((target) => target.data.id)
+      targets.map((target) => target.data.id),
     );
 
     for (const target of targets) {
@@ -112,7 +112,7 @@ async function handleDiscardCards(
       const card = player.hand.search(target.data.id);
       if (!card) {
         throw new Error(
-          `Target not found on server ${target.data.name} - ${target.data.id}`
+          `Target not found on server ${target.data.name} - ${target.data.id}`,
         );
       }
       console.log("ACTION:", card.id);
@@ -145,7 +145,7 @@ export function updateLists(
   io: IO,
   playerSocket: ServerSocket,
   game: Game,
-  listName: listNames
+  listName: listNames,
 ) {
   const playerNum = playerSocket.data.playerNum;
 
@@ -193,7 +193,7 @@ export function updateLists(
 export function updatePlayerList(
   socket: ServerSocket,
   player: Player,
-  listName: listNames
+  listName: listNames,
 ) {
   if (listName !== "battlefield") {
     socket.emit("list:change", {
@@ -236,7 +236,7 @@ export function updateActivePlayer(game: Game) {
       game.activePlayer,
       " PLAYER NUMBER: ",
       playerSocket.data.playerNum,
-      playerSocket.id
+      playerSocket.id,
     );
     playerSocket.emit("active-player:change", {
       activePlayer: playerSocket.data.playerNum === game.activePlayer,

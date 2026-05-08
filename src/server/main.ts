@@ -61,7 +61,7 @@ io.on("connect", async (socket: ServerSocket) => {
     connectionLimit++;
     choosedDecks = 0;
     playerSockets = playerSockets.filter(
-      (playerSocket) => playerSocket.id !== socket.id
+      (playerSocket) => playerSocket.id !== socket.id,
     );
   });
 
@@ -73,9 +73,4 @@ io.on("connect", async (socket: ServerSocket) => {
       registerHandleGame(io, playerSockets);
     }
   });
-
-  socket.data.deckNumber = 4;
-  if (connectionLimit == 0) {
-    registerHandleGame(io, playerSockets);
-  }
 });
