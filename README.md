@@ -16,6 +16,10 @@ Moonseal
   <img src="https://img.shields.io/badge/Redux-764ABC?style=for-the-badge&logo=redux&logoColor=white" >
   <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwind-css&logoColor=white" >
 </p>
+<p align="center">
+  <a href="https://moonseal-production.up.railway.app/"><img src="https://img.shields.io/badge/Live-Demo-green?style=for-the-badge" ></a>
+</p>
+
 
 <p align="center">
   A real-time multiplayer Magic: The Gathering game engine with 3D card visualization, live battlefield rendering, and socket-based gameplay synchronization. Full-stack TypeScript application featuring interactive card mechanics, player targeting systems, damage assignment, and phase management with an immersive 3D UI.
