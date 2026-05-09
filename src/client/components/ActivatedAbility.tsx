@@ -68,7 +68,7 @@ export const ActivatedAbility = ({
   };
 
   return (
-    <div className="pointer-events-auto flex max-w-60 flex-wrap gap-2 rounded-2xl border border-indigo-300/25 bg-indigo-950/58 p-2 shadow-[0_12px_30px_rgba(12,10,35,0.52)] backdrop-blur-xl">
+    <div className="pointer-events-auto absolute left-1/2 top-1/2 flex w-[calc(var(--card-width)*0.84)] -translate-x-1/2 -translate-y-1/2 flex-wrap justify-center gap-2 rounded-2xl border border-indigo-300/25 bg-indigo-950/68 p-2.5 shadow-[0_12px_30px_rgba(12,10,35,0.52)] backdrop-blur-xl">
       {activatedAbilities.map((activatedAbility, index) => (
         <Button
           key={index}
