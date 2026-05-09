@@ -41,24 +41,6 @@ const UILayer = () => {
   return (
     <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden">
       {/* Deck Selection - Only before game starts */}
-      {game.currentPhase === "NONE" && !gameStarted && (
-        <div className="pointer-events-auto fixed top-6 right-6 flex items-center gap-2 rounded-full border border-white/10 bg-slate-950/60 p-2 shadow-2xl shadow-slate-950/30 backdrop-blur-xl">
-          {[1, 2, 3, 4].map((deckNum) => (
-            <Button
-              key={deckNum}
-              size="icon-sm"
-              variant="secondary"
-              className="h-9 w-9 rounded-full bg-white/5 text-sm font-semibold text-slate-100 hover:bg-primary hover:text-primary-foreground"
-              onClick={() =>
-                socketEmit({ name: "choose-deck:action", data: deckNum })
-              }
-            >
-              {deckNum}
-            </Button>
-          ))}
-        </div>
-      )}
-
       {/* Mulligan Modal - Only before game starts */}
       {!gameStarted && <Mulligan />}
 
@@ -75,7 +57,7 @@ const UILayer = () => {
       />
 
       {/* Phase Button and Auto-Skip */}
-      <PhaseButton />
+      {gameStarted && <PhaseButton />}
 
       {/* Phase Display - Always visible */}
       <div className="pointer-events-none fixed right-6 bottom-6 rounded-full border border-white/10 bg-slate-950/55 px-4 py-2 text-sm font-medium tracking-[0.08em] text-slate-100 shadow-lg shadow-slate-950/30 backdrop-blur-xl">

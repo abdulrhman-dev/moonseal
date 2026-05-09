@@ -2,6 +2,7 @@
 import { useSelector } from "react-redux";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { socketEmit } from "@/features/socket/SocketFactory";
 import { useEffect, useState } from "react";
 
@@ -19,6 +20,24 @@ export const PhaseButton = () => {
       ? { variant: "default", buttonText: "التالي" }
       : { variant: "secondary", buttonText: "تمرير" },
   );
+
+  const [turnSkip, setTurnSkip] = useState({
+    autoPassPriority: false,
+    autoResolvePriority: false,
+  });
+
+  const handleAutoSkip = () => {
+    const newTurnSkip = {
+      ...turnSkip,
+      autoPassPriority: !turnSkip.autoPassPriority,
+    };
+
+    socketEmit({
+      name: "turn-skip:action",
+      data: newTurnSkip,
+    });
+    setTurnSkip(newTurnSkip);
+  };
 
   async function handleButtonClick() {
     if (game.currentPhase === "COMBAT_ATTACK" && !game.declaredAttackers) {
@@ -130,7 +149,10 @@ export const PhaseButton = () => {
     "pointer-events-auto h-14 min-w-44 rounded-full border border-indigo-200/20 bg-indigo-950/70 px-6 text-base font-semibold text-indigo-50 shadow-[0_14px_28px_rgba(9,8,24,0.45)] backdrop-blur transition-transform hover:-translate-y-0.5 hover:border-indigo-200/45 hover:bg-indigo-900/72";
 
   return (
-    <div className="pointer-events-none fixed left-6 bottom-6 flex flex-col items-start gap-3" dir="rtl">
+    <div
+      className="pointer-events-none fixed left-6 bottom-6 flex flex-col items-start gap-3"
+      dir="rtl"
+    >
       {canClick && (
         <Button
           onClick={handleButtonClick}
@@ -142,6 +164,22 @@ export const PhaseButton = () => {
           {buttonData.buttonText}
         </Button>
       )}
+
+      <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-white/10 bg-slate-950/55 px-4 py-2 text-sm font-medium tracking-[0.08em] text-slate-100 shadow-lg shadow-slate-950/30 backdrop-blur-xl">
+        <Checkbox
+          id="auto-skip"
+          name="auto-skip"
+          checked={turnSkip.autoPassPriority}
+          onCheckedChange={handleAutoSkip}
+          className="size-5 rounded-md border border-white/15 bg-white/5 text-cyan-200 shadow-inner shadow-black/20 transition-colors data-[state=checked]:border-cyan-300 data-[state=checked]:bg-cyan-500 data-[state=checked]:text-slate-950 focus-visible:ring-2 focus-visible:ring-cyan-300/50"
+        />
+        <label
+          htmlFor="auto-skip"
+          className="cursor-pointer select-none text-slate-100/90"
+        >
+          تخطى الأولوية تلقائيًا
+        </label>
+      </div>
     </div>
   );
 };
